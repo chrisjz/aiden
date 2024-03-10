@@ -40,7 +40,8 @@ public class ChatGPTIntegration : MonoBehaviour
             Debug.Log($"Using ChatGPT API key: {apiKey}");
             request.SetRequestHeader("Authorization", "Bearer " + apiKey);
         }
-        else {
+        else
+        {
             Debug.LogError("Could not find ChatGPT API key.");
         }
 

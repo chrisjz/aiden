@@ -14,6 +14,15 @@
 *.meta merge=unityyamlmerge eol=lf
 *.controller merge=unityyamlmerge eol=lf
 
+## Python ##
+
+aiden/* text eol=lf
+
+## General ##
+
+compose/* text eol=lf
+.env.template text eol=lf
+docker-compose.yml text eol=lf
 
 ## git-lfs ##
 

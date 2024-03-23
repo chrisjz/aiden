@@ -1,6 +1,21 @@
 version: '3.8'
 services:
-  whisper-api:
-    build: .
+  auditory-api:
+    build:
+      context: .
+      dockerfile: ./compose/auditory/Dockerfile
     ports:
       - "8081:80"
+  vision-api:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    pull_policy: always
+    tty: true
+    restart: always
+    volumes:
+      - ./compose/vision/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
+    environment:
+      - ENABLE_VISION_API=${ENABLE_VISION_API:-false}
+      - MODEL_VISION=${MODEL_VISION:-llava}

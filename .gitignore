@@ -56,6 +56,9 @@ ExportedObj/
 # Unity3D generated file on crash reports
 sysinfo.txt
 
+# Unity3D generated upgrade files
+UpgradeLog.htm
+
 # Builds
 *.apk
 *.aab
@@ -71,6 +74,9 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Visual Studio
+.vsconfig
 
 # Environment files
 .env

@@ -32,6 +32,7 @@ public class CognitiveAPIIntegration : MonoBehaviour
         {
             Debug.LogError("Could not find cognitive model.");
         }
+        
         StartCoroutine(StreamRequest(playerMessage, modelName));
     }
 

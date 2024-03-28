@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using TMPro;
+using CandyCoded.env;
 
 public class VisionAPIIntegration : MonoBehaviour
 {
@@ -27,34 +28,66 @@ public class VisionAPIIntegration : MonoBehaviour
             return;
         }
 
-        string prompt = promptInputField.text;
+        string prompt = "What do you see?";
         Texture2D capturedImage = CaptureCameraRenderTexture();
         string base64Image = TextureToBase64(capturedImage);
-        StartCoroutine(PostRequest(prompt, base64Image));
+
+        if (env.TryParseEnvironmentVariable("MODEL_VISION", out string modelName))
+        {
+            Debug.Log($"Using vision model: {modelName}");
+        }
+        else
+        {
+            Debug.LogError("Could not find vision model.");
+        }
+
+        StartCoroutine(StreamRequest(prompt, modelName, base64Image));
     }
 
-    private IEnumerator PostRequest(string prompt, string base64Image)
+    private IEnumerator StreamRequest(string prompt, string modelName, string base64Image)
     {
-        var json = $"{{\"model\": \"llava\", \"prompt\": \"{prompt}\", \"images\": [\"{base64Image}\"]}}";
+        var json = $"{{\"model\": \"{modelName}\", \"prompt\": \"{prompt}\", \"images\": [\"{base64Image}\"]}}";
         var request = new UnityWebRequest(apiURL, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
+        request.SendWebRequest();
 
-        yield return request.SendWebRequest();
+        int lastProcessedPosition = 0;
+        string fullResponseText = "";
+        while (!request.isDone)
+        {
+            if (request.downloadHandler.data != null)
+            {
+                string fullResponse = System.Text.Encoding.UTF8.GetString(request.downloadHandler.data);
+                string newResponse = fullResponse.Substring(lastProcessedPosition);
+                lastProcessedPosition = fullResponse.Length;
+
+                string[] messages = newResponse.Split('\n');
+                foreach (string messageJson in messages)
+                {
+                    if (!string.IsNullOrWhiteSpace(messageJson))
+                    {
+                        var responseObject = JsonUtility.FromJson<VisionResponse>(messageJson);
+                        if (responseObject != null && responseObject.response != null)
+                        {
+                            fullResponseText += responseObject.response;
+                        }
+                    }
+                }
+            }
+            yield return null;
+        }
+
+        UpdateResponseText(fullResponseText.Trim());
 
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError(request.error);
         }
-        else
-        {
-            string response = request.downloadHandler.text;
-            Debug.Log(response);
-            UpdateResponseText(response);
-        }
     }
+
 
     private void UpdateResponseText(string text)
     {
@@ -82,4 +115,14 @@ public class VisionAPIIntegration : MonoBehaviour
         byte[] imageBytes = texture.EncodeToPNG();
         return Convert.ToBase64String(imageBytes);
     }
+}
+
+// Define classes to match the JSON structure of the response
+[Serializable]
+public class VisionResponse
+{
+    public string model;
+    public string created_at;
+    public string response;
+    public bool done;
 }

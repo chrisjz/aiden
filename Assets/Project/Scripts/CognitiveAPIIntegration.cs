@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using TMPro;
+using CandyCoded.env;
 
 public class CognitiveAPIIntegration : MonoBehaviour
 {
@@ -22,12 +23,21 @@ public class CognitiveAPIIntegration : MonoBehaviour
     {
         string playerMessage = playerInputField.text;
         responseText.text = "";
-        StartCoroutine(StreamRequest(playerMessage));
+
+        if (env.TryParseEnvironmentVariable("MODEL_COGNITIVE", out string modelName))
+        {
+            Debug.Log($"Using cognitive model: {modelName}");
+        }
+        else
+        {
+            Debug.LogError("Could not find cognitive model.");
+        }
+        StartCoroutine(StreamRequest(playerMessage, modelName));
     }
 
-    private IEnumerator StreamRequest(string message)
+    private IEnumerator StreamRequest(string message, string modelName)
     {
-        var json = $"{{\"model\": \"mistral\", \"messages\": [{{\"role\": \"user\", \"content\": \"{message}\"}}]}}";
+        var json = $"{{\"model\": \"{modelName}\", \"messages\": [{{\"role\": \"user\", \"content\": \"{message}\"}}]}}";
         var request = new UnityWebRequest(apiURL, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);

@@ -1,4 +1,10 @@
-version: '3.8'
+version: '3.9'
+
+x-base_service: &base_service
+  pull_policy: always
+  tty: true
+  restart: always
+
 services:
   auditory-api:
     build:
@@ -6,16 +12,67 @@ services:
       dockerfile: ./compose/auditory/Dockerfile
     ports:
       - "8081:80"
+
   vision-api:
+    <<: *base_service
+    profiles: ["vision-gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     image: ollama/ollama
     ports:
-      - "11434:11434"
-    pull_policy: always
-    tty: true
-    restart: always
+      - "11435:11434"
     volumes:
       - ./compose/vision/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/entrypoint.sh"]
     environment:
-      - ENABLE_VISION_API=${ENABLE_VISION_API:-false}
       - MODEL_VISION=${MODEL_VISION:-llava}
+
+  vision-api-cpu:
+    <<: *base_service
+    profiles: ["vision-cpu"]
+    deploy: {}
+    image: ollama/ollama
+    ports:
+      - "11435:11434"
+    volumes:
+      - ./compose/vision/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
+    environment:
+      - MODEL_VISION=${MODEL_VISION:-llava}
+
+  cognitive-api:
+    <<: *base_service
+    profiles: ["cognitive-gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./compose/cognitive/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
+    environment:
+      - MODEL_COGNITIVE=${MODEL_COGNITIVE:-mistral}
+
+  cognitive-api-cpu:
+    <<: *base_service
+    profiles: ["cognitive-cpu"]
+    deploy: {}
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./compose/cognitive/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
+    environment:
+      - MODEL_COGNITIVE=${MODEL_COGNITIVE:-mistral}

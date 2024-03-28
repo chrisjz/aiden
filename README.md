@@ -18,9 +18,70 @@ Make a copy of `.env.template` called `.env` and update any required values.
 
 ## Usage
 
-Start all services for the AIden AI:
-```shell
-docker compose up
-```
+### Starting Services
+
+You can start specific services of the AIden AI using profiles. Profiles allow you to choose which services to run and whether to use CPU or GPU resources.
+
+- **Start all services with GPU support:**
+  ```shell
+  docker compose --profile vision-gpu --profile cognitive-gpu up -d
+  ```
+
+- **Start all services in CPU-only mode:**
+  ```shell
+  docker compose --profile vision-cpu --profile cognitive-cpu up -d
+  ```
+
+- **Start only the auditory service:**
+  ```shell
+  docker compose --profile auditory up -d
+  ```
+
+- **Start the vision service with GPU support:**
+  ```shell
+  docker compose --profile vision-gpu up -d
+  ```
+
+- **Start the cognitive service in CPU-only mode:**
+  ```shell
+  docker compose --profile cognitive-cpu up -d
+  ```
+
+### Stopping Services
+
+To stop services, you need to use the same profiles that were used to start them. For example:
+
+- **Stop all services with GPU support:**
+  ```shell
+  docker compose --profile vision-gpu --profile cognitive-gpu stop
+  ```
+
+- **Stop all services in CPU-only mode:**
+  ```shell
+  docker compose --profile vision-cpu --profile cognitive-cpu stop
+  ```
+
+- **Stop only the auditory service:**
+  ```shell
+  docker compose --profile auditory stop
+  ```
+
+- **Stop the vision service with GPU support:**
+  ```shell
+  docker compose --profile vision-gpu stop
+  ```
+
+- **Stop the cognitive service in CPU-only mode:**
+  ```shell
+  docker compose --profile cognitive-cpu stop
+  ```
+
+### Service Notes
+
+- The services are optional and can be started individually or in combination based on your requirements.
+- You can choose between CPU and GPU profiles for the `vision-api` and `cognitive-api` services depending on your hardware and performance needs.
+- The `auditory-api` service does not have separate CPU and GPU profiles.
+
+### Starting Simulation
 
 Run the Unity simulation.

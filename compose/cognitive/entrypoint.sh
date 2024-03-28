@@ -7,4 +7,4 @@ ollama start &
 sleep 5
 
 # Run Ollama with the specified model
-ollama run "$MODEL_VISION"
+ollama run "$MODEL_COGNITIVE"

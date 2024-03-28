@@ -78,8 +78,14 @@ public class CognitiveAPIIntegration : MonoBehaviour
 
     private void UpdateResponseText(string text)
     {
-        string trimmedText = text.Trim();
-        responseText.text += trimmedText + " ";
+        // Trim leading space for just the first word
+        if (responseText.text == "")
+        {
+            string trimmedText = text.TrimStart();
+            responseText.text += trimmedText;
+        } else {
+            responseText.text += text;
+        }
     }
 }
 

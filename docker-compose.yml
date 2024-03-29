@@ -26,11 +26,9 @@ services:
     image: ollama/ollama
     ports:
       - "11435:11434"
-    volumes:
-      - ./compose/vision/entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/entrypoint.sh"]
     environment:
       - MODEL_VISION=${MODEL_VISION:-llava}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_VISION}"]
 
   vision-api-cpu:
     <<: *base_service
@@ -39,11 +37,9 @@ services:
     image: ollama/ollama
     ports:
       - "11435:11434"
-    volumes:
-      - ./compose/vision/entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/entrypoint.sh"]
     environment:
       - MODEL_VISION=${MODEL_VISION:-llava}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_VISION}"]
 
   cognitive-api:
     <<: *base_service
@@ -58,11 +54,9 @@ services:
     image: ollama/ollama
     ports:
       - "11434:11434"
-    volumes:
-      - ./compose/cognitive/entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/entrypoint.sh"]
     environment:
       - MODEL_COGNITIVE=${MODEL_COGNITIVE:-mistral}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_COGNITIVE}"]
 
   cognitive-api-cpu:
     <<: *base_service
@@ -71,8 +65,6 @@ services:
     image: ollama/ollama
     ports:
       - "11434:11434"
-    volumes:
-      - ./compose/cognitive/entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/entrypoint.sh"]
     environment:
       - MODEL_COGNITIVE=${MODEL_COGNITIVE:-mistral}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_COGNITIVE}"]

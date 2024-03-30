@@ -47,6 +47,10 @@ You can start specific services of the AIden AI using profiles. Profiles allow y
   docker compose --profile cognitive-cpu up -d
   ```
 
+> **_NOTE:_**  When you first start a service with a new model,
+you will need to wait for the model to download before the API
+is available.
+
 ### Stopping Services
 
 To stop services, you need to use the same profiles that were used to start them. For example:

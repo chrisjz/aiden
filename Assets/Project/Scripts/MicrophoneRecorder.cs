@@ -113,7 +113,6 @@ public class MicrophoneRecorder : MonoBehaviour
         Byte[] subChunk1 = BitConverter.GetBytes(16);
         fileStream.Write(subChunk1, 0, 4);
 
-        UInt16 two = 2;
         UInt16 one = 1;
 
         Byte[] audioFormat = BitConverter.GetBytes(one);

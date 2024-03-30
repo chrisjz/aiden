@@ -16,14 +16,14 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 # Copy the project files
-COPY pyproject.toml poetry.lock ./
+COPY ./compose/auditory/pyproject.toml ./compose/auditory/poetry.lock ./
 
 # Install project dependencies
 RUN poetry config virtualenvs.create false \
   && poetry install --only main --no-interaction --no-ansi
 
 # Copy relevant project files
-COPY aiden .
+COPY ./aiden/api/whisper.py ./aiden/api/whisper.py
 
 # Run the application
 CMD ["uvicorn", "aiden.api.whisper:app", "--host", "0.0.0.0", "--port", "80"]

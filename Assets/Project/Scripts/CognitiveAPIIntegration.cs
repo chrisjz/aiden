@@ -12,10 +12,36 @@ public class CognitiveAPIIntegration : MonoBehaviour
     public TMP_Text responseText;
     public Button sendButton;
 
-    private string apiURL = "http://localhost:11434/api/chat";
+    private string apiURL;
+    private string modelName;
 
     private void Start()
     {
+        // Set API URL from environment variables
+        if (env.TryParseEnvironmentVariable("COGNITIVE_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("COGNITIVE_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("COGNITIVE_API_PORT", out string port))
+        {
+            apiURL = $"{protocol}://{host}:{port}/api/chat";
+            Debug.Log($"Cognitive API URL set to: {apiURL}");
+        }
+        else
+        {
+            Debug.LogError("Missing environment variables for Cognitive API URL.");
+            return;
+        }
+
+        // Set model name from environment variable
+        if (env.TryParseEnvironmentVariable("COGNITIVE_MODEL", out modelName))
+        {
+            Debug.Log($"Using cognitive model: {modelName}");
+        }
+        else
+        {
+            Debug.LogError("Could not find cognitive model.");
+            return;
+        }
+
         sendButton.onClick.AddListener(SendMessageToAIden);
     }
 
@@ -24,19 +50,11 @@ public class CognitiveAPIIntegration : MonoBehaviour
         string playerMessage = playerInputField.text;
         responseText.text = "";
 
-        if (env.TryParseEnvironmentVariable("MODEL_COGNITIVE", out string modelName))
-        {
-            Debug.Log($"Using cognitive model: {modelName}");
-        }
-        else
-        {
-            Debug.LogError("Could not find cognitive model.");
-        }
-        
-        StartCoroutine(StreamRequest(playerMessage, modelName));
+        Debug.Log("Start cognitive inference.");
+        StartCoroutine(StreamRequest(playerMessage));
     }
 
-    private IEnumerator StreamRequest(string message, string modelName)
+    private IEnumerator StreamRequest(string message)
     {
         var json = $"{{\"model\": \"{modelName}\", \"messages\": [{{\"role\": \"user\", \"content\": \"{message}\"}}]}}";
         var request = new UnityWebRequest(apiURL, "POST");

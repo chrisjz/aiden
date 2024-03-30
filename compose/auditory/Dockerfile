@@ -22,8 +22,8 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false \
   && poetry install --only main --no-interaction --no-ansi
 
-# Copy the rest of the project files
-COPY . .
+# Copy relevant project files
+COPY aiden .
 
 # Run the application
 CMD ["uvicorn", "aiden.api.whisper:app", "--host", "0.0.0.0", "--port", "80"]

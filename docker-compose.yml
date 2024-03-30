@@ -11,7 +11,9 @@ services:
       context: .
       dockerfile: ./compose/auditory/Dockerfile
     ports:
-      - "8081:80"
+      - "${AUDITORY_API_PORT:-8081}:80"
+    environment:
+      - AUDITORY_API_HOST=${AUDITORY_API_HOST:-0.0.0.0}
 
   vision-api:
     <<: *base_service
@@ -25,10 +27,12 @@ services:
               capabilities: [gpu]
     image: ollama/ollama
     ports:
-      - "11435:11434"
+      - "${VISION_API_PORT:-11435}:11434"
     environment:
-      - MODEL_VISION=${MODEL_VISION:-llava}
-    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_VISION}"]
+      - VISION_API_HOST=${VISION_API_HOST:-localhost}
+      - VISION_API_PROTOCOL=${VISION_API_PROTOCOL:-http}
+      - VISION_MODEL=${VISION_MODEL:-llava}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
 
   vision-api-cpu:
     <<: *base_service
@@ -36,10 +40,10 @@ services:
     deploy: {}
     image: ollama/ollama
     ports:
-      - "11435:11434"
+      - "${VISION_API_PORT:-11435}:11434"
     environment:
-      - MODEL_VISION=${MODEL_VISION:-llava}
-    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_VISION}"]
+      - VISION_MODEL=${VISION_MODEL:-llava}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
 
   cognitive-api:
     <<: *base_service
@@ -53,10 +57,10 @@ services:
               capabilities: [gpu]
     image: ollama/ollama
     ports:
-      - "11434:11434"
+      - "${COGNITIVE_API_PORT:-11434}:11434"
     environment:
-      - MODEL_COGNITIVE=${MODEL_COGNITIVE:-mistral}
-    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_COGNITIVE}"]
+      - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]
 
   cognitive-api-cpu:
     <<: *base_service
@@ -64,7 +68,7 @@ services:
     deploy: {}
     image: ollama/ollama
     ports:
-      - "11434:11434"
+      - "${COGNITIVE_API_PORT:-11434}:11434"
     environment:
-      - MODEL_COGNITIVE=${MODEL_COGNITIVE:-mistral}
-    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${MODEL_COGNITIVE}"]
+      - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]

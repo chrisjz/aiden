@@ -13,10 +13,36 @@ public class VisionAPIIntegration : MonoBehaviour
     public TMP_Text responseText;
     public Button sendButton;
 
-    private string apiURL = "http://localhost:11435/api/generate";
-
+    private string apiURL;
+    private string modelName;
+    
     private void Start()
     {
+        // Set API URL from environment variables
+        if (env.TryParseEnvironmentVariable("VISION_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("VISION_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("VISION_API_PORT", out string port))
+        {
+            apiURL = $"{protocol}://{host}:{port}/api/generate";
+            Debug.Log($"Vision API URL set to: {apiURL}");
+        }
+        else
+        {
+            Debug.LogError("Missing environment variables for vision API URL.");
+            return;
+        }
+
+        // Set model name from environment variable
+        if (env.TryParseEnvironmentVariable("VISION_MODEL", out modelName))
+        {
+            Debug.Log($"Using vision model: {modelName}");
+        }
+        else
+        {
+            Debug.LogError("Could not find vision model.");
+            return;
+        }
+
         sendButton.onClick.AddListener(SendRequestToVisionAPI);
     }
 
@@ -32,19 +58,11 @@ public class VisionAPIIntegration : MonoBehaviour
         Texture2D capturedImage = CaptureCameraRenderTexture();
         string base64Image = TextureToBase64(capturedImage);
 
-        if (env.TryParseEnvironmentVariable("MODEL_VISION", out string modelName))
-        {
-            Debug.Log($"Using vision model: {modelName}");
-        }
-        else
-        {
-            Debug.LogError("Could not find vision model.");
-        }
-
-        StartCoroutine(StreamRequest(prompt, modelName, base64Image));
+        Debug.Log("Start vision inference.");
+        StartCoroutine(StreamRequest(prompt, base64Image));
     }
 
-    private IEnumerator StreamRequest(string prompt, string modelName, string base64Image)
+    private IEnumerator StreamRequest(string prompt, string base64Image)
     {
         var json = $"{{\"model\": \"{modelName}\", \"prompt\": \"{prompt}\", \"images\": [\"{base64Image}\"]}}";
         var request = new UnityWebRequest(apiURL, "POST");

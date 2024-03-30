@@ -2,13 +2,30 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using TMPro;
+using CandyCoded.env;
 
 public class SpeechRecognition : MonoBehaviour
 {
     public TMP_InputField inputField;
 
+    private string apiURL;
+
     public void StartTranscription(string audioFilePath)
     {
+        // Set API URL from environment variables
+        if (env.TryParseEnvironmentVariable("AUDITORY_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("AUDITORY_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("AUDITORY_API_PORT", out string port))
+        {
+            apiURL = $"{protocol}://{host}:{port}/transcribe/";
+            Debug.Log($"Auditory API URL set to: {apiURL}");
+        }
+        else
+        {
+            Debug.LogError("Missing environment variables for auditory API URL.");
+            return;
+        }
+
         Debug.Log("Start transcription.");
         StartCoroutine(SendAudioFile(audioFilePath));
     }
@@ -20,7 +37,7 @@ public class SpeechRecognition : MonoBehaviour
         WWWForm form = new WWWForm();
         form.AddBinaryData("file", audioData, "audio.wav", "audio/wav");
 
-        using (UnityWebRequest www = UnityWebRequest.Post("http://localhost:8081/transcribe/", form))
+        using (UnityWebRequest www = UnityWebRequest.Post(apiURL, form))
         {
             yield return www.SendWebRequest();
 

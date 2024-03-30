@@ -15,6 +15,34 @@ services:
     environment:
       - AUDITORY_API_HOST=${AUDITORY_API_HOST:-0.0.0.0}
 
+  cognitive-api:
+    <<: *base_service
+    profiles: ["cognitive-gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    image: ollama/ollama
+    ports:
+      - "${COGNITIVE_API_PORT:-11434}:11434"
+    environment:
+      - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]
+
+  cognitive-api-cpu:
+    <<: *base_service
+    profiles: ["cognitive-cpu"]
+    deploy: {}
+    image: ollama/ollama
+    ports:
+      - "${COGNITIVE_API_PORT:-11434}:11434"
+    environment:
+      - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
+    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]
+
   vision-api:
     <<: *base_service
     profiles: ["vision-gpu"]
@@ -44,31 +72,3 @@ services:
     environment:
       - VISION_MODEL=${VISION_MODEL:-llava}
     entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
-
-  cognitive-api:
-    <<: *base_service
-    profiles: ["cognitive-gpu"]
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    image: ollama/ollama
-    ports:
-      - "${COGNITIVE_API_PORT:-11434}:11434"
-    environment:
-      - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
-    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]
-
-  cognitive-api-cpu:
-    <<: *base_service
-    profiles: ["cognitive-cpu"]
-    deploy: {}
-    image: ollama/ollama
-    ports:
-      - "${COGNITIVE_API_PORT:-11434}:11434"
-    environment:
-      - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
-    entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]

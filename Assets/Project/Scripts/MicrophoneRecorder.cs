@@ -36,9 +36,12 @@ public class MicrophoneRecorder : MonoBehaviour
             // Stop the recording
             Microphone.End(microphoneName);
 
+            // Convert audio to 16 kHz
+            AudioClip resampledClip = AudioResampler.Resample(recording, 16000);
+
             // Save the recording to a WAV file
             string filePath = Path.Combine(Application.persistentDataPath, "recording.wav");
-            SaveWavFile(filePath, recording);
+            SaveWavFile(filePath, resampledClip);
             Debug.Log($"Saved recording to {filePath}");
 
             // Pass the file path to the SpeechRecognition class for transcription

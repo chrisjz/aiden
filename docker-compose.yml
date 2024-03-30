@@ -72,3 +72,10 @@ services:
     environment:
       - VISION_MODEL=${VISION_MODEL:-llava}
     entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
+
+  vocal-api:
+    build:
+      context: .
+      dockerfile: ./compose/vocal/Dockerfile
+    ports:
+      - "${VOCAL_API_PORT}:80"

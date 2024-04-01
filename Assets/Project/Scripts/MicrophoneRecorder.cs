@@ -26,6 +26,7 @@ public class MicrophoneRecorder : MonoBehaviour
     public void StartRecording()
     {
         // Start recording from the microphone
+        Debug.Log("Start microphone recording");
         recording = Microphone.Start(microphoneName, false, recordingLength, sampleRate);
     }
 
@@ -34,6 +35,7 @@ public class MicrophoneRecorder : MonoBehaviour
         if (Microphone.IsRecording(microphoneName))
         {
             // Stop the recording
+            Debug.Log("Stop microphone recording");
             Microphone.End(microphoneName);
 
             // Convert audio to 16 kHz

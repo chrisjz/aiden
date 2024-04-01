@@ -7,13 +7,32 @@ x-base_service: &base_service
 
 services:
   auditory-api:
-    build:
-      context: .
-      dockerfile: ./compose/auditory/Dockerfile
+    <<: *base_service
+    profiles: ["auditory-gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    image: onerahmet/openai-whisper-asr-webservice:latest-gpu
     ports:
-      - "${AUDITORY_API_PORT:-8081}:80"
+      - "${AUDITORY_API_PORT:-9000}:9000"
     environment:
-      - AUDITORY_API_HOST=${AUDITORY_API_HOST:-0.0.0.0}
+      - ASR_MODEL=${AUDITORY_API_MODEL:-tiny}
+      - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
+
+  auditory-api-cpu:
+    <<: *base_service
+    profiles: ["auditory-cpu"]
+    deploy: {}
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    ports:
+      - "${AUDITORY_API_PORT:-9000}:9000"
+    environment:
+      - ASR_MODEL=${AUDITORY_API_MODEL:-tiny}
+      - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
 
   cognitive-api:
     <<: *base_service

@@ -24,28 +24,15 @@ You can start specific services of the AIden AI using profiles. Profiles allow y
 
 - **Start all services with GPU support:**
   ```shell
-  docker compose --profile vision-gpu --profile cognitive-gpu up -d
+  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu up -d
   ```
 
 - **Start all services in CPU-only mode:**
   ```shell
-  docker compose --profile vision-cpu --profile cognitive-cpu up -d
+  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu up -d
   ```
 
-- **Start only the auditory service:**
-  ```shell
-  docker compose --profile auditory up -d
-  ```
-
-- **Start the vision service with GPU support:**
-  ```shell
-  docker compose --profile vision-gpu up -d
-  ```
-
-- **Start the cognitive service in CPU-only mode:**
-  ```shell
-  docker compose --profile cognitive-cpu up -d
-  ```
+You can also have any combination of cpu and gpu services.
 
 > **_NOTE:_**  When you first start a service with a new model,
 you will need to wait for the model to download before the API
@@ -57,27 +44,12 @@ To stop services, you need to use the same profiles that were used to start them
 
 - **Stop all services with GPU support:**
   ```shell
-  docker compose --profile vision-gpu --profile cognitive-gpu stop
+  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu stop
   ```
 
 - **Stop all services in CPU-only mode:**
   ```shell
-  docker compose --profile vision-cpu --profile cognitive-cpu stop
-  ```
-
-- **Stop only the auditory service:**
-  ```shell
-  docker compose --profile auditory stop
-  ```
-
-- **Stop the vision service with GPU support:**
-  ```shell
-  docker compose --profile vision-gpu stop
-  ```
-
-- **Stop the cognitive service in CPU-only mode:**
-  ```shell
-  docker compose --profile cognitive-cpu stop
+  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu stop
   ```
 
 ### Service Notes

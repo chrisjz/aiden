@@ -17,7 +17,7 @@ public class SpeechRecognition : MonoBehaviour
             env.TryParseEnvironmentVariable("AUDITORY_API_HOST", out string host) &&
             env.TryParseEnvironmentVariable("AUDITORY_API_PORT", out string port))
         {
-            apiURL = $"{protocol}://{host}:{port}/transcribe/";
+            apiURL = $"{protocol}://{host}:{port}/asr";
             Debug.Log($"Auditory API URL set to: {apiURL}");
         }
         else
@@ -35,7 +35,7 @@ public class SpeechRecognition : MonoBehaviour
         byte[] audioData = System.IO.File.ReadAllBytes(filePath);
 
         WWWForm form = new WWWForm();
-        form.AddBinaryData("file", audioData, "audio.wav", "audio/wav");
+        form.AddBinaryData("audio_file", audioData, "audio.wav", "audio/wav");
 
         using (UnityWebRequest www = UnityWebRequest.Post(apiURL, form))
         {
@@ -43,13 +43,9 @@ public class SpeechRecognition : MonoBehaviour
 
             if (www.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("Transcription: " + www.downloadHandler.text);
-
-                // Parse the JSON response
-                TranscriptionResult result = JsonUtility.FromJson<TranscriptionResult>(www.downloadHandler.text);
-
-                // Update the InputField with the transcribed text
-                inputField.text = result.transcription;
+                string transcription = www.downloadHandler.text;
+                inputField.text = transcription;
+                Debug.Log("Transcription: " + transcription);
             }
             else
             {
@@ -57,12 +53,4 @@ public class SpeechRecognition : MonoBehaviour
             }
         }
     }
-}
-
-
-// Define a class to match the structure of the JSON response
-[System.Serializable]
-public class TranscriptionResult
-{
-    public string transcription;
 }

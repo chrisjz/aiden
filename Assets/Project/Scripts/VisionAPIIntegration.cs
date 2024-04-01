@@ -9,7 +9,7 @@ using CandyCoded.env;
 public class VisionAPIIntegration : MonoBehaviour
 {
     public Camera cameraToCapture;
-    public TMP_InputField promptInputField;
+    public string inputPrompt = "You are an AI with a virtual humanoid body and you are seeing through your eyes. Respond in first person. What do you see?";
     public TMP_Text responseText;
     public Button sendButton;
 
@@ -54,12 +54,11 @@ public class VisionAPIIntegration : MonoBehaviour
             return;
         }
 
-        string prompt = "What do you see?";
         Texture2D capturedImage = CaptureCameraRenderTexture();
         string base64Image = TextureToBase64(capturedImage);
 
         Debug.Log("Start vision inference.");
-        StartCoroutine(StreamRequest(prompt, base64Image));
+        StartCoroutine(StreamRequest(inputPrompt, base64Image));
     }
 
     private IEnumerator StreamRequest(string prompt, string base64Image)

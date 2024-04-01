@@ -961,9 +961,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 8754492422543301709, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+    - target: {fileID: 7886123083738020381, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_TagString
       value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 7923087312544926564, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: m_Radius
+      value: 0.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 8754492422543301709, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

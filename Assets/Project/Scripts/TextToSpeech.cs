@@ -9,6 +9,12 @@ public class TextToSpeech : MonoBehaviour
     public TMP_Text requestText;
 
     private string apiURL;
+    private AudioSource audioSource;
+
+    private void Start()
+    {
+        audioSource = gameObject.AddComponent<AudioSource>(); // Initialize the AudioSource component
+    }
 
     public void SynthesizeAndPlay()
     {
@@ -17,7 +23,7 @@ public class TextToSpeech : MonoBehaviour
             env.TryParseEnvironmentVariable("VOCAL_API_HOST", out string host) &&
             env.TryParseEnvironmentVariable("VOCAL_API_PORT", out string port))
         {
-            apiURL = $"{protocol}://{host}:{port}/synthesize/";
+            apiURL = $"{protocol}://{host}:{port}/api/tts";
             Debug.Log($"Vocal API URL set to: {apiURL}");
         }
         else
@@ -32,13 +38,10 @@ public class TextToSpeech : MonoBehaviour
 
     private IEnumerator SynthesizeSpeech(string text)
     {
-        WWWForm form = new WWWForm();
-        form.AddField("text", text);
+        string requestUrl = $"{apiURL}?text={UnityWebRequest.EscapeURL(text)}";
 
-        using (UnityWebRequest www = UnityWebRequest.Post(apiURL, form))
+        using (UnityWebRequest www = UnityWebRequest.Get(requestUrl))
         {
-            www.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
             yield return www.SendWebRequest();
 
             if (www.result != UnityWebRequest.Result.Success)
@@ -55,7 +58,10 @@ public class TextToSpeech : MonoBehaviour
                 }
                 else
                 {
-                    AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+                    if (audioSource.isPlaying)
+                    {
+                        audioSource.Stop();
+                    }
                     audioSource.clip = audioClip;
                     audioSource.Play();
                 }

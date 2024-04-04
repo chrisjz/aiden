@@ -93,8 +93,33 @@ services:
     entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
 
   vocal-api:
-    build:
-      context: .
-      dockerfile: ./compose/vocal/Dockerfile
+    <<: *base_service
+    profiles: ["vocal-gpu"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    image: ghcr.io/coqui-ai/tts
     ports:
-      - "${VOCAL_API_PORT}:80"
+      - "${VOCAL_API_PORT:-5002}:5002"
+    entrypoint: ["python3"]
+    command: ["TTS/server/server.py", "--model_name", "${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DDC}", "--use_cuda", "true"]
+    environment:
+      - MODEL=${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DCA}
+      - VOCODER=${VOCAL_API_VOCODER:-vocoder_models/en/ljspeech/multiband-melgan}
+
+  vocal-api-cpu:
+    <<: *base_service
+    profiles: ["vocal-cpu"]
+    deploy: {}
+    image: ghcr.io/coqui-ai/tts-cpu
+    ports:
+      - "${VOCAL_API_PORT:-5002}:5002"
+    entrypoint: ["python3"]
+    command: ["TTS/server/server.py", "--model_name", "${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DDC}"]
+    environment:
+      - MODEL=${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DCA}
+      - VOCODER=${VOCAL_API_VOCODER:-vocoder_models/en/ljspeech/multiband-melgan}

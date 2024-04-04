@@ -24,19 +24,34 @@ You can start specific services of the AIden AI using profiles. Profiles allow y
 
 - **Start all services with GPU support:**
   ```shell
-  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu up -d
+  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu --profile vocal-gpu up -d
   ```
 
 - **Start all services in CPU-only mode:**
   ```shell
-  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu up -d
+  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu up -d
   ```
 
-You can also have any combination of cpu and gpu services.
+You can also have any combination of CPU and GPU services.
 
-> **_NOTE:_**  When you first start a service with a new model,
-you will need to wait for the model to download before the API
-is available.
+For the Vocal API, you will need to create a personal access token on GitHub to access the Coqui.ai TTS Docker image. Follow the instructions in the GitHub documentation to create a token: [Creating a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token). Once you have your token, use it to log in to the GitHub Container Registry before building the image:
+
+- **Linux/macOS:**
+  ```shell
+  export CR_PAT="your_personal_access_token_here"
+  echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+  ```
+
+- **Windows (PowerShell):**
+  ```powershell
+  $env:CR_PAT = "your_personal_access_token_here"
+  echo $env:CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+  ```
+
+Replace `your_personal_access_token_here` with your personal access token and `USERNAME` with your GitHub username.
+
+> **_NOTE:_** When you first start a service with a new model, you may experience longer response times as the model is loaded into memory. Subsequent requests should be faster. However, if the service is not used for a while, the model may be unloaded, resulting in longer response times again when the service is next used.
+```
 
 ### Stopping Services
 
@@ -44,12 +59,12 @@ To stop services, you need to use the same profiles that were used to start them
 
 - **Stop all services with GPU support:**
   ```shell
-  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu stop
+  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu --profile vocal-gpu stop
   ```
 
 - **Stop all services in CPU-only mode:**
   ```shell
-  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu stop
+  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu stop
   ```
 
 ### Service Notes

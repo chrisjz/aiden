@@ -51,7 +51,6 @@ For the Vocal API, you will need to create a personal access token on GitHub to 
 Replace `your_personal_access_token_here` with your personal access token and `USERNAME` with your GitHub username.
 
 > **_NOTE:_** When you first start a service with a new model, you may experience longer response times as the model is loaded into memory. Subsequent requests should be faster. However, if the service is not used for a while, the model may be unloaded, resulting in longer response times again when the service is next used.
-```
 
 ### Stopping Services
 
@@ -75,4 +74,12 @@ To stop services, you need to use the same profiles that were used to start them
 
 ### Starting Simulation
 
-Run the Unity simulation.
+Run the Unity simulation to interact with the virtual environment and AIden.
+
+#### Controls
+
+- **Open/Close Menu:** Press the "`" (backtick) key to open and close the prompt panel for interacting with AIden.
+- **Movement:** Use the WASD keys or arrow keys to move in the simulation.
+- **Jump:** Press the spacebar to jump.
+- **Interact:** Press the "E" key or left-click with the mouse to interact with certain objects in the environment.
+- **Look Around:** Use the mouse to control the camera and look around in the simulation.

@@ -56,7 +56,8 @@ public class CognitiveAPIIntegration : MonoBehaviour
 
     private IEnumerator StreamRequest(string message)
     {
-        var json = $"{{\"model\": \"{modelName}\", \"messages\": [{{\"role\": \"user\", \"content\": \"{message}\"}}]}}";
+        string formattedMessage = message.Replace("\n", "\\n"); // Replace newlines with \n escape sequence
+        var json = $"{{\"model\": \"{modelName}\", \"messages\": [{{\"role\": \"user\", \"content\": \"{formattedMessage}\"}}]}}";
         var request = new UnityWebRequest(apiURL, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);

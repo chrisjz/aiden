@@ -9,6 +9,7 @@ services:
   auditory-api:
     <<: *base_service
     profiles: ["auditory-gpu"]
+    container_name: auditory-api
     deploy:
       resources:
         reservations:
@@ -26,6 +27,7 @@ services:
   auditory-api-cpu:
     <<: *base_service
     profiles: ["auditory-cpu"]
+    container_name: auditory-api
     deploy: {}
     image: onerahmet/openai-whisper-asr-webservice:latest
     ports:
@@ -34,9 +36,19 @@ services:
       - ASR_MODEL=${AUDITORY_API_MODEL:-tiny}
       - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
 
+  brain-api:
+    build: .
+    ports:
+      - "${BRAIN_API_PORT:-8000}:8000"
+    environment:
+      - COGNITIVE_API_HOST=cognitive-api
+      - COGNITIVE_API_PORT=${COGNITIVE_API_PORT:-11434}
+      - COGNITIVE_API_PROTOCOL=${COGNITIVE_API_PROTOCOL:-http}
+
   cognitive-api:
     <<: *base_service
     profiles: ["cognitive-gpu"]
+    container_name: cognitive-api
     deploy:
       resources:
         reservations:
@@ -54,6 +66,7 @@ services:
   cognitive-api-cpu:
     <<: *base_service
     profiles: ["cognitive-cpu"]
+    container_name: cognitive-api
     deploy: {}
     image: ollama/ollama
     ports:
@@ -65,6 +78,7 @@ services:
   vision-api:
     <<: *base_service
     profiles: ["vision-gpu"]
+    container_name: vision-api
     deploy:
       resources:
         reservations:
@@ -84,6 +98,7 @@ services:
   vision-api-cpu:
     <<: *base_service
     profiles: ["vision-cpu"]
+    container_name: vision-api
     deploy: {}
     image: ollama/ollama
     ports:
@@ -95,6 +110,7 @@ services:
   vocal-api:
     <<: *base_service
     profiles: ["vocal-gpu"]
+    container_name: vocal-api
     deploy:
       resources:
         reservations:
@@ -114,6 +130,7 @@ services:
   vocal-api-cpu:
     <<: *base_service
     profiles: ["vocal-cpu"]
+    container_name: vocal-api
     deploy: {}
     image: ghcr.io/coqui-ai/tts-cpu
     ports:

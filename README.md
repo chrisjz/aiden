@@ -83,3 +83,20 @@ Run the Unity simulation to interact with the virtual environment and AIden.
 - **Jump:** Press the spacebar to jump.
 - **Interact:** Press the "E" key or left-click with the mouse to interact with certain objects in the environment.
 - **Look Around:** Use the mouse to control the camera and look around in the simulation.
+
+## Development
+
+### Pre-commit Hooks
+
+Pre-commit hooks are used to automatically check and format code before committing.
+
+Install pre-commit hooks for this project:
+```shell
+poetry run pre-commit install
+```
+
+Pre-commit hooks will now run automatically on each `git commit`. You can also manually run the hooks on all files with:
+
+```shell
+poetry run pre-commit run --all-files
+```

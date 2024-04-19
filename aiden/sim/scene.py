@@ -48,7 +48,7 @@ class Scene:
         self.aiden_position = (1, 1)  # Initialize Aiden's position
         self.aiden_orientation = "N"  # Initialize orientation
 
-    def find_room_by_position(self, position):
+    def find_room_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():
             x, y = position
             room_pos = room["position"]
@@ -60,7 +60,7 @@ class Scene:
                 return room
         return None
 
-    def find_object_by_position(self, position):
+    def find_object_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():
             for obj in room.get("objects", []):
                 obj_x = obj["position"]["x"]
@@ -107,7 +107,7 @@ class Scene:
         else:
             print("Move blocked by environment boundaries.")
 
-    def is_position_within_room(self, position):
+    def is_position_within_room(self, position: tuple[int, int]):
         for room in self.config["rooms"]:
             room_position = room["position"]
             room_size = room["size"]

@@ -1,0 +1,14 @@
+{
+    "grid": {
+      "(0, 0)": {"name": "Living Room", "sound": "TV playing", "smell": "candles", "taste": null, "tactile": "carpet"},
+      "(0, 1)": {"name": "Kitchen", "sound": "Refrigerator humming", "smell": "coffee", "taste": "sweet", "tactile": "tile"},
+      "(0, 2)": {"name": "Bathroom", "sound": "Faucet dripping", "smell": "soap", "taste": null, "tactile": "cold tile"},
+      "(1, 0)": {"name": "Bedroom", "sound": "Fan noise", "smell": "lavender", "taste": null, "tactile": "soft bed"},
+      "(1, 1)": {"name": "Garden", "sound": "Birds chirping", "smell": "fresh grass", "taste": "mint", "tactile": "grass"},
+      "(1, 2)": {"name": "Workshop", "sound": "Tools clanging", "smell": "oil", "taste": null, "tactile": "metal"},
+      "(2, 0)": {"name": "Study", "sound": "Clock ticking", "smell": "old books", "taste": null, "tactile": "wooden desk"},
+      "(2, 1)": {"name": "Dining Room", "sound": "Silence", "smell": "wood polish", "taste": null, "tactile": "smooth table"},
+      "(2, 2)": {"name": "Hallway", "sound": "Echoes of footsteps", "smell": "air freshener", "taste": null, "tactile": "hardwood floor"}
+    },
+    "size": [3, 3]
+  }

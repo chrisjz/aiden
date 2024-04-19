@@ -47,6 +47,7 @@ class Scene:
         self.directions = {"w": "forward", "s": "backward", "a": "left", "d": "right"}
         self.aiden_position = (1, 1)  # Initialize Aiden's position
         self.aiden_orientation = "N"  # Initialize orientation
+        self.view_distance = 5  # Aiden can see up to 3 grids ahead
 
     def find_room_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():
@@ -123,21 +124,73 @@ class Scene:
                 return True
         return False
 
+    def get_field_of_view(self):
+        """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
+        directions = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
+        dx, dy = directions[self.aiden_orientation]
+        visible_objects = []
+        for i in range(1, self.view_distance + 1):
+            nx, ny = self.aiden_position[0] + i * dx, self.aiden_position[1] + i * dy
+            if not self.is_position_within_room(
+                (nx, ny)
+            ):  # Check for obstructions and room boundaries
+                break  # Stop scanning if an obstruction or boundary is reached
+            obj = self.find_object_by_position((nx, ny))
+            if obj:
+                visible_objects.append(obj)
+        return visible_objects
+
+    def is_obstructed(self, position: tuple[int, int]):
+        """Determine if a position is obstructed by a wall or does not belong to any room."""
+        room = self.find_room_by_position(position)
+        if not room or "wall" in room.get("objects", []):
+            return True
+        return False
+
+    def get_objects_at(self, position: tuple[int, int]):
+        """Retrieve objects at a given position if any."""
+        room = self.find_room_by_position(position)
+        if room:
+            return [
+                obj for obj in room.get("objects", []) if obj["position"] == position
+            ]
+        return []
+
     def print_scene(self):
         print(
             f"Aiden's Position: {self.aiden_position}, Orientation: {self.aiden_orientation}"
         )
         current_room = self.find_room_by_position(self.aiden_position)
         current_object = self.find_object_by_position(self.aiden_position)
-        if current_object:
-            senses = current_object.get("senses", {})
-            print(f"Now at: {current_object['name']}")
-        else:
-            room = self.find_room_by_position(self.aiden_position)
-            senses = room.get("senses", {}) if room else {}
-            print(f"Now in: {room['name']}" if room else "Aiden is outside any room")
+        visible_objects = self.get_field_of_view()
 
-        # Prepare to display the grid
+        # Combine the vision descriptions
+        room_vision = (
+            current_room.get("senses", {}).get("vision", "nothing")
+            if current_room
+            else "nothing"
+        )
+        objects_vision = [
+            obj["senses"]["vision"]
+            for obj in visible_objects
+            if "vision" in obj["senses"]
+        ]
+
+        # Include current object's vision if present
+        if current_object and "vision" in current_object.get("senses", {}):
+            current_object_vision = current_object["senses"]["vision"]
+            objects_vision.insert(
+                0, current_object_vision
+            )  # Prepend to make it more prominent
+
+        # Construct the full vision string
+        full_vision = (
+            f"{room_vision}. Visible objects: {', '.join(objects_vision)}"
+            if objects_vision
+            else room_vision
+        )
+
+        # Prepare to display the grid with Aiden's position and orientation
         max_x = max(
             room["position"]["x"] + room["size"]["width"]
             for room in self.rooms.values()
@@ -151,30 +204,21 @@ class Scene:
         for y in range(max_y):
             for x in range(max_x):
                 if (x, y) == self.aiden_position:
-                    # Display Aiden with an arrow indicating his orientation
                     orientation_char = {"N": "^", "E": ">", "S": "v", "W": "<"}[
                         self.aiden_orientation
                     ]
                     print(f"{orientation_char} ", end="")
                 else:
-                    # Determine if the position is within any room
                     room = self.find_room_by_position((x, y))
                     if room:
-                        # Check if the position has an object
                         if any(
                             obj["position"]["x"] == x and obj["position"]["y"] == y
                             for obj in room.get("objects", [])
                         ):
                             print("O ", end="")
-                        elif any(
-                            obj["position"]["x"] == x and obj["position"]["y"] == y
-                            for obj in room.get("doors", [])
-                        ):
-                            print("D ", end="")
                         else:
                             print(". ", end="")
                     else:
-                        # Display hash for barriers or outside the room boundaries
                         print("# ", end="")
             print()  # New line after each row
 
@@ -190,7 +234,7 @@ class Scene:
                 else "Aiden is outside any room"
             )
 
-        print(f"Vision: {senses.get('vision', 'nothing')}")
+        print(f"Vision: {full_vision}")
         print(f"Sound: {senses.get('sound', 'nothing')}")
         print(f"Smell: {senses.get('smell', 'nothing')}")
         print(f"Taste: {senses.get('taste', 'nothing')}")

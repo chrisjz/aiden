@@ -1,14 +1,211 @@
 {
-    "grid": {
-      "(0, 0)": {"name": "Living Room", "sound": "TV playing", "smell": "candles", "taste": null, "tactile": "carpet"},
-      "(0, 1)": {"name": "Kitchen", "sound": "Refrigerator humming", "smell": "coffee", "taste": "sweet", "tactile": "tile"},
-      "(0, 2)": {"name": "Bathroom", "sound": "Faucet dripping", "smell": "soap", "taste": null, "tactile": "cold tile"},
-      "(1, 0)": {"name": "Bedroom", "sound": "Fan noise", "smell": "lavender", "taste": null, "tactile": "soft bed"},
-      "(1, 1)": {"name": "Garden", "sound": "Birds chirping", "smell": "fresh grass", "taste": "mint", "tactile": "grass"},
-      "(1, 2)": {"name": "Workshop", "sound": "Tools clanging", "smell": "oil", "taste": null, "tactile": "metal"},
-      "(2, 0)": {"name": "Study", "sound": "Clock ticking", "smell": "old books", "taste": null, "tactile": "wooden desk"},
-      "(2, 1)": {"name": "Dining Room", "sound": "Silence", "smell": "wood polish", "taste": null, "tactile": "smooth table"},
-      "(2, 2)": {"name": "Hallway", "sound": "Echoes of footsteps", "smell": "air freshener", "taste": null, "tactile": "hardwood floor"}
+  "rooms": [
+    {
+      "name": "Living Room",
+      "position": {"x": 1, "y": 1},
+      "size": {"width": 5, "height": 4},
+      "objects": [
+        {
+          "name": "Sofa",
+          "position": {"x": 1, "y": 1},
+          "senses": {
+            "vision": "A comfortable blue sofa",
+            "sound": "The faint rustle of fabric as you move",
+            "smell": "A hint of lavender from a fabric freshener",
+            "taste": "",
+            "tactile": "Soft, plush cushions"
+          }
+        },
+        {
+          "name": "TV",
+          "position": {"x": 4, "y": 1},
+          "senses": {
+            "vision": "A large flat-screen TV mounted on the wall",
+            "sound": "Low volume background music playing from the TV",
+            "smell": "",
+            "taste": "",
+            "tactile": ""
+          }
+        }
+      ],
+      "doors": [
+        {"to": "Kitchen", "position": {"x": 5, "y": 2}}
+      ],
+      "senses": {
+        "vision": "A spacious living room with large windows",
+        "sound": "A constant low hum from an air conditioner",
+        "smell": "Freshly brewed coffee",
+        "taste": "",
+        "tactile": "Smooth, cool wooden floors underfoot"
+      }
     },
-    "size": [3, 3]
-  }
+    {
+      "name": "Kitchen",
+      "position": {"x": 6, "y": 1},
+      "size": {"width": 3, "height": 4},
+      "objects": [
+        {
+          "name": "Refrigerator",
+          "position": {"x": 6, "y": 1},
+          "senses": {
+            "vision": "A large white refrigerator",
+            "sound": "A gentle buzzing and occasional clunks",
+            "smell": "A blast of cold air with a hint of citrus",
+            "taste": "",
+            "tactile": "Cold metal surface"
+          }
+        },
+        {
+          "name": "Stove",
+          "position": {"x": 6, "y": 3},
+          "senses": {
+            "vision": "A shiny, modern stove with pots on it",
+            "sound": "The sizzle of cooking food",
+            "smell": "The savory aroma of a meal being prepared",
+            "taste": "",
+            "tactile": "The warmth radiating from the hot surface"
+          }
+        },
+        {
+          "name": "Fruit Bowl",
+          "position": {"x": 7, "y": 2},
+          "senses": {
+            "vision": "A bowl filled with fresh, colorful fruits",
+            "sound": "",
+            "smell": "The sweet fragrance of ripe fruits",
+            "taste": "The refreshing taste of mixed fruits",
+            "tactile": "The soft texture of ripe fruit skin"
+          }
+        }
+      ],
+      "doors": [
+        {"to": "Living Room", "position": {"x": 6, "y": 2}},
+        {"to": "Garden", "position": {"x": 8, "y": 4}}
+      ],
+      "senses": {
+        "vision": "Modern appliances and a marble countertop",
+        "sound": "The sizzle of something frying on the stove",
+        "smell": "Garlic and onions cooking",
+        "taste": "",
+        "tactile": "Warm air filled with steam from boiling water"
+      }
+    },
+    {
+      "name": "Bedroom",
+      "position": {"x": 1, "y": 5},
+      "size": {"width": 4, "height": 3},
+      "objects": [
+        {
+          "name": "Bed",
+          "position": {"x": 1, "y": 5},
+          "senses": {
+            "vision": "A large, neatly made bed",
+            "sound": "The faint creak of bed springs",
+            "smell": "Clean linen",
+            "taste": "",
+            "tactile": "The softness of the mattress"
+          }
+        },
+        {
+          "name": "Wardrobe",
+          "position": {"x": 4, "y": 7},
+          "senses": {
+            "vision": "A large wooden wardrobe",
+            "sound": "The sliding noise of hangers when moved",
+            "smell": "A hint of cedar and mothballs",
+            "taste": "",
+            "tactile": "The smooth texture of polished wood"
+          }
+        }
+      ],
+      "doors": [
+        {"to": "Bathroom", "position": {"x": 4, "y": 6}}
+      ],
+      "senses": {
+        "vision": "A cozy room with muted lighting",
+        "sound": "Muffled sounds from outside",
+        "smell": "A faint scent of lavender",
+        "taste": "",
+        "tactile": "Carpeted floors providing a soft footing"
+      }
+    },
+    {
+      "name": "Bathroom",
+      "position": {"x": 5, "y": 5},
+      "size": {"width": 2, "height": 3},
+      "objects": [
+        {
+          "name": "Shower",
+          "position": {"x": 5, "y": 5},
+          "senses": {
+            "vision": "A glass shower stall with running water",
+            "sound": "The constant sound of water splashing",
+            "smell": "Steam and soap",
+            "taste": "",
+            "tactile": "The feel of warm water and tiles"
+          }
+        },
+        {
+          "name": "Sink",
+          "position": {"x": 6, "y": 7},
+          "senses": {
+            "vision": "A clean, white porcelain sink",
+            "sound": "The echo of dripping water",
+            "smell": "A clean, almost clinical scent",
+            "taste": "",
+            "tactile": "The cool hardness of the ceramic"
+          }
+        }
+      ],
+      "doors": [
+        {"to": "Bedroom", "position": {"x": 5, "y": 6}}
+      ],
+      "senses": {
+        "vision": "Well-lit with tiled walls",
+        "sound": "Echoes of movements and water usage",
+        "smell": "Fresh and sanitized",
+        "taste": "",
+        "tactile": "The cool, smooth surface of the tiles"
+      }
+    },
+    {
+      "name": "Garden",
+      "position": {"x": 9, "y": 1},
+      "size": {"width": 4, "height": 6},
+      "objects": [
+        {
+          "name": "Tree",
+          "position": {"x": 10, "y": 2},
+          "senses": {
+            "vision": "A tall oak tree providing shade",
+            "sound": "Leaves rustling in the wind",
+            "smell": "The earthy scent of bark and leaves",
+            "taste": "",
+            "tactile": "The rough texture of the tree bark"
+          }
+        },
+        {
+          "name": "Flower Bed",
+          "position": {"x": 11, "y": 5},
+          "senses": {
+            "vision": "Colorful tulips and daisies",
+            "sound": "Bees buzzing gently from flower to flower",
+            "smell": "The rich aroma of fresh earth and flowers",
+            "taste": "",
+            "tactile": "The rough texture of leaves and softness of petals"
+          }
+        }
+      ],
+      "doors": [
+        {"to": "Kitchen", "position": {"x": 8, "y": 4}}
+      ],
+      "senses": {
+        "vision": "A lush green garden with a small pond",
+        "sound": "Birds chirping and water gently rippling in the pond",
+        "smell": "Fresh grass and damp soil",
+        "taste": "",
+        "tactile": "Grass underfoot, moist and springy"
+      }
+    }
+  ]
+}

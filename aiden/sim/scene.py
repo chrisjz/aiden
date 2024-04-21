@@ -216,6 +216,11 @@ class Scene:
                             for obj in room.get("objects", [])
                         ):
                             print("O ", end="")
+                        elif any(
+                            obj["position"]["x"] == x and obj["position"]["y"] == y
+                            for obj in room.get("doors", [])
+                        ):
+                            print("D ", end="")
                         else:
                             print(". ", end="")
                     else:

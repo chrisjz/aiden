@@ -191,13 +191,19 @@ class Scene:
         )
 
         # Prepare to display the grid with Aiden's position and orientation
-        max_x = max(
-            room["position"]["x"] + room["size"]["width"]
-            for room in self.rooms.values()
+        max_x = (
+            max(
+                room["position"]["x"] + room["size"]["width"]
+                for room in self.rooms.values()
+            )
+            + 1
         )
-        max_y = max(
-            room["position"]["y"] + room["size"]["height"]
-            for room in self.rooms.values()
+        max_y = (
+            max(
+                room["position"]["y"] + room["size"]["height"]
+                for room in self.rooms.values()
+            )
+            + 1
         )
 
         # Display grid with Aiden's position and orientation

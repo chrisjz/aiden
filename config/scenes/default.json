@@ -29,6 +29,7 @@
         }
       ],
       "doors": [
+        {"to": "Bedroom", "position": {"x": 3, "y": 4}},
         {"to": "Kitchen", "position": {"x": 5, "y": 2}}
       ],
       "senses": {
@@ -41,12 +42,12 @@
     },
     {
       "name": "Kitchen",
-      "position": {"x": 6, "y": 1},
+      "position": {"x": 8, "y": 1},
       "size": {"width": 3, "height": 4},
       "objects": [
         {
           "name": "Refrigerator",
-          "position": {"x": 6, "y": 1},
+          "position": {"x": 8, "y": 3},
           "senses": {
             "vision": "A large white refrigerator",
             "sound": "A gentle buzzing and occasional clunks",
@@ -57,7 +58,7 @@
         },
         {
           "name": "Stove",
-          "position": {"x": 6, "y": 3},
+          "position": {"x": 8, "y": 4},
           "senses": {
             "vision": "A shiny, modern stove with pots on it",
             "sound": "The sizzle of cooking food",
@@ -68,7 +69,7 @@
         },
         {
           "name": "Fruit Bowl",
-          "position": {"x": 7, "y": 2},
+          "position": {"x": 10, "y": 1},
           "senses": {
             "vision": "A bowl filled with fresh, colorful fruits",
             "sound": "",
@@ -79,8 +80,8 @@
         }
       ],
       "doors": [
-        {"to": "Living Room", "position": {"x": 6, "y": 2}},
-        {"to": "Garden", "position": {"x": 8, "y": 4}}
+        {"to": "Living Room", "position": {"x": 8, "y": 2}},
+        {"to": "Garden", "position": {"x": 10, "y": 4}}
       ],
       "senses": {
         "vision": "Modern appliances and a marble countertop",
@@ -92,12 +93,12 @@
     },
     {
       "name": "Bedroom",
-      "position": {"x": 1, "y": 5},
+      "position": {"x": 1, "y": 7},
       "size": {"width": 4, "height": 3},
       "objects": [
         {
           "name": "Bed",
-          "position": {"x": 1, "y": 5},
+          "position": {"x": 1, "y": 7},
           "senses": {
             "vision": "A large, neatly made bed",
             "sound": "The faint creak of bed springs",
@@ -108,7 +109,7 @@
         },
         {
           "name": "Wardrobe",
-          "position": {"x": 4, "y": 7},
+          "position": {"x": 4, "y": 9},
           "senses": {
             "vision": "A large wooden wardrobe",
             "sound": "The sliding noise of hangers when moved",
@@ -119,7 +120,8 @@
         }
       ],
       "doors": [
-        {"to": "Bathroom", "position": {"x": 4, "y": 6}}
+        {"to": "Bathroom", "position": {"x": 4, "y": 8}},
+        {"to": "Living Room", "position": {"x": 3, "y": 7}}
       ],
       "senses": {
         "vision": "A cozy room with muted lighting",
@@ -131,12 +133,12 @@
     },
     {
       "name": "Bathroom",
-      "position": {"x": 5, "y": 5},
+      "position": {"x": 7, "y": 7},
       "size": {"width": 2, "height": 3},
       "objects": [
         {
           "name": "Shower",
-          "position": {"x": 5, "y": 5},
+          "position": {"x": 7, "y": 7},
           "senses": {
             "vision": "A glass shower stall with running water",
             "sound": "The constant sound of water splashing",
@@ -147,7 +149,7 @@
         },
         {
           "name": "Sink",
-          "position": {"x": 6, "y": 7},
+          "position": {"x": 8, "y": 9},
           "senses": {
             "vision": "A clean, white porcelain sink",
             "sound": "The echo of dripping water",
@@ -158,7 +160,7 @@
         }
       ],
       "doors": [
-        {"to": "Bedroom", "position": {"x": 5, "y": 6}}
+        {"to": "Bedroom", "position": {"x": 7, "y": 8}}
       ],
       "senses": {
         "vision": "Well-lit with tiled walls",
@@ -170,12 +172,12 @@
     },
     {
       "name": "Garden",
-      "position": {"x": 9, "y": 1},
+      "position": {"x": 13, "y": 1},
       "size": {"width": 4, "height": 6},
       "objects": [
         {
           "name": "Tree",
-          "position": {"x": 10, "y": 2},
+          "position": {"x": 14, "y": 2},
           "senses": {
             "vision": "A tall oak tree providing shade",
             "sound": "Leaves rustling in the wind",
@@ -186,7 +188,7 @@
         },
         {
           "name": "Flower Bed",
-          "position": {"x": 11, "y": 5},
+          "position": {"x": 15, "y": 5},
           "senses": {
             "vision": "Colorful tulips and daisies",
             "sound": "Bees buzzing gently from flower to flower",
@@ -197,7 +199,7 @@
         }
       ],
       "doors": [
-        {"to": "Kitchen", "position": {"x": 8, "y": 4}}
+        {"to": "Kitchen", "position": {"x": 13, "y": 4}}
       ],
       "senses": {
         "vision": "A lush green garden with a small pond",

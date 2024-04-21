@@ -34,24 +34,17 @@ import argparse
 import json
 import os
 
-from aiden.common.models import SceneConfig
+from aiden.models.scene import SceneConfig
 
 
 class Scene:
-    def __init__(self, scene_file: str):
-        if not os.path.exists(scene_file):
-            raise FileNotFoundError("Cannot find the scene configuration file")
-
-        with open(scene_file, "r") as f:
-            data = json.load(f)
-            self.config = SceneConfig.model_validate(data)
-
+    def __init__(self, config: SceneConfig):
+        self.config = config
         self.rooms = {room.name: room for room in self.config.rooms}
         self.player = self.config.player
-
-        self.aiden_position = (self.player.position.x, self.player.position.y)
-        self.aiden_orientation = self.player.orientation
-        self.view_distance = self.player.fieldOfView
+        self.player_position = (self.player.position.x, self.player.position.y)
+        self.player_orientation = self.player.orientation
+        self.player_view_distance = self.player.fieldOfView
 
         self.directions = {"w": "forward", "s": "backward", "a": "left", "d": "right"}
 
@@ -97,33 +90,33 @@ class Scene:
             self.turn_right()
 
     def turn_around(self):
-        self.aiden_orientation = {"N": "S", "S": "N", "E": "W", "W": "E"}[
-            self.aiden_orientation
+        self.player_orientation = {"N": "S", "S": "N", "E": "W", "W": "E"}[
+            self.player_orientation
         ]
 
     def turn_left(self):
-        self.aiden_orientation = {"N": "W", "W": "S", "S": "E", "E": "N"}[
-            self.aiden_orientation
+        self.player_orientation = {"N": "W", "W": "S", "S": "E", "E": "N"}[
+            self.player_orientation
         ]
 
     def turn_right(self):
-        self.aiden_orientation = {"N": "E", "E": "S", "S": "W", "W": "N"}[
-            self.aiden_orientation
+        self.player_orientation = {"N": "E", "E": "S", "S": "W", "W": "N"}[
+            self.player_orientation
         ]
 
     def advance(self):
         direction_offset = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
-        dx, dy = direction_offset[self.aiden_orientation]
-        new_x = self.aiden_position[0] + dx
-        new_y = self.aiden_position[1] + dy
+        dx, dy = direction_offset[self.player_orientation]
+        new_x = self.player_position[0] + dx
+        new_y = self.player_position[1] + dy
         new_position = (new_x, new_y)
 
         door_exit = self.find_door_exit_by_entry(new_position)
         if door_exit:
-            self.aiden_position = door_exit
+            self.player_position = door_exit
             print(f"Teleported to door exit at {door_exit}")
         elif self.is_position_within_room(new_position):
-            self.aiden_position = new_position
+            self.player_position = new_position
         else:
             print("Move blocked by environment boundaries.")
 
@@ -140,10 +133,10 @@ class Scene:
     def get_field_of_view(self):
         """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
         directions = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
-        dx, dy = directions[self.aiden_orientation]
+        dx, dy = directions[self.player_orientation]
         visible_objects = []
-        for i in range(1, self.view_distance + 1):
-            nx, ny = self.aiden_position[0] + i * dx, self.aiden_position[1] + i * dy
+        for i in range(1, self.player_view_distance + 1):
+            nx, ny = self.player_position[0] + i * dx, self.player_position[1] + i * dy
             if not self.is_position_within_room(
                 (nx, ny)
             ):  # Check for obstructions and room boundaries
@@ -155,10 +148,10 @@ class Scene:
 
     def print_scene(self):
         print(
-            f"Aiden's Position: {self.aiden_position}, Orientation: {self.aiden_orientation}"
+            f"Aiden's Position: {self.player_position}, Orientation: {self.player_orientation}"
         )
-        current_room = self.find_room_by_position(self.aiden_position)
-        current_object = self.find_object_by_position(self.aiden_position)
+        current_room = self.find_room_by_position(self.player_position)
+        current_object = self.find_object_by_position(self.player_position)
         visible_objects = self.get_field_of_view()
 
         # Combine the vision descriptions
@@ -192,9 +185,9 @@ class Scene:
         # Display grid with Aiden's position and orientation
         for y in range(max_y):
             for x in range(max_x):
-                if (x, y) == self.aiden_position:
+                if (x, y) == self.player_position:
                     orientation_char = {"N": "^", "E": ">", "S": "v", "W": "<"}[
-                        self.aiden_orientation
+                        self.player_orientation
                     ]
                     print(f"{orientation_char} ", end="")
                 else:
@@ -260,8 +253,17 @@ def parse_arguments():
     return args
 
 
+def load_scene(scene_file: str) -> SceneConfig:
+    if not os.path.exists(scene_file):
+        raise FileNotFoundError("Cannot find the scene configuration file")
+    with open(scene_file, "r") as f:
+        data = json.load(f)
+    return SceneConfig(**data)
+
+
 def main(scene_file: str, show_position: bool, verbose: bool) -> None:
-    env = Scene(scene_file)
+    scene_config = load_scene(scene_file)
+    env = Scene(scene_config)
     print("Initial scene:")
     if show_position:
         env.print_scene()
@@ -274,7 +276,7 @@ def main(scene_file: str, show_position: bool, verbose: bool) -> None:
             env.move_aiden(command)
             if verbose:
                 print(f"Action executed: {env.directions[command]}")
-                print(f"AIden orientation: {env.aiden_orientation}")
+                print(f"AIden orientation: {env.player_orientation}")
             if show_position:
                 env.print_scene()
         else:

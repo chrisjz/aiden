@@ -34,6 +34,8 @@ import argparse
 import json
 import os
 
+from aiden.common.models import SceneConfig
+
 
 class Scene:
     def __init__(self, scene_file: str):
@@ -41,55 +43,46 @@ class Scene:
             raise FileNotFoundError("Cannot find the scene configuration file")
 
         with open(scene_file, "r") as f:
-            self.config = json.load(f)
+            data = json.load(f)
+            self.config = SceneConfig.model_validate(data)
 
-        self.rooms = {room["name"]: room for room in self.config["rooms"]}
-        self.player = self.config["player"]
+        self.rooms = {room.name: room for room in self.config.rooms}
+        self.player = self.config.player
 
-        self.aiden_position = (
-            self.player["position"]["x"],
-            self.player["position"]["y"],
-        )  # Initialize Aiden's position
-        self.aiden_orientation = self.player["orientation"]  # Initialize orientation
-        self.view_distance = self.player[
-            "fieldOfView"
-        ]  # Aiden can see up to thise many grids ahead
+        self.aiden_position = (self.player.position.x, self.player.position.y)
+        self.aiden_orientation = self.player.orientation
+        self.view_distance = self.player.fieldOfView
 
         self.directions = {"w": "forward", "s": "backward", "a": "left", "d": "right"}
 
     def find_room_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():
             x, y = position
-            room_pos = room["position"]
-            room_size = room["size"]
+            room_pos = room.position
+            room_size = room.size
             if (
-                room_pos["x"] <= x < room_pos["x"] + room_size["width"]
-                and room_pos["y"] <= y < room_pos["y"] + room_size["height"]
+                room_pos.x <= x < room_pos.x + room_size.width
+                and room_pos.y <= y < room_pos.y + room_size.height
             ):
                 return room
         return None
 
     def find_object_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():
-            for obj in room.get("objects", []):
-                obj_x = obj["position"]["x"]
-                obj_y = obj["position"]["y"]
+            for obj in room.objects:
+                obj_x = obj.position.x
+                obj_y = obj.position.y
                 if (obj_x, obj_y) == position:
                     return obj
         return None
 
     def find_door_exit_by_entry(self, position: tuple[int, int]):
-        for room in self.rooms.values():
-            for door in room.get("doors", []):
-                if (
-                    door["position"]["entry"]["x"],
-                    door["position"]["entry"]["y"],
-                ) == position:
-                    # Return the exit position of the door
-                    return (
-                        door["position"]["exit"]["x"],
-                        door["position"]["exit"]["y"],
-                    )
+        for room in self.config.rooms:
+            for door in room.doors:
+                entry = door.position.entry
+                exit = door.position.exit
+                if (entry.x, entry.y) == position:
+                    return (exit.x, exit.y)
         return None
 
     def move_aiden(self, command: str) -> None:
@@ -125,7 +118,6 @@ class Scene:
         new_y = self.aiden_position[1] + dy
         new_position = (new_x, new_y)
 
-        # Check if new position is a door entry, if so, teleport to the exit
         door_exit = self.find_door_exit_by_entry(new_position)
         if door_exit:
             self.aiden_position = door_exit
@@ -136,18 +128,12 @@ class Scene:
             print("Move blocked by environment boundaries.")
 
     def is_position_within_room(self, position: tuple[int, int]):
-        for room in self.config["rooms"]:
-            room_position = room["position"]
-            room_size = room["size"]
+        for room in self.config.rooms:
+            room_position = room.position
+            room_size = room.size
             if (
-                room_position["x"]
-                <= position[0]
-                < room_position["x"] + room_size["width"]
-            ) and (
-                room_position["y"]
-                <= position[1]
-                < room_position["y"] + room_size["height"]
-            ):
+                room_position.x <= position[0] < room_position.x + room_size.width
+            ) and (room_position.y <= position[1] < room_position.y + room_size.height):
                 return True
         return False
 
@@ -167,22 +153,6 @@ class Scene:
                 visible_objects.append(obj)
         return visible_objects
 
-    def is_obstructed(self, position: tuple[int, int]):
-        """Determine if a position is obstructed by a wall or does not belong to any room."""
-        room = self.find_room_by_position(position)
-        if not room or "wall" in room.get("objects", []):
-            return True
-        return False
-
-    def get_objects_at(self, position: tuple[int, int]):
-        """Retrieve objects at a given position if any."""
-        room = self.find_room_by_position(position)
-        if room:
-            return [
-                obj for obj in room.get("objects", []) if obj["position"] == position
-            ]
-        return []
-
     def print_scene(self):
         print(
             f"Aiden's Position: {self.aiden_position}, Orientation: {self.aiden_orientation}"
@@ -192,20 +162,14 @@ class Scene:
         visible_objects = self.get_field_of_view()
 
         # Combine the vision descriptions
-        room_vision = (
-            current_room.get("senses", {}).get("vision", "nothing")
-            if current_room
-            else "nothing"
-        )
+        room_vision = current_room.senses.vision if current_room else "nothing"
         objects_vision = [
-            obj["senses"]["vision"]
-            for obj in visible_objects
-            if "vision" in obj["senses"]
+            obj.senses.vision for obj in visible_objects if obj.senses.vision
         ]
 
         # Include current object's vision if present
-        if current_object and "vision" in current_object.get("senses", {}):
-            current_object_vision = current_object["senses"]["vision"]
+        if current_object and "vision" in current_object.senses:
+            current_object_vision = current_object.senses.vision
             objects_vision.insert(
                 0, current_object_vision
             )  # Prepend to make it more prominent
@@ -219,18 +183,10 @@ class Scene:
 
         # Prepare to display the grid with Aiden's position and orientation
         max_x = (
-            max(
-                room["position"]["x"] + room["size"]["width"]
-                for room in self.rooms.values()
-            )
-            + 1
+            max(room.position.x + room.size.width for room in self.rooms.values()) + 1
         )
         max_y = (
-            max(
-                room["position"]["y"] + room["size"]["height"]
-                for room in self.rooms.values()
-            )
-            + 1
+            max(room.position.y + room.size.height for room in self.rooms.values()) + 1
         )
 
         # Display grid with Aiden's position and orientation
@@ -245,14 +201,13 @@ class Scene:
                     room = self.find_room_by_position((x, y))
                     if room:
                         if any(
-                            obj["position"]["x"] == x and obj["position"]["y"] == y
-                            for obj in room.get("objects", [])
+                            obj.position.x == x and obj.position.y == y
+                            for obj in room.objects
                         ):
                             print("O ", end="")
                         elif any(
-                            obj["position"]["entry"]["x"] == x
-                            and obj["position"]["entry"]["y"] == y
-                            for obj in room.get("doors", [])
+                            door.position.entry.x == x and door.position.entry.y == y
+                            for door in room.doors
                         ):
                             print("D ", end="")
                         else:
@@ -263,21 +218,21 @@ class Scene:
 
         # Sensory feedback based on Aiden's position
         if current_object:
-            senses = current_object.get("senses", {})
-            print(f"Now at: {current_object['name']}")
+            senses = current_object.senses
+            print(f"Now at: {current_object.name}")
         else:
-            senses = current_room.get("senses", {}) if current_room else {}
+            senses = current_room.senses if current_room else {}
             print(
-                f"Now in: {current_room['name']}"
+                f"Now in: {current_room.name}"
                 if current_room
                 else "Aiden is outside any room"
             )
 
         print(f"Vision: {full_vision}")
-        print(f"Sound: {senses.get('sound', 'nothing')}")
-        print(f"Smell: {senses.get('smell', 'nothing')}")
-        print(f"Taste: {senses.get('taste', 'nothing')}")
-        print(f"Tactile: {senses.get('tactile', 'nothing')}")
+        print(f"Sound: {senses.sound}")
+        print(f"Smell: {senses.smell}")
+        print(f"Taste: {senses.taste}")
+        print(f"Tactile: {senses.tactile}")
         print()
 
 
@@ -320,12 +275,6 @@ def main(scene_file: str, show_position: bool, verbose: bool) -> None:
             if verbose:
                 print(f"Action executed: {env.directions[command]}")
                 print(f"AIden orientation: {env.aiden_orientation}")
-                current_room = env.find_room_by_position(env.aiden_position)
-                if current_room:
-                    senses = current_room.get("senses", {})
-                    print(
-                        f"AIden senses: Vision: {senses.get('vision', 'nothing')}, Sound: {senses.get('sound', 'nothing')}, Smell: {senses.get('smell', 'nothing')}"
-                    )
             if show_position:
                 env.print_scene()
         else:

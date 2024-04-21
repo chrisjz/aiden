@@ -22,14 +22,14 @@ Make a copy of `.env.template` called `.env` and update any required values.
 
 You can start specific services of the AIden AI using profiles. Profiles allow you to choose which services to run and whether to use CPU or GPU resources.
 
-- **Start all services with GPU support:**
+- **Start all default services with GPU support:**
   ```shell
-  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu --profile vocal-gpu up -d
+  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vocal-gpu up -d
   ```
 
-- **Start all services in CPU-only mode:**
+- **Start all default services in CPU-only mode:**
   ```shell
-  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu up -d
+  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vocal-cpu up -d
   ```
 
 You can also have any combination of CPU and GPU services.
@@ -56,14 +56,14 @@ Replace `your_personal_access_token_here` with your personal access token and `U
 
 To stop services, you need to use the same profiles that were used to start them. For example:
 
-- **Stop all services with GPU support:**
+- **Stop all default services with GPU support:**
   ```shell
-  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vision-gpu --profile vocal-gpu stop
+  docker compose --profile auditory-gpu --profile cognitive-gpu --profile vocal-gpu stop
   ```
 
-- **Stop all services in CPU-only mode:**
+- **Stop all default services in CPU-only mode:**
   ```shell
-  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu stop
+  docker compose --profile auditory-cpu --profile cognitive-cpu --profile vocal-cpu stop
   ```
 
 ### Service Notes

@@ -105,3 +105,41 @@ def test_no_movement_on_obstruction(complex_scene):
         4,
         0,
     ), "Should not move when an obstruction is faced"
+
+
+def test_sensory_data_interaction(complex_scene):
+    # Add a Durian with distinct sensory properties to the Living Room
+    durian = Object(
+        name="Durian",
+        position=Position(x=1, y=1),
+        senses={
+            "vision": "A large spiky Durian fruit on the table",
+            "sound": "Soft buzzing of fruit flies",
+            "smell": "A strong pungent smell that fills the room",
+            "taste": "Rich custard taste with hints of almond",
+            "tactile": "Spiky and hard outer shell",
+        },
+    )
+    complex_scene.rooms["Living Room"].objects.append(durian)
+
+    # Move player to the position of the Durian
+    complex_scene.player_position = (1, 1)
+    current_object = complex_scene.find_object_by_position((1, 1))
+
+    # Ensure the object is the Durian and test each sensory attribute
+    assert current_object.name == "Durian", "Should be at the position of the Durian"
+    assert (
+        current_object.senses.vision == "A large spiky Durian fruit on the table"
+    ), "Vision should detect the Durian visually"
+    assert (
+        current_object.senses.sound == "Soft buzzing of fruit flies"
+    ), "Should hear the sound associated with the Durian"
+    assert (
+        current_object.senses.smell == "A strong pungent smell that fills the room"
+    ), "Should smell the Durian's strong odor"
+    assert (
+        current_object.senses.taste == "Rich custard taste with hints of almond"
+    ), "Should taste the Durian flavor"
+    assert (
+        current_object.senses.tactile == "Spiky and hard outer shell"
+    ), "Should feel the Durian's texture"

@@ -78,7 +78,7 @@ class Scene:
                     return (exit.x, exit.y)
         return None
 
-    def move_aiden(self, command: str) -> None:
+    def move_player(self, command: str) -> None:
         if command == "w":
             self.advance()
         elif command == "s":
@@ -148,7 +148,7 @@ class Scene:
 
     def print_scene(self):
         print(
-            f"Aiden's Position: {self.player_position}, Orientation: {self.player_orientation}"
+            f"Player's Position: {self.player_position}, Orientation: {self.player_orientation}"
         )
         current_room = self.find_room_by_position(self.player_position)
         current_object = self.find_object_by_position(self.player_position)
@@ -218,7 +218,7 @@ class Scene:
             print(
                 f"Now in: {current_room.name}"
                 if current_room
-                else "Aiden is outside any room"
+                else "Player is outside any room"
             )
 
         print(f"Vision: {full_vision}")
@@ -242,12 +242,12 @@ def parse_arguments():
     parser.add_argument(
         "--show-position",
         action="store_true",
-        help="Display the grid and AIden's position after each command.",
+        help="Display the grid and player's position after each command.",
     )
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Print detailed actions of AIden's experience.",
+        help="Print detailed actions of player's experience.",
     )
     args = parser.parse_args()
     return args
@@ -273,10 +273,10 @@ def main(scene_file: str, show_position: bool, verbose: bool) -> None:
         if command == "q":
             break
         elif command in ["w", "a", "s", "d"]:
-            env.move_aiden(command)
+            env.move_player(command)
             if verbose:
                 print(f"Action executed: {env.directions[command]}")
-                print(f"AIden orientation: {env.player_orientation}")
+                print(f"Player orientation: {env.player_orientation}")
             if show_position:
                 env.print_scene()
         else:

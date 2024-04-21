@@ -1,4 +1,12 @@
 {
+  "player": {
+    "position": {
+      "x": 1,
+      "y": 1
+    },
+    "orientation": "E",
+    "fieldOfView": 5
+  },
   "rooms": [
     {
       "name": "Living Room",

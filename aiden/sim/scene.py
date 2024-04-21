@@ -44,10 +44,18 @@ class Scene:
             self.config = json.load(f)
 
         self.rooms = {room["name"]: room for room in self.config["rooms"]}
+        self.player = self.config["player"]
+
+        self.aiden_position = (
+            self.player["position"]["x"],
+            self.player["position"]["y"],
+        )  # Initialize Aiden's position
+        self.aiden_orientation = self.player["orientation"]  # Initialize orientation
+        self.view_distance = self.player[
+            "fieldOfView"
+        ]  # Aiden can see up to thise many grids ahead
+
         self.directions = {"w": "forward", "s": "backward", "a": "left", "d": "right"}
-        self.aiden_position = (1, 1)  # Initialize Aiden's position
-        self.aiden_orientation = "N"  # Initialize orientation
-        self.view_distance = 5  # Aiden can see up to 3 grids ahead
 
     def find_room_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():

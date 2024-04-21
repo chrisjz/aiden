@@ -78,6 +78,20 @@ class Scene:
                     return obj
         return None
 
+    def find_door_exit_by_entry(self, position: tuple[int, int]):
+        for room in self.rooms.values():
+            for door in room.get("doors", []):
+                if (
+                    door["position"]["entry"]["x"],
+                    door["position"]["entry"]["y"],
+                ) == position:
+                    # Return the exit position of the door
+                    return (
+                        door["position"]["exit"]["x"],
+                        door["position"]["exit"]["y"],
+                    )
+        return None
+
     def move_aiden(self, command: str) -> None:
         if command == "w":
             self.advance()
@@ -111,7 +125,12 @@ class Scene:
         new_y = self.aiden_position[1] + dy
         new_position = (new_x, new_y)
 
-        if self.is_position_within_room(new_position):
+        # Check if new position is a door entry, if so, teleport to the exit
+        door_exit = self.find_door_exit_by_entry(new_position)
+        if door_exit:
+            self.aiden_position = door_exit
+            print(f"Teleported to door exit at {door_exit}")
+        elif self.is_position_within_room(new_position):
             self.aiden_position = new_position
         else:
             print("Move blocked by environment boundaries.")
@@ -231,7 +250,8 @@ class Scene:
                         ):
                             print("O ", end="")
                         elif any(
-                            obj["position"]["x"] == x and obj["position"]["y"] == y
+                            obj["position"]["entry"]["x"] == x
+                            and obj["position"]["entry"]["y"] == y
                             for obj in room.get("doors", [])
                         ):
                             print("D ", end="")

@@ -37,8 +37,14 @@
         }
       ],
       "doors": [
-        {"to": "Bedroom", "position": {"x": 3, "y": 4}},
-        {"to": "Kitchen", "position": {"x": 5, "y": 2}}
+        {"to": "Bedroom", "position": {
+          "entry": {"x": 3, "y": 4},
+          "exit": {"x": 3, "y": 7}
+        }},
+        {"to": "Kitchen", "position": {
+          "entry": {"x": 5, "y": 2},
+          "exit": {"x": 8, "y": 2}
+        }}
       ],
       "senses": {
         "vision": "A spacious living room with large windows",
@@ -88,8 +94,14 @@
         }
       ],
       "doors": [
-        {"to": "Living Room", "position": {"x": 8, "y": 2}},
-        {"to": "Garden", "position": {"x": 10, "y": 4}}
+        {"to": "Living Room", "position": {
+          "entry": {"x": 8, "y": 2},
+          "exit": {"x": 5, "y": 2}
+        }},
+        {"to": "Garden", "position": {
+          "entry": {"x": 10, "y": 4},
+          "exit": {"x": 13, "y": 4}
+        }}
       ],
       "senses": {
         "vision": "Modern appliances and a marble countertop",
@@ -128,8 +140,14 @@
         }
       ],
       "doors": [
-        {"to": "Bathroom", "position": {"x": 4, "y": 8}},
-        {"to": "Living Room", "position": {"x": 3, "y": 7}}
+        {"to": "Bathroom", "position": {
+          "entry": {"x": 4, "y": 8},
+          "exit": {"x": 7, "y": 8}
+        }},
+        {"to": "Living Room", "position": {
+          "entry": {"x": 3, "y": 7},
+          "exit": {"x": 3, "y": 4}
+        }}
       ],
       "senses": {
         "vision": "A cozy room with muted lighting",
@@ -168,7 +186,10 @@
         }
       ],
       "doors": [
-        {"to": "Bedroom", "position": {"x": 7, "y": 8}}
+        {"to": "Bedroom", "position": {
+          "entry": {"x": 7, "y": 8},
+          "exit": {"x": 4, "y": 8}
+        }}
       ],
       "senses": {
         "vision": "Well-lit with tiled walls",
@@ -207,7 +228,10 @@
         }
       ],
       "doors": [
-        {"to": "Kitchen", "position": {"x": 13, "y": 4}}
+        {"to": "Kitchen", "position": {
+          "entry": {"x": 13, "y": 4},
+          "exit": {"x": 10, "y": 4}
+        }}
       ],
       "senses": {
         "vision": "A lush green garden with a small pond",

@@ -17,6 +17,7 @@ Commands:
 - s: Move backward (turn 180 degrees then move forward)
 - a: Turn left
 - d: Turn right
+- e: Perform action
 - q: Quit simulation
 
 Flags:
@@ -46,7 +47,13 @@ class Scene:
         self.player_orientation = self.player.orientation
         self.player_view_distance = self.player.fieldOfView
 
-        self.directions = {"w": "forward", "s": "backward", "a": "left", "d": "right"}
+        self.actions = {
+            "w": "forward",
+            "s": "backward",
+            "a": "left",
+            "d": "right",
+            "e": "use",
+        }
 
     def find_room_by_position(self, position: tuple[int, int]):
         for room_name, room in self.rooms.items():
@@ -78,16 +85,29 @@ class Scene:
                     return (exit.x, exit.y)
         return None
 
+    def interact_with_environment(self):
+        # Check for doors at the current position
+        door_exit = self.find_door_exit_by_entry(self.player_position)
+        if door_exit:
+            self.player_position = door_exit
+            print(f"You open the door and step through to {door_exit}")
+        else:
+            print("There is nothing to interact with here.")
+
     def move_player(self, command: str) -> None:
-        if command == "w":
+        if command in ("forward", "w"):
             self.advance()
-        elif command == "s":
+        elif command in ("backward", "s"):
             self.turn_around()
             self.advance()
-        elif command == "a":
+        elif command in ("left", "a"):
             self.turn_left()
-        elif command == "d":
+        elif command in ("right", "d"):
             self.turn_right()
+        elif command in ("use", "e"):
+            self.interact_with_environment()
+        else:
+            print("Unknown command!")
 
     def turn_around(self):
         self.player_orientation = {"N": "S", "S": "N", "E": "W", "W": "E"}[
@@ -111,11 +131,7 @@ class Scene:
         new_y = self.player_position[1] + dy
         new_position = (new_x, new_y)
 
-        door_exit = self.find_door_exit_by_entry(new_position)
-        if door_exit:
-            self.player_position = door_exit
-            print(f"Teleported to door exit at {door_exit}")
-        elif self.is_position_within_room(new_position):
+        if self.is_position_within_room(new_position):
             self.player_position = new_position
         else:
             print("Move blocked by environment boundaries.")
@@ -292,18 +308,16 @@ def main(scene_file: str, pretty: bool, show_position: bool, verbose: bool) -> N
         env.print_scene(pretty)
 
     while True:
-        command = input("Enter command (w, a, s, d, q to quit): ").strip().lower()
+        command = input("Enter command (w, a, s, d, e, q to quit): ").strip().lower()
         if command == "q":
             break
-        elif command in ["w", "a", "s", "d"]:
+        else:
             env.move_player(command)
             if verbose:
-                print(f"Action executed: {env.directions[command]}")
+                print(f"Action executed: {env.actions.get(command, '')}")
                 print(f"Player orientation: {env.player_orientation}")
             if show_position:
                 env.print_scene(pretty)
-        else:
-            print("Unknown command!")
 
 
 if __name__ == "__main__":

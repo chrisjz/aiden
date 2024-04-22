@@ -73,7 +73,8 @@ def test_turn_left(sample_scene):
 
 def test_teleport_to_room_via_door(complex_scene):
     complex_scene.player_position = (4, 3)  # Position at the door entry
-    complex_scene.move_player("w")  # Expected to teleport
+    complex_scene.move_player("w")
+    complex_scene.move_player("e")  # Trigget action to move through door
     assert complex_scene.player_position == (
         0,
         0,

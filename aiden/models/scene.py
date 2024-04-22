@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -33,6 +34,7 @@ class Object(BaseModel):
     name: str
     position: Position
     senses: Sense = Field(default_factory=Sense)
+    symbol: Optional[str] = None
 
 
 class Room(BaseModel):
@@ -42,6 +44,7 @@ class Room(BaseModel):
     objects: list[Object] = []
     doors: list[Door] = []
     senses: Sense = Field(default_factory=Sense)
+    symbol: Optional[str] = None
 
 
 class Player(BaseModel):

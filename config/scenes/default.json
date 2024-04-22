@@ -1,8 +1,8 @@
 {
   "player": {
     "position": {
-      "x": 1,
-      "y": 1
+      "x": 2,
+      "y": 2
     },
     "orientation": "E",
     "fieldOfView": 5
@@ -22,7 +22,8 @@
             "smell": "A hint of lavender from a fabric freshener",
             "taste": "",
             "tactile": "Soft, plush cushions"
-          }
+          },
+          "symbol": "🛋️ "
         },
         {
           "name": "TV",
@@ -33,7 +34,8 @@
             "smell": "",
             "taste": "",
             "tactile": ""
-          }
+          },
+          "symbol": "📺"
         }
       ],
       "doors": [
@@ -52,7 +54,8 @@
         "smell": "Freshly brewed coffee",
         "taste": "",
         "tactile": "Smooth, cool wooden floors underfoot"
-      }
+      },
+      "symbol": "🟧"
     },
     {
       "name": "Kitchen",
@@ -68,7 +71,8 @@
             "smell": "A blast of cold air with a hint of citrus",
             "taste": "",
             "tactile": "Cold metal surface"
-          }
+          },
+          "symbol": "🧊"
         },
         {
           "name": "Stove",
@@ -79,7 +83,8 @@
             "smell": "The savory aroma of a meal being prepared",
             "taste": "",
             "tactile": "The warmth radiating from the hot surface"
-          }
+          },
+          "symbol": "🍳"
         },
         {
           "name": "Fruit Bowl",
@@ -90,7 +95,8 @@
             "smell": "The sweet fragrance of ripe fruits",
             "taste": "The refreshing taste of mixed fruits",
             "tactile": "The soft texture of ripe fruit skin"
-          }
+          },
+          "symbol": "🍇"
         }
       ],
       "doors": [
@@ -109,7 +115,8 @@
         "smell": "Garlic and onions cooking",
         "taste": "",
         "tactile": "Warm air filled with steam from boiling water"
-      }
+      },
+      "symbol": "🟨"
     },
     {
       "name": "Bedroom",
@@ -125,7 +132,8 @@
             "smell": "Clean linen",
             "taste": "",
             "tactile": "The softness of the mattress"
-          }
+          },
+          "symbol": "🛏️ "
         },
         {
           "name": "Wardrobe",
@@ -136,7 +144,8 @@
             "smell": "A hint of cedar and mothballs",
             "taste": "",
             "tactile": "The smooth texture of polished wood"
-          }
+          },
+          "symbol": "👗"
         }
       ],
       "doors": [
@@ -155,7 +164,8 @@
         "smell": "A faint scent of lavender",
         "taste": "",
         "tactile": "Carpeted floors providing a soft footing"
-      }
+      },
+      "symbol": "🟦"
     },
     {
       "name": "Bathroom",
@@ -171,7 +181,8 @@
             "smell": "Steam and soap",
             "taste": "",
             "tactile": "The feel of warm water and tiles"
-          }
+          },
+          "symbol": "🚿"
         },
         {
           "name": "Sink",
@@ -182,7 +193,8 @@
             "smell": "A clean, almost clinical scent",
             "taste": "",
             "tactile": "The cool hardness of the ceramic"
-          }
+          },
+          "symbol": "🚰"
         }
       ],
       "doors": [
@@ -213,7 +225,8 @@
             "smell": "The earthy scent of bark and leaves",
             "taste": "",
             "tactile": "The rough texture of the tree bark"
-          }
+          },
+          "symbol": "🌳"
         },
         {
           "name": "Flower Bed",
@@ -224,7 +237,8 @@
             "smell": "The rich aroma of fresh earth and flowers",
             "taste": "",
             "tactile": "The rough texture of leaves and softness of petals"
-          }
+          },
+          "symbol": "🌼"
         }
       ],
       "doors": [
@@ -239,7 +253,8 @@
         "smell": "Fresh grass and damp soil",
         "taste": "",
         "tactile": "Grass underfoot, moist and springy"
-      }
+      },
+      "symbol": "🟩"
     }
   ]
 }

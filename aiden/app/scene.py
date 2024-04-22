@@ -146,7 +146,7 @@ class Scene:
                 visible_objects.append(obj)
         return visible_objects
 
-    def print_scene(self):
+    def print_scene(self, pretty: bool):
         print(
             f"Player's Position: {self.player_position}, Orientation: {self.player_orientation}"
         )
@@ -186,27 +186,45 @@ class Scene:
         for y in range(max_y):
             for x in range(max_x):
                 if (x, y) == self.player_position:
-                    orientation_char = {"N": "^", "E": ">", "S": "v", "W": "<"}[
-                        self.player_orientation
-                    ]
+                    orientation_char = {
+                        "N": "⬆️" if pretty else "^",
+                        "E": "➡️" if pretty else ">",
+                        "S": "⬇️" if pretty else "v",
+                        "W": "⬅️" if pretty else "<",
+                    }[self.player_orientation]
                     print(f"{orientation_char} ", end="")
                 else:
                     room = self.find_room_by_position((x, y))
                     if room:
-                        if any(
-                            obj.position.x == x and obj.position.y == y
-                            for obj in room.objects
-                        ):
-                            print("O ", end="")
-                        elif any(
-                            door.position.entry.x == x and door.position.entry.y == y
-                            for door in room.doors
-                        ):
-                            print("D ", end="")
-                        else:
-                            print(". ", end="")
+                        printed = False
+                        # Check for objects and print their symbols
+                        for obj in room.objects:
+                            if obj.position.x == x and obj.position.y == y:
+                                print(
+                                    obj.symbol
+                                    if obj.symbol and pretty
+                                    else "❓"
+                                    if pretty
+                                    else "? ",
+                                    end="",
+                                )
+                                printed = True
+                                break
+                        if not printed:  # No object at this position
+                            # Check for doors and print door symbol
+                            if any(
+                                door.position.entry.x == x
+                                and door.position.entry.y == y
+                                for door in room.doors
+                            ):
+                                print("🚪" if pretty else "D ", end="")
+                            else:
+                                # Print the room's specified empty space symbol or a default symbol
+                                empty_symbol = room.symbol if room.symbol else "⬜"
+                                print(empty_symbol if pretty else ". ", end="")
                     else:
-                        print("# ", end="")
+                        # Print a hash for barriers or outside the room boundaries
+                        print("⬛" if pretty else "# ", end="")
             print()  # New line after each row
 
         # Sensory feedback based on Aiden's position
@@ -232,6 +250,11 @@ class Scene:
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Run the AIden simulation with a specific scene configuration."
+    )
+    parser.add_argument(
+        "--pretty",
+        action="store_true",
+        help="Enable emoji representations of grid components.",
     )
     parser.add_argument(
         "--scene",
@@ -261,12 +284,12 @@ def load_scene(scene_file: str) -> SceneConfig:
     return SceneConfig(**data)
 
 
-def main(scene_file: str, show_position: bool, verbose: bool) -> None:
+def main(scene_file: str, pretty: bool, show_position: bool, verbose: bool) -> None:
     scene_config = load_scene(scene_file)
     env = Scene(scene_config)
     print("Initial scene:")
     if show_position:
-        env.print_scene()
+        env.print_scene(pretty)
 
     while True:
         command = input("Enter command (w, a, s, d, q to quit): ").strip().lower()
@@ -278,11 +301,11 @@ def main(scene_file: str, show_position: bool, verbose: bool) -> None:
                 print(f"Action executed: {env.directions[command]}")
                 print(f"Player orientation: {env.player_orientation}")
             if show_position:
-                env.print_scene()
+                env.print_scene(pretty)
         else:
             print("Unknown command!")
 
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.scene, args.show_position, args.verbose)
+    main(args.scene, args.pretty, args.show_position, args.verbose)

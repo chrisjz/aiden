@@ -1,5 +1,10 @@
-from typing import Optional
+from typing import Optional, Any
 from pydantic import BaseModel, Field
+
+
+class States(BaseModel):
+    requiredStates: dict[str, Any]
+    nextStates: dict[str, Any]
 
 
 class Position(BaseModel):
@@ -25,6 +30,13 @@ class Sense(BaseModel):
     vision: str = ""
 
 
+class Interaction(BaseModel):
+    command: str
+    description: str
+    senses: Optional[Sense] = Field(default_factory=Sense)
+    states: States
+
+
 class Size(BaseModel):
     width: int
     height: int
@@ -35,6 +47,8 @@ class Object(BaseModel):
     position: Position
     senses: Sense = Field(default_factory=Sense)
     symbol: Optional[str] = None
+    initialStates: dict[str, Any]
+    interactions: list[Interaction]
 
 
 class Room(BaseModel):

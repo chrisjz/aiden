@@ -23,19 +23,146 @@
             "taste": "",
             "tactile": "Soft, plush cushions"
           },
-          "symbol": "🛋️ "
+          "symbol": "🛋️ ",
+          "initialStates": {},
+          "interactions": []
         },
         {
           "name": "TV",
           "position": {"x": 4, "y": 1},
-          "senses": {
-            "vision": "A large flat-screen TV mounted on the wall",
-            "sound": "Low volume background music playing from the TV",
-            "smell": "",
-            "taste": "",
-            "tactile": ""
+          "symbol": "📺",
+          "initialStates": {
+            "isOn": false,
+            "currentChannel": 0
           },
-          "symbol": "📺"
+          "interactions": [            
+            {
+              "command": "change channel to 0",
+              "description": "Change the TV channel to 0.",
+              "senses": {
+                "vision": "The TV is playing the current news around the world.",
+                "sound": "An anchorman discusses the latest trends in artificial intelligence.",
+                "tactile": "Cold and smooth surface.",
+                "smell": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "currentChannel": 0
+                }
+              }
+            },
+            {
+              "command": "change channel to 1",
+              "description": "Change the TV channel to the music channel.",
+              "senses": {
+                "vision": "The TV is playing colorful music videos which are flashing on the screen.",
+                "sound": "Dynamic pop tunes and catchy melodies play loudly.",
+                "tactile": "Cold and smooth surface.",
+                "smell": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "currentChannel": 1
+                }
+              }
+            },
+            {
+              "command": "change channel to 2",
+              "description": "Change the TV channel to the sitcom channel.",
+              "senses": {
+                "vision": "A popular sitcom is playing on the TV, characters laughing and interacting.",
+                "sound": "Laughter tracks and witty dialogues fill the air.",
+                "tactile": "Cold and smooth surface.",
+                "smell": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "currentChannel": 2
+                }
+              }
+            },
+            {
+              "command": "change channel to 3",
+              "description": "Change the TV channel to the sports channel.",
+              "senses": {
+                "vision": "The TV is playing a live sports event showcasing a thrilling soccer match.",
+                "sound": "The crowd's cheers and the commentator's energetic voice can be heard.",
+                "tactile": "Cold and smooth surface.",
+                "smell": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "currentChannel": 3
+                }
+              }
+            },
+            {
+              "command": "change channel to 4",
+              "description": "Change the TV channel to the game show channel.",
+              "senses": {
+                "vision": "The TV is playing a game show with contestants solving puzzles and answering questions.",
+                "sound": "Sounds of buzzers, applause, and the host's engaging questions.",
+                "tactile": "Cold and smooth surface.",
+                "smell": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "currentChannel": 4
+                }
+              }
+            },
+            {
+              "command": "turn on",
+              "description": "Turn the TV on.",
+              "states": {
+                "requiredStates": {
+                  "isOn": false
+                },
+                "nextStates": {
+                  "isOn": true
+                }
+              }
+            },
+            {
+              "command": "turn off",
+              "description": "Turn the TV off.",
+              "senses": {
+                "vision": "A large flat-screen TV mounted on the wall. The TV is switched off.",
+                "sound": "",
+                "tactile": "Cold and smooth surface.",
+                "smell": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "isOn": false
+                }
+              }
+            }
+          ]
         }
       ],
       "doors": [
@@ -72,7 +199,9 @@
             "taste": "",
             "tactile": "Cold metal surface"
           },
-          "symbol": "🧊"
+          "symbol": "🧊",
+          "initialStates": {},
+          "interactions": []
         },
         {
           "name": "Stove",
@@ -84,7 +213,9 @@
             "taste": "",
             "tactile": "The warmth radiating from the hot surface"
           },
-          "symbol": "🍳"
+          "symbol": "🍳",
+          "initialStates": {},
+          "interactions": []
         },
         {
           "name": "Fruit Bowl",
@@ -96,7 +227,9 @@
             "taste": "The refreshing taste of mixed fruits",
             "tactile": "The soft texture of ripe fruit skin"
           },
-          "symbol": "🍇"
+          "symbol": "🍇",
+          "initialStates": {},
+          "interactions": []
         }
       ],
       "doors": [
@@ -133,7 +266,9 @@
             "taste": "",
             "tactile": "The softness of the mattress"
           },
-          "symbol": "🛏️ "
+          "symbol": "🛏️ ",
+          "initialStates": {},
+          "interactions": []
         },
         {
           "name": "Wardrobe",
@@ -145,7 +280,9 @@
             "taste": "",
             "tactile": "The smooth texture of polished wood"
           },
-          "symbol": "👗"
+          "symbol": "👗",
+          "initialStates": {},
+          "interactions": []
         }
       ],
       "doors": [
@@ -182,7 +319,9 @@
             "taste": "",
             "tactile": "The feel of warm water and tiles"
           },
-          "symbol": "🚿"
+          "symbol": "🚿",
+          "initialStates": {},
+          "interactions": []
         },
         {
           "name": "Sink",
@@ -194,7 +333,9 @@
             "taste": "",
             "tactile": "The cool hardness of the ceramic"
           },
-          "symbol": "🚰"
+          "symbol": "🚰",
+          "initialStates": {},
+          "interactions": []
         }
       ],
       "doors": [
@@ -226,7 +367,9 @@
             "taste": "",
             "tactile": "The rough texture of the tree bark"
           },
-          "symbol": "🌳"
+          "symbol": "🌳",
+          "initialStates": {},
+          "interactions": []
         },
         {
           "name": "Flower Bed",
@@ -238,7 +381,9 @@
             "taste": "",
             "tactile": "The rough texture of leaves and softness of petals"
           },
-          "symbol": "🌼"
+          "symbol": "🌼",
+          "initialStates": {},
+          "interactions": []
         }
       ],
       "doors": [

@@ -21,6 +21,7 @@ Commands:
 - q: Quit simulation
 
 Flags:
+- --pretty: Show emojis for grid items.
 - --scene: Path to the configuration file defining the scene to use.
 - --show-position: If present, displays the grid and Aiden's position after each command.
 - --verbose: If present, prints detailed actions of Aiden's experiences and senses after each move.
@@ -46,6 +47,9 @@ class Scene:
         self.player_position = (self.player.position.x, self.player.position.y)
         self.player_orientation = self.player.orientation
         self.player_view_distance = self.player.fieldOfView
+        self.object_states = {
+            obj.name: obj.initialStates for room in config.rooms for obj in room.objects
+        }
 
         self.actions = {
             "w": "forward",
@@ -85,14 +89,68 @@ class Scene:
                     return (exit.x, exit.y)
         return None
 
-    def interact_with_environment(self):
+    def interact_with_object(self):
         # Check for doors at the current position
         door_exit = self.find_door_exit_by_entry(self.player_position)
         if door_exit:
             self.player_position = door_exit
             print(f"You open the door and step through to {door_exit}")
+            return
+
+        # Check for objects at the current position
+        object_at_position = self.find_object_by_position(self.player_position)
+        if object_at_position:
+            current_states = self.object_states[object_at_position.name]
+            available_interactions = [
+                interaction
+                for interaction in object_at_position.interactions
+                if all(
+                    current_states.get(key) == value
+                    for key, value in interaction.states.requiredStates.items()
+                )
+            ]
+
+            if not available_interactions:
+                print(
+                    f"There are no available interactions with {object_at_position.name} based on its current state."
+                )
+                return
+
+            print(f"Interacting with {object_at_position.name}. Available commands:")
+            interaction_dict = {}
+            for index, interaction in enumerate(available_interactions, start=1):
+                print(f"{index}. {interaction.command}: {interaction.description}")
+                interaction_dict[str(index)] = interaction
+                interaction_dict[interaction.command.lower()] = interaction
+
+            print("Type 'exit' to stop interacting or enter the number or command.")
+
+            while True:
+                chosen_input = (
+                    input("Choose a command to execute or type 'exit': ")
+                    .strip()
+                    .lower()
+                )
+                if chosen_input == "exit":
+                    print("Exiting interaction mode.")
+                    return
+
+                chosen_interaction = interaction_dict.get(chosen_input, None)
+                if chosen_interaction:
+                    next_states = chosen_interaction.states.nextStates
+                    current_states.update(next_states)
+                    senses = chosen_interaction.senses
+                    print(f"Executed '{chosen_interaction.command}':")
+                    print(f"Vision: {senses.vision}")
+                    print(f"Sound: {senses.sound}")
+                    print(f"Smell: {senses.smell}")
+                    print(f"Taste: {senses.taste}")
+                    print(f"Tactile: {senses.tactile}")
+                    return
+                else:
+                    print("No such command available or conditions not met.")
         else:
-            print("There is nothing to interact with here.")
+            print("There is nothing here to interact with.")
 
     def move_player(self, command: str) -> None:
         if command in ("forward", "w"):
@@ -105,7 +163,7 @@ class Scene:
         elif command in ("right", "d"):
             self.turn_right()
         elif command in ("use", "e"):
-            self.interact_with_environment()
+            self.interact_with_object()
         else:
             print("Unknown command!")
 
@@ -295,7 +353,7 @@ def parse_arguments():
 def load_scene(scene_file: str) -> SceneConfig:
     if not os.path.exists(scene_file):
         raise FileNotFoundError("Cannot find the scene configuration file")
-    with open(scene_file, "r") as f:
+    with open(scene_file, "r", encoding="utf8") as f:
         data = json.load(f)
     return SceneConfig(**data)
 

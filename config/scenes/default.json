@@ -16,16 +16,50 @@
         {
           "name": "Sofa",
           "position": {"x": 1, "y": 1},
-          "senses": {
-            "vision": "A comfortable blue sofa",
-            "sound": "The faint rustle of fabric as you move",
-            "smell": "A hint of lavender from a fabric freshener",
-            "taste": "",
-            "tactile": "Soft, plush cushions"
-          },
           "symbol": "🛋️ ",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isMessy": false
+          },
+          "interactions": [
+            {
+              "command": "tidy up",
+              "description": "Tidy up the sofa by straightening the cushions and removing any clutter.",
+              "senses": {
+                "vision": "A neat and orderly sofa with cushions perfectly aligned.",
+                "sound": "",
+                "smell": "The fresh scent of a recently cleaned fabric.",
+                "taste": "",
+                "tactile": "Smooth, even surfaces of the well-arranged cushions on the sofa."
+              },
+              "states": {
+                "requiredStates": {
+                  "isMessy": true
+                },
+                "nextStates": {
+                  "isMessy": false
+                }
+              }
+            },
+            {
+              "command": "make messy",
+              "description": "Disarrange the sofa to a more relaxed, lived-in look.",
+              "senses": {
+                "vision": "Cushions tossed about and slight disarray, making the sofa look invitingly lived-in.",
+                "sound": "",
+                "smell": "The same, unchanged scent of the sofa.",
+                "taste": "",
+                "tactile": "An uneven array of cushions and throws on the sofa."
+              },
+              "states": {
+                "requiredStates": {
+                  "isMessy": false
+                },
+                "nextStates": {
+                  "isMessy": true
+                }
+              }
+            }
+          ]
         },
         {
           "name": "TV",
@@ -197,30 +231,98 @@
         {
           "name": "Refrigerator",
           "position": {"x": 8, "y": 3},
-          "senses": {
-            "vision": "A large white refrigerator",
-            "sound": "A gentle buzzing and occasional clunks",
-            "smell": "A blast of cold air with a hint of citrus",
-            "taste": "",
-            "tactile": "Cold metal surface"
-          },
           "symbol": "🧊",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isOpen": false
+          },
+          "interactions": [
+            {
+              "command": "open refrigerator",
+              "description": "Open the refrigerator to look inside.",
+              "senses": {
+                "vision": "An open refrigerator having shelves stocked with various food items.",
+                "sound": "The loud hum of the refrigerator.",
+                "smell": "A cool blast of air brings a mix of scents.",
+                "tactile": "The refrigerator's cool air touches your face.",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOpen": false
+                },
+                "nextStates": {
+                  "isOpen": true
+                }
+              }
+            },
+            {
+              "command": "close refrigerator",
+              "description": "Close the refrigerator.",
+              "senses": {
+                "vision": "A refrigerator with its doors shut.",
+                "sound": "",
+                "smell": "",
+                "tactile": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOpen": true
+                },
+                "nextStates": {
+                  "isOpen": false
+                }
+              }
+            }
+          ]
         },
         {
           "name": "Stove",
           "position": {"x": 8, "y": 4},
-          "senses": {
-            "vision": "A shiny, modern stove with pots on it",
-            "sound": "The sizzle of cooking food",
-            "smell": "The savory aroma of a meal being prepared",
-            "taste": "",
-            "tactile": "The warmth radiating from the hot surface"
-          },
           "symbol": "🍳",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isOn": false
+          },
+          "interactions": [
+            {
+              "command": "turn on stove",
+              "description": "Turn on the stove to start cooking.",
+              "senses": {
+                "vision": "The stove is ignited and the burner glows red.",
+                "sound": "The sizzle of cooking food.",
+                "smell": "A cooked meal of a robust and savory flavor, with the pungent intensity of garlic and the subtle sweetness of onions enhancing the rich, umami taste.",
+                "tactile": "Heat radiates from the stove top.",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": false
+                },
+                "nextStates": {
+                  "isOn": true
+                }
+              }
+            },
+            {
+              "command": "turn off stove",
+              "description": "Turn off the stove after cooking.",
+              "senses": {
+                "vision": "A shiny, modern stove with pots on it. The stove is turned off.",
+                "sound": "",
+                "smell": "The lingering smell of cooked food.",
+                "tactile": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "isOn": false
+                }
+              }
+            }
+          ]
         },
         {
           "name": "Fruit Bowl",
@@ -264,30 +366,98 @@
         {
           "name": "Bed",
           "position": {"x": 1, "y": 7},
-          "senses": {
-            "vision": "A large, neatly made bed",
-            "sound": "The faint creak of bed springs",
-            "smell": "Clean linen",
-            "taste": "",
-            "tactile": "The softness of the mattress"
-          },
           "symbol": "🛏️ ",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isMade": true
+          },
+          "interactions": [
+            {
+              "command": "make bed",
+              "description": "Neatly make the bed.",
+              "senses": {
+                "vision": "Neatly made bed, with all the sheets and pillows in perfect order.",
+                "sound": "",
+                "smell": "The fresh scent of clean linen.",
+                "tactile": "The smooth texture of the bed sheets.",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isMade": false
+                },
+                "nextStates": {
+                  "isMade": true
+                }
+              }
+            },
+            {
+              "command": "mess up bed",
+              "description": "Disarrange the bed to make it messy.",
+              "senses": {
+                "vision": "Messy bed with sheets and pillows strewn about.",
+                "sound": "",
+                "smell": "The unchanged air of a used bed.",
+                "tactile": "The disordered, crumpled texture of the bedclothes.",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isMade": true
+                },
+                "nextStates": {
+                  "isMade": false
+                }
+              }
+            }
+          ]
         },
         {
           "name": "Wardrobe",
           "position": {"x": 4, "y": 9},
-          "senses": {
-            "vision": "A large wooden wardrobe",
-            "sound": "The sliding noise of hangers when moved",
-            "smell": "A hint of cedar and mothballs",
-            "taste": "",
-            "tactile": "The smooth texture of polished wood"
-          },
           "symbol": "👗",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isOpen": false
+          },
+          "interactions": [
+            {
+              "command": "open wardrobe",
+              "description": "Open the wardrobe to see your clothes.",
+              "senses": {
+                "vision": "A large, open wooden wardrobe revealing rows of neatly hung clothes.",
+                "sound": "",
+                "smell": "A hint of cedar and mothballs emanating from within the wardrobe.",
+                "tactile": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOpen": false
+                },
+                "nextStates": {
+                  "isOpen": true
+                }
+              }
+            },
+            {
+              "command": "close wardrobe",
+              "description": "Close the wardrobe.",
+              "senses": {
+                "vision": "A large wooden wardrobe with its doors closed.",
+                "sound": "",
+                "smell": "The slight scent of cedar and mothballs.",
+                "tactile": "The smooth texture of polished wood.",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOpen": true
+                },
+                "nextStates": {
+                  "isOpen": false
+                }
+              }
+            }
+          ]
         }
       ],
       "doors": [
@@ -317,30 +487,98 @@
         {
           "name": "Shower",
           "position": {"x": 7, "y": 7},
-          "senses": {
-            "vision": "A glass shower stall with running water",
-            "sound": "The constant sound of water splashing",
-            "smell": "Steam and soap",
-            "taste": "",
-            "tactile": "The feel of warm water and tiles"
-          },
           "symbol": "🚿",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isOn": false
+          },
+          "interactions": [
+            {
+              "command": "turn on shower",
+              "description": "Turn on the shower to take a bath.",
+              "senses": {
+                "vision": "A glass shower stall with water spraying from the showerhead.",
+                "sound": "The sound of water splashing against the floor and walls.",
+                "smell": "The aroma of soap and steam filling the air.",
+                "tactile": "Warm water cascades over your skin.",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": false
+                },
+                "nextStates": {
+                  "isOn": true
+                }
+              }
+            },
+            {
+              "command": "turn off shower",
+              "description": "Turn off the shower after use.",
+              "senses": {
+                "vision": "A glass shower stall with running water.",
+                "sound": "",
+                "smell": "The lingering scent of soap and steam.",
+                "tactile": "",
+                "taste": ""
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "isOn": false
+                }
+              }
+            }
+          ]
         },
         {
           "name": "Sink",
           "position": {"x": 8, "y": 9},
-          "senses": {
-            "vision": "A clean, white porcelain sink",
-            "sound": "The echo of dripping water",
-            "smell": "A clean, almost clinical scent",
-            "taste": "",
-            "tactile": "The cool hardness of the ceramic"
-          },
           "symbol": "🚰",
-          "initialStates": {},
-          "interactions": []
+          "initialStates": {
+            "isOn": false
+          },
+          "interactions": [
+            {
+              "command": "turn on",
+              "description": "Turn on the sink to start water flow.",
+              "senses": {
+                "vision": "A clean, white porcelain sink with water gushing out of the faucet, creating a swirl in the sink.",
+                "sound": "The sound of running water.",
+                "smell": "A misty scent of clean water.",
+                "taste": "",
+                "tactile": "The cool splash of water."
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": false
+                },
+                "nextStates": {
+                  "isOn": true
+                }
+              }
+            },
+            {
+              "command": "turn off",
+              "description": "Turn off the sink to stop water flow.",
+              "senses": {
+                "vision": "A clean, white porcelain sink.",
+                "sound": "",
+                "smell": "A clean, almost clinical scent.",
+                "taste": "",
+                "tactile": "The damp surface of the sink."
+              },
+              "states": {
+                "requiredStates": {
+                  "isOn": true
+                },
+                "nextStates": {
+                  "isOn": false
+                }
+              }
+            }
+          ]
         }
       ],
       "doors": [

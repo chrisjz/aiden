@@ -51,7 +51,8 @@
                   "isOn": true
                 },
                 "nextStates": {
-                  "currentChannel": 0
+                  "currentChannel": 0,
+                  "isOn": true
                 }
               }
             },
@@ -70,7 +71,8 @@
                   "isOn": true
                 },
                 "nextStates": {
-                  "currentChannel": 1
+                  "currentChannel": 1,
+                  "isOn": true
                 }
               }
             },
@@ -89,7 +91,8 @@
                   "isOn": true
                 },
                 "nextStates": {
-                  "currentChannel": 2
+                  "currentChannel": 2,
+                  "isOn": true
                 }
               }
             },
@@ -108,7 +111,8 @@
                   "isOn": true
                 },
                 "nextStates": {
-                  "currentChannel": 3
+                  "currentChannel": 3,
+                  "isOn": true
                 }
               }
             },
@@ -127,7 +131,8 @@
                   "isOn": true
                 },
                 "nextStates": {
-                  "currentChannel": 4
+                  "currentChannel": 4,
+                  "isOn": true
                 }
               }
             },

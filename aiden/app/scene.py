@@ -36,7 +36,7 @@ import argparse
 import json
 import os
 
-from aiden.models.scene import SceneConfig
+from aiden.models.scene import SceneConfig, Sense
 
 
 class Scene:
@@ -228,25 +228,51 @@ class Scene:
         current_object = self.find_object_by_position(self.player_position)
         visible_objects = self.get_field_of_view()
 
-        # Combine the vision descriptions
-        room_vision = current_room.senses.vision if current_room else "nothing"
-        objects_vision = [
-            obj.senses.vision for obj in visible_objects if obj.senses.vision
-        ]
+        # Initialize default senses
+        room_senses = current_room.senses if current_room else Sense()
+        combined_senses = {
+            "vision": room_senses.vision,
+            "sound": room_senses.sound,
+            "smell": room_senses.smell,
+            "taste": room_senses.taste,
+            "tactile": room_senses.tactile,
+        }
 
-        # Include current object's vision if present
-        if current_object and "vision" in current_object.senses:
-            current_object_vision = current_object.senses.vision
-            objects_vision.insert(
-                0, current_object_vision
-            )  # Prepend to make it more prominent
+        # Process each visible object's senses
+        for obj in visible_objects:
+            object_state = self.object_states.get(obj.name, {})
+            matched_senses = obj.senses  # Start with default senses
 
-        # Construct the full vision string
-        full_vision = (
-            f"{room_vision}. Visible objects: {', '.join(objects_vision)}"
-            if objects_vision
-            else room_vision
-        )
+            # Update senses based on current state matches with interactions
+            for interaction in obj.interactions:
+                if all(
+                    object_state.get(key) == value
+                    for key, value in interaction.states.nextStates.items()
+                ):
+                    matched_senses = interaction.senses
+                    break
+
+            # Combine all senses data
+            for sense in combined_senses.keys():
+                if getattr(matched_senses, sense):
+                    combined_senses[sense] += f" | {getattr(matched_senses, sense)}"
+
+        # Include current object's senses based on state and interactions
+        if current_object:
+            current_object_state = self.object_states.get(current_object.name, {})
+            current_object_senses = current_object.senses
+            for interaction in current_object.interactions:
+                if all(
+                    current_object_state.get(key) == value
+                    for key, value in interaction.states.nextStates.items()
+                ):
+                    current_object_senses = interaction.senses
+                    break
+            for sense in combined_senses.keys():
+                if getattr(current_object_senses, sense):
+                    combined_senses[sense] = getattr(
+                        current_object_senses, sense
+                    )  # Update with current object's state
 
         # Prepare to display the grid with Aiden's position and orientation
         max_x = (
@@ -303,21 +329,19 @@ class Scene:
 
         # Sensory feedback based on Aiden's position
         if current_object:
-            senses = current_object.senses
             print(f"Now at: {current_object.name}")
         else:
-            senses = current_room.senses if current_room else {}
             print(
                 f"Now in: {current_room.name}"
                 if current_room
                 else "Player is outside any room"
             )
 
-        print(f"Vision: {full_vision}")
-        print(f"Sound: {senses.sound}")
-        print(f"Smell: {senses.smell}")
-        print(f"Taste: {senses.taste}")
-        print(f"Tactile: {senses.tactile}")
+        print(f"Vision: {combined_senses['vision']}")
+        print(f"Sound: {combined_senses['sound']}")
+        print(f"Smell: {combined_senses['smell']}")
+        print(f"Taste: {combined_senses['taste']}")
+        print(f"Tactile: {combined_senses['tactile']}")
         print()
 
 

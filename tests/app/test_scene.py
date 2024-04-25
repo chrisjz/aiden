@@ -1,6 +1,28 @@
+import io
+import sys
+from unittest.mock import patch
 import pytest
 from aiden.app.scene import Scene
-from aiden.models.scene import Door, Object, SceneConfig, Position, Room, Player, Size
+from aiden.models.scene import (
+    Door,
+    Object,
+    SceneConfig,
+    Position,
+    Room,
+    Player,
+    Size,
+    Interaction,
+    States,
+)
+
+
+def capture_output(func, *args, **kwargs):
+    captured_output = io.StringIO()
+    with patch("sys.stdout", new=captured_output), patch(
+        "sys.stdin", io.StringIO("exit\n")
+    ):
+        func(*args, **kwargs)
+    return captured_output.getvalue()
 
 
 @pytest.fixture
@@ -23,7 +45,15 @@ def complex_scene():
             name="Living Room",
             position=Position(x=0, y=0),
             size=Size(width=5, height=5),
-            objects=[Object(name="Sofa", position=Position(x=2, y=2), senses={})],
+            objects=[
+                Object(
+                    name="Sofa",
+                    position=Position(x=2, y=2),
+                    senses={},
+                    initialStates={},
+                    interactions=[],
+                )
+            ],
             doors=[
                 Door(
                     to="Bedroom",
@@ -35,11 +65,70 @@ def complex_scene():
             name="Bedroom",
             position=Position(x=5, y=0),
             size=Size(width=5, height=5),
-            objects=[Object(name="Bed", position=Position(x=7, y=1), senses={})],
+            objects=[
+                Object(
+                    name="Bed",
+                    position=Position(x=7, y=1),
+                    senses={},
+                    initialStates={},
+                    interactions=[],
+                )
+            ],
         ),
     ]
     config = SceneConfig(rooms=rooms, player=player)
     return Scene(config)
+
+
+@pytest.fixture
+def interactive_scene():
+    player = Player(position=Position(x=2, y=2), orientation="S", fieldOfView=3)
+    sofa = Object(
+        name="Sofa",
+        position=Position(x=2, y=3),
+        symbol="🛋️",
+        interactions=[],
+        initialStates={},
+    )
+    tv = Object(
+        name="TV",
+        position=Position(x=2, y=2),
+        symbol="📺",
+        interactions=[
+            Interaction(
+                command="turn on",
+                description="Turn the TV on.",
+                states=States(
+                    requiredStates={"isOn": False}, nextStates={"isOn": True}
+                ),
+                senses={"vision": "TV turns on", "sound": "Startup sound plays"},
+            ),
+            Interaction(
+                command="turn off",
+                description="Turn the TV off.",
+                states=States(
+                    requiredStates={"isOn": True}, nextStates={"isOn": False}
+                ),
+                senses={"vision": "TV turns off", "sound": "Silence"},
+            ),
+        ],
+        initialStates={"isOn": False},
+    )
+    rooms = [
+        Room(
+            name="Living Room",
+            position=Position(x=0, y=0),
+            size=Size(width=5, height=5),
+            objects=[sofa, tv],
+        )
+    ]
+    config = SceneConfig(rooms=rooms, player=player)
+    scene = Scene(config)
+    scene.object_states = {
+        "TV": {"isOn": False},
+        "Sofa": {},
+    }  # Mocking the state dictionary
+    return scene
 
 
 def test_move_forward(sample_scene):
@@ -120,6 +209,8 @@ def test_sensory_data_interaction(complex_scene):
             "taste": "Rich custard taste with hints of almond",
             "tactile": "Spiky and hard outer shell",
         },
+        initialStates={},
+        interactions=[],
     )
     complex_scene.rooms["Living Room"].objects.append(durian)
 
@@ -144,3 +235,53 @@ def test_sensory_data_interaction(complex_scene):
     assert (
         current_object.senses.tactile == "Spiky and hard outer shell"
     ), "Should feel the Durian's texture"
+
+
+def test_available_interactions_based_on_state(interactive_scene, monkeypatch):
+    # Ensure the TV is off
+    interactive_scene.object_states["TV"] = {"isOn": False}
+    # Simulate user input for exiting interaction mode immediately
+    monkeypatch.setattr("builtins.input", lambda _: "exit")
+    output = capture_output(interactive_scene.interact_with_object)
+
+    assert "turn on" in output, "Turn on command should be available"
+    assert "turn off" not in output, "Turn off command should not be available"
+
+
+def test_interaction_execution_changes_state(interactive_scene, monkeypatch):
+    # Prepare the responses for input calls
+    inputs = iter(["turn on", "exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    # Redirect stdout to capture prints
+    captured_output = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", captured_output)
+
+    # Position player correctly and then simulate interaction
+    interactive_scene.move_player("e")  # Trigger interaction which should handle inputs
+
+    # Fetch the captured output and check it
+    output = captured_output.getvalue()
+    assert "TV turns on" in output, f"Expected 'TV turns on' in output, got: {output}"
+
+
+def test_exit_interaction_command(interactive_scene):
+    # Mock input to simulate "exit" command
+    with patch("builtins.input", return_value="exit"):
+        output = capture_output(interactive_scene.interact_with_object)
+    assert "Exiting interaction mode." in output
+
+
+def test_no_interactions_available(interactive_scene, monkeypatch):
+    # Move player to sofa location
+    interactive_scene.move_player("w")
+    # Simulate user input for exiting interaction mode immediately
+    monkeypatch.setattr("builtins.input", lambda _: "exit")
+    output = capture_output(interactive_scene.interact_with_object)
+    assert (
+        "There are no available interactions with Sofa based on its current state."
+        in output
+    ), "Should indicate no interactions available"
+    assert (
+        "sit" not in output
+    ), "Sit command should not be available since the TV is already on"

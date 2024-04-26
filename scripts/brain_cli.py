@@ -20,10 +20,31 @@ def main():
         input("Enter auditory input (default: 'I hear a bird chirping.'): ")
         or "I hear a bird chirping."
     )
+    tactile_input = (
+        input(
+            "Enter tactile input (default: 'I feel the gentle breeze of the wind.'): "
+        )
+        or "I feel the gentle breeze of the wind."
+    )
+    olfactory_input = (
+        input(
+            "Enter olfactory input (default: 'I smell the sweet scent of flowers blooming.'): "
+        )
+        or "I smell the sweet scent of flowers blooming."
+    )
+    gustatory_input = (
+        input(
+            "Enter gustatory input (default: 'I taste the minty flavour of the gum I'm chewing.'): "
+        )
+        or "I taste the minty flavour of the gum I'm chewing."
+    )
 
     sensory_data = {
         "vision": vision_input,
         "auditory": auditory_input,
+        "tactile": tactile_input,
+        "smell": olfactory_input,
+        "taste": gustatory_input,
     }
 
     # Send a POST request to the Cortical endpoint

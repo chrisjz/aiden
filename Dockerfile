@@ -21,7 +21,7 @@ RUN poetry config virtualenvs.create false \
   && poetry install --only main --no-interaction --no-ansi
 
 # Copy relevant project files
-COPY ./aiden/api/brain.py ./aiden/api/brain.py
+COPY ./aiden ./aiden
 
 # Run the application
 CMD ["uvicorn", "aiden.api.brain:app", "--host", "0.0.0.0", "--port", "8000"]

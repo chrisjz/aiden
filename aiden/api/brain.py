@@ -1,16 +1,12 @@
 import logging
 import os
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 import httpx
 
+from aiden.models.brain import SensoryData
+
 app = FastAPI()
-
-
-class SensoryData(BaseModel):
-    vision: str = None
-    auditory: str = None
 
 
 # Cognitive API URL
@@ -44,11 +40,13 @@ Please respond in the first person, as if you are experiencing the environment d
 """.strip()
 
         # Prepare the user prompt template based on available sensory data
-        user_prompt_template = f"I see {sensory_data.vision} and hear {sensory_data.auditory}. What are you currently thinking?"
         user_prompt_template = f"""
 My visual input: {sensory_data.vision}
 My auditory input: {sensory_data.auditory}
-{', '.join(SYSTEM_PROMPT['action'])}
+My tactile input: {sensory_data.tactile}
+My olfactory input: {sensory_data.smell}
+My gustatory input: {sensory_data.taste}
+{SYSTEM_PROMPT['action']}
 """.strip()
 
         logger.info(f"System prompt formatted: {system_prompt_template}")

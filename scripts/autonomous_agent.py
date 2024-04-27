@@ -1,3 +1,30 @@
+"""
+This script operates as the main driver for the AIden autonomous agent simulation via the CLI,
+interfacing with a virtual environment to process and respond to sensory data in real-time.
+It supports interaction through a specified API, continuously updating based on inputs
+from the virtual scene and responses from the brain API.
+
+The simulation can be configured through command-line arguments to specify the scene
+configuration, enable detailed logging to both terminal and files, and adjust log levels
+for different outputs. It leverages asyncio for asynchronous operations, ensuring the
+simulation runs smoothly and responsively.
+
+Features:
+- Dynamic scene rendering and sensory data processing.
+- Interaction with brain API to fetch and execute AI-generated actions.
+- Configurable logging setup to track and record simulation activities in detail.
+
+Usage:
+    python main.py --scene [path] --log --terminal-level [level] --file-level [level]
+    --scene: Specify the path to the scene configuration file.
+    --log: Enable logging to file.
+    --terminal-level: Set the logging level for terminal output (default: DEBUG).
+    --file-level: Set the logging level for file output (default: INFO).
+
+The logging outputs are stored in the 'Logs/autonomous_agent_cli' directory, with each session
+timestamped to facilitate easy tracking and review of past activities.
+"""
+
 import argparse
 import asyncio
 import datetime

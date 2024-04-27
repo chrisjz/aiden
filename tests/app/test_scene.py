@@ -114,7 +114,7 @@ def interactive_scene():
                     requiredStates={"isOn": True}, nextStates={"isOn": False}
                 ),
                 senses={
-                    "vision": "TV turns off",
+                    "vision": "TV which is switched off",
                     "sound": "No sound coming from the TV",
                 },
             ),
@@ -146,13 +146,13 @@ def interactive_scene():
 
 
 def test_move_forward(sample_scene):
-    sample_scene.advance()
+    sample_scene.move_player("forward")
     assert sample_scene.player_position == (0, 1), "Should move South"
 
 
 def test_backwards_movement(sample_scene):
     sample_scene.process_action(
-        "s"
+        "backward"
     )  # Initially facing south, moving backward should keep the same position
     assert sample_scene.player_position == (
         0,
@@ -176,8 +176,8 @@ def test_turn_left(sample_scene):
 
 def test_teleport_to_room_via_door(complex_scene):
     complex_scene.player_position = (4, 3)  # Position at the door entry
-    complex_scene.process_action("w")
-    complex_scene.process_action("e")  # Trigget action to move through door
+    complex_scene.process_action("forward")
+    complex_scene.process_action("use")  # Trigger action to move through door
     assert complex_scene.player_position == (
         0,
         0,
@@ -185,11 +185,11 @@ def test_teleport_to_room_via_door(complex_scene):
 
 
 def test_object_interaction(complex_scene):
-    complex_scene.process_action("w")  # Move north to y=0
-    complex_scene.process_action("d")  # Move east to x=2
-    complex_scene.process_action("d")  # Move east to x=2, position of the sofa
+    complex_scene.process_action("forward")  # Move north to y=0
+    complex_scene.process_action("right")  # Move east to x=2
+    complex_scene.process_action("right")  # Move east to x=2, position of the sofa
     assert (
-        complex_scene.find_object_by_position((2, 2)).name == "Sofa"
+        complex_scene.get_entity_by_position((2, 2), "object").name == "Sofa"
     ), "Should be at the position of the Sofa"
 
 
@@ -232,7 +232,7 @@ def test_sensory_data_interaction(complex_scene):
 
     # Move player to the position of the Durian
     complex_scene.player_position = (1, 1)
-    current_object = complex_scene.find_object_by_position((1, 1))
+    current_object = complex_scene.get_entity_by_position((1, 1), "object")
 
     # Ensure the object is the Durian and test each sensory attribute
     assert current_object.name == "Durian", "Should be at the position of the Durian"
@@ -320,15 +320,15 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
         ),
         (
             (2, 2),
-            "TV playing a sports game",
-            "You hear an audience cheer from the TV segment playing",
-            "",
-            "",
+            "A spacious living room with large windows | TV which is switched off",
+            "A constant low hum from an air conditioner | No sound coming from the TV",
+            "Freshly brewed coffee",
+            "Smooth, cool wooden floors underfoot",
             "",
         ),
     ],
 )
-def test_get_sensory_data(
+def test_update_sensory_data(
     interactive_scene,
     player_position,
     expected_vision,
@@ -341,7 +341,7 @@ def test_get_sensory_data(
     interactive_scene.player_position = player_position
 
     # Execute the get_sensory_data function
-    sensory_data = interactive_scene.get_sensory_data()
+    sensory_data = interactive_scene.update_sensory_data()
 
     # Assert each sense is correctly gathered
     assert (

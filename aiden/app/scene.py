@@ -23,11 +23,9 @@ Commands:
 Flags:
 - --pretty: Show emojis for grid items.
 - --scene: Path to the configuration file defining the scene to use.
-- --show-position: If present, displays the grid and Aiden's position after each command.
-- --verbose: If present, prints detailed actions of Aiden's experiences and senses after each move.
 
 Example Usage:
-python aiden_simulation.py --verbose --show-position
+python aiden_simulation.py --pretty
 
 This tool allows for a text-based simulation of sensory experiences in a virtual environment, making it useful for debugging and understanding the sensory data processing without a full 3D simulation.
 """
@@ -37,7 +35,7 @@ import json
 import os
 
 from aiden.models.brain import SensoryData
-from aiden.models.scene import SceneConfig, Sense
+from aiden.models.scene import SceneConfig
 
 
 class Scene:
@@ -58,36 +56,60 @@ class Scene:
             "a": "left",
             "d": "right",
             "e": "use",
+            "forward": "forward",
+            "backward": "backward",
+            "left": "left",
+            "right": "right",
+            "use": "use",
         }
 
-    def find_room_by_position(self, position: tuple[int, int]):
-        for room_name, room in self.rooms.items():
+        self.orientation_to_direction = {
+            "N": {
+                "forward": (0, -1),
+                "backward": (0, 1),
+                "left": (-1, 0),
+                "right": (1, 0),
+            },
+            "E": {
+                "forward": (1, 0),
+                "backward": (-1, 0),
+                "left": (0, -1),
+                "right": (0, 1),
+            },
+            "S": {
+                "forward": (0, 1),
+                "backward": (0, -1),
+                "left": (1, 0),
+                "right": (-1, 0),
+            },
+            "W": {
+                "forward": (-1, 0),
+                "backward": (1, 0),
+                "left": (0, 1),
+                "right": (0, -1),
+            },
+        }
+
+    def get_entity_by_position(self, position: tuple[int, int], entity_type: str):
+        for room in self.rooms.values():
             x, y = position
-            room_pos = room.position
-            room_size = room.size
             if (
-                room_pos.x <= x < room_pos.x + room_size.width
-                and room_pos.y <= y < room_pos.y + room_size.height
+                entity_type == "room"
+                and (room.position.x <= x < room.position.x + room.size.width)
+                and (room.position.y <= y < room.position.y + room.size.height)
             ):
                 return room
-        return None
-
-    def find_object_by_position(self, position: tuple[int, int]):
-        for room_name, room in self.rooms.items():
-            for obj in room.objects:
-                obj_x = obj.position.x
-                obj_y = obj.position.y
-                if (obj_x, obj_y) == position:
-                    return obj
+            elif entity_type == "object":
+                for obj in room.objects:
+                    if (obj.position.x, obj.position.y) == position:
+                        return obj
         return None
 
     def find_door_exit_by_entry(self, position: tuple[int, int]):
         for room in self.config.rooms:
             for door in room.doors:
-                entry = door.position.entry
-                exit = door.position.exit
-                if (entry.x, entry.y) == position:
-                    return (exit.x, exit.y)
+                if (door.position.entry.x, door.position.entry.y) == position:
+                    return (door.position.exit.x, door.position.exit.y)
         return None
 
     def interact_with_object(self):
@@ -99,7 +121,7 @@ class Scene:
             return
 
         # Check for objects at the current position
-        object_at_position = self.find_object_by_position(self.player_position)
+        object_at_position = self.get_entity_by_position(self.player_position, "object")
         if object_at_position:
             current_states = self.object_states[object_at_position.name]
             available_interactions = [
@@ -153,95 +175,102 @@ class Scene:
         else:
             print("There is nothing here to interact with.")
 
-    def get_sensory_data(self):
-        object_at_position = self.find_object_by_position(self.player_position)
-        if object_at_position:
-            current_states = self.object_states[object_at_position.name]
-            available_interactions = [
-                interaction
-                for interaction in object_at_position.interactions
+    def update_sensory_data(self) -> SensoryData:
+        current_room = self.get_entity_by_position(self.player_position, "room")
+        current_object = self.get_entity_by_position(self.player_position, "object")
+
+        # Initialize default senses
+        combined_senses = {
+            "vision": "",
+            "sound": "",
+            "tactile": "",
+            "smell": "",
+            "taste": "",
+        }
+
+        # Combine room senses if present
+        if current_room:
+            room_senses = current_room.senses
+            combined_senses["vision"] += room_senses.vision
+            combined_senses["sound"] += room_senses.sound
+            combined_senses["tactile"] += room_senses.tactile
+            combined_senses["smell"] += room_senses.smell
+            combined_senses["taste"] += room_senses.taste
+
+        # Combine object senses if present, considering current state
+        if current_object:
+            current_states = self.object_states[current_object.name]
+            matched_senses = None
+            for interaction in current_object.interactions:
                 if all(
-                    current_states.get(key) == value
-                    for key, value in interaction.states.requiredStates.items()
-                )
-            ]
+                    current_states.get(state) == value
+                    for state, value in interaction.states.nextStates.items()
+                ):
+                    matched_senses = interaction.senses
+                    break
 
-            # Find the first available interaction and get sensory data from it
-            if available_interactions:
-                first_interaction = available_interactions[0]
-                return SensoryData(
-                    vision=first_interaction.senses.vision,
-                    auditory=first_interaction.senses.sound,
-                    tactile=first_interaction.senses.tactile,
-                    smell=first_interaction.senses.smell,
-                    taste=first_interaction.senses.taste,
-                )
-            else:
-                # If no available interactions, return default sensory data
-                return SensoryData()
+            # If no interaction matches, default to object's intrinsic senses
+            if not matched_senses:
+                matched_senses = current_object.senses
 
-        room = self.find_room_by_position(self.player_position)
-        if room:
-            return SensoryData(
-                vision=room.senses.vision,
-                auditory=room.senses.sound,
-                tactile=room.senses.tactile,
-                smell=room.senses.smell,
-                taste=room.senses.taste,
-            )
-        return SensoryData()
+            # Combining sensory data based on matched senses
+            for sense_key in combined_senses.keys():
+                sense_value = getattr(matched_senses, sense_key)
+                if sense_value:
+                    combined_senses[sense_key] += " | " + sense_value
+
+        # Return a new SensoryData instance filled with the combined sensory data
+        return SensoryData(
+            vision=combined_senses["vision"].strip(),
+            auditory=combined_senses["sound"].strip(),
+            tactile=combined_senses["tactile"].strip(),
+            smell=combined_senses["smell"].strip(),
+            taste=combined_senses["taste"].strip(),
+        )
 
     def process_action(self, command: str) -> None:
-        if command in ("forward", "w"):
-            self.advance()
-        elif command in ("backward", "s"):
-            self.turn_around()
-            self.advance()
-        elif command in ("left", "a"):
-            self.turn_left()
-        elif command in ("right", "d"):
-            self.turn_right()
-        elif command in ("use", "e"):
-            self.interact_with_object()
+        action = self.actions.get(command, None)
+
+        if action:
+            if action in ["forward", "backward", "left", "right"]:  # Movement commands
+                self.move_player(action)
+            elif action == "use":  # Interaction command
+                self.interact_with_object()
         else:
-            print("Unknown action command!")
+            print("Invalid command!")
 
-    def turn_around(self):
-        self.player_orientation = {"N": "S", "S": "N", "E": "W", "W": "E"}[
-            self.player_orientation
+    def move_player(self, command: str):
+        direction_offset = self.orientation_to_direction[self.player_orientation][
+            command
         ]
-
-    def turn_left(self):
-        self.player_orientation = {"N": "W", "W": "S", "S": "E", "E": "N"}[
-            self.player_orientation
-        ]
-
-    def turn_right(self):
-        self.player_orientation = {"N": "E", "E": "S", "S": "W", "W": "N"}[
-            self.player_orientation
-        ]
-
-    def advance(self):
-        direction_offset = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
-        dx, dy = direction_offset[self.player_orientation]
-        new_x = self.player_position[0] + dx
-        new_y = self.player_position[1] + dy
-        new_position = (new_x, new_y)
-
+        dx, dy = direction_offset
+        new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
         if self.is_position_within_room(new_position):
             self.player_position = new_position
         else:
             print("Move blocked by environment boundaries.")
 
-    def is_position_within_room(self, position: tuple[int, int]):
-        for room in self.config.rooms:
-            room_position = room.position
-            room_size = room.size
-            if (
-                room_position.x <= position[0] < room_position.x + room_size.width
-            ) and (room_position.y <= position[1] < room_position.y + room_size.height):
-                return True
-        return False
+    def turn_left(self):
+        orientations = ["N", "W", "S", "E"]  # Clockwise rotation
+        current_index = orientations.index(self.player_orientation)
+        self.player_orientation = orientations[(current_index + 1) % 4]
+
+    def turn_right(self):
+        orientations = ["N", "E", "S", "W"]  # Counter-clockwise rotation
+        current_index = orientations.index(self.player_orientation)
+        self.player_orientation = orientations[(current_index + 1) % 4]
+
+    def turn_around(self):
+        orientations = ["N", "S", "E", "W"]
+        current_index = orientations.index(self.player_orientation)
+        self.player_orientation = orientations[(current_index + 2) % 4]
+
+    def is_position_within_room(self, position):
+        return any(
+            room.position.x <= position[0] < room.position.x + room.size.width
+            and room.position.y <= position[1] < room.position.y + room.size.height
+            for room in self.rooms.values()
+        )
 
     def get_field_of_view(self):
         """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
@@ -254,133 +283,59 @@ class Scene:
                 (nx, ny)
             ):  # Check for obstructions and room boundaries
                 break  # Stop scanning if an obstruction or boundary is reached
-            obj = self.find_object_by_position((nx, ny))
+            obj = self.get_entity_by_position((nx, ny), "object")
             if obj:
                 visible_objects.append(obj)
         return visible_objects
 
     def print_scene(self, pretty: bool):
-        print(
-            f"Player's Position: {self.player_position}, Orientation: {self.player_orientation}"
+        max_x = max(
+            (room.position.x + room.size.width for room in self.rooms.values()),
+            default=0,
         )
-        current_room = self.find_room_by_position(self.player_position)
-        current_object = self.find_object_by_position(self.player_position)
-        visible_objects = self.get_field_of_view()
-
-        # Initialize default senses
-        room_senses = current_room.senses if current_room else Sense()
-        combined_senses = {
-            "vision": room_senses.vision,
-            "sound": room_senses.sound,
-            "smell": room_senses.smell,
-            "taste": room_senses.taste,
-            "tactile": room_senses.tactile,
-        }
-
-        # Process each visible object's senses
-        for obj in visible_objects:
-            object_state = self.object_states.get(obj.name, {})
-            matched_senses = obj.senses  # Start with default senses
-
-            # Update senses based on current state matches with interactions
-            for interaction in obj.interactions:
-                if all(
-                    object_state.get(key) == value
-                    for key, value in interaction.states.nextStates.items()
-                ):
-                    matched_senses = interaction.senses
-                    break
-
-            # Combine all senses data
-            for sense in combined_senses.keys():
-                if getattr(matched_senses, sense):
-                    combined_senses[sense] += f" | {getattr(matched_senses, sense)}"
-
-        # Include current object's senses based on state and interactions
-        if current_object:
-            current_object_state = self.object_states.get(current_object.name, {})
-            current_object_senses = current_object.senses
-            for interaction in current_object.interactions:
-                if all(
-                    current_object_state.get(key) == value
-                    for key, value in interaction.states.nextStates.items()
-                ):
-                    current_object_senses = interaction.senses
-                    break
-            for sense in combined_senses.keys():
-                if getattr(current_object_senses, sense):
-                    combined_senses[sense] = getattr(
-                        current_object_senses, sense
-                    )  # Update with current object's state
-
-        # Prepare to display the grid with Aiden's position and orientation
-        max_x = (
-            max(room.position.x + room.size.width for room in self.rooms.values()) + 1
+        max_y = max(
+            (room.position.y + room.size.height for room in self.rooms.values()),
+            default=0,
         )
-        max_y = (
-            max(room.position.y + room.size.height for room in self.rooms.values()) + 1
-        )
+        grid = [[" " for _ in range(max_x)] for _ in range(max_y)]
 
-        # Display grid with Aiden's position and orientation
         for y in range(max_y):
             for x in range(max_x):
+                char = " "
                 if (x, y) == self.player_position:
-                    orientation_char = {
-                        "N": "⬆️" if pretty else "^",
-                        "E": "➡️" if pretty else ">",
-                        "S": "⬇️" if pretty else "v",
-                        "W": "⬅️" if pretty else "<",
-                    }[self.player_orientation]
-                    print(f"{orientation_char} ", end="")
+                    char = "🧍" if pretty else "P"
+                elif self.get_entity_by_position((x, y), "object"):
+                    char = "O"
+                elif self.find_door_exit_by_entry((x, y)):
+                    char = "D"
+                elif self.get_entity_by_position((x, y), "room"):
+                    char = "."
                 else:
-                    room = self.find_room_by_position((x, y))
-                    if room:
-                        printed = False
-                        # Check for objects and print their symbols
-                        for obj in room.objects:
-                            if obj.position.x == x and obj.position.y == y:
-                                print(
-                                    obj.symbol
-                                    if obj.symbol and pretty
-                                    else "❓"
-                                    if pretty
-                                    else "? ",
-                                    end="",
-                                )
-                                printed = True
-                                break
-                        if not printed:  # No object at this position
-                            # Check for doors and print door symbol
-                            if any(
-                                door.position.entry.x == x
-                                and door.position.entry.y == y
-                                for door in room.doors
-                            ):
-                                print("🚪" if pretty else "D ", end="")
-                            else:
-                                # Print the room's specified empty space symbol or a default symbol
-                                empty_symbol = room.symbol if room.symbol else "⬜"
-                                print(empty_symbol if pretty else ". ", end="")
-                    else:
-                        # Print a hash for barriers or outside the room boundaries
-                        print("⬛" if pretty else "# ", end="")
-            print()  # New line after each row
+                    char = "#"  # Barriers or boundaries
+                grid[y][x] = char
 
-        # Sensory feedback based on Aiden's position
+        for row in grid:
+            print(" ".join(row))
+
+        current_room = self.get_entity_by_position(self.player_position, "room")
+        current_object = self.get_entity_by_position(self.player_position, "object")
+
         if current_object:
             print(f"Now at: {current_object.name}")
+        elif current_room:
+            print(f"Now in: {current_room.name}")
         else:
-            print(
-                f"Now in: {current_room.name}"
-                if current_room
-                else "Player is outside any room"
-            )
+            "Player is outside any room"
 
-        print(f"Vision: {combined_senses['vision']}")
-        print(f"Sound: {combined_senses['sound']}")
-        print(f"Smell: {combined_senses['smell']}")
-        print(f"Taste: {combined_senses['taste']}")
-        print(f"Tactile: {combined_senses['tactile']}")
+        sensory_data = (
+            self.update_sensory_data()
+        )  # Update sensory data after each command
+
+        print(f"Vision: {sensory_data.vision}")
+        print(f"Sound: {sensory_data.auditory}")
+        print(f"Smell: {sensory_data.smell}")
+        print(f"Taste: {sensory_data.taste}")
+        print(f"Tactile: {sensory_data.tactile}")
         print()
 
 
@@ -399,18 +354,7 @@ def parse_arguments():
         default="./config/scenes/default.json",
         help="Path to the scene configuration file.",
     )
-    parser.add_argument(
-        "--show-position",
-        action="store_true",
-        help="Display the grid and player's position after each command.",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Print detailed actions of player's experience.",
-    )
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def load_scene(scene_file: str) -> SceneConfig:
@@ -421,26 +365,24 @@ def load_scene(scene_file: str) -> SceneConfig:
     return SceneConfig(**data)
 
 
-def main(scene_file: str, pretty: bool, show_position: bool, verbose: bool) -> None:
-    scene_config = load_scene(scene_file)
+def main(args) -> None:
+    scene_config = load_scene(args.scene)
     env = Scene(scene_config)
     print("Initial scene:")
-    if show_position:
-        env.print_scene(pretty)
+    env.print_scene(args.pretty)
 
     while True:
         command = input("Enter command (w, a, s, d, e, q to quit): ").strip().lower()
         if command == "q":
             break
-        else:
-            env.process_action(command)
-            if verbose:
-                print(f"Action executed: {env.actions.get(command, '')}")
-                print(f"Player orientation: {env.player_orientation}")
-            if show_position:
-                env.print_scene(pretty)
+
+        env.process_action(command)
+        print(f"Action executed: {env.actions.get(command, '')}")
+        print(f"Player position: {env.player_position}")
+        print(f"Player orientation: {env.player_orientation}")
+        env.print_scene(args.pretty)
 
 
 if __name__ == "__main__":
     args = parse_arguments()
-    main(args.scene, args.pretty, args.show_position, args.verbose)
+    main(args)

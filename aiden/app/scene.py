@@ -31,11 +31,17 @@ This tool allows for a text-based simulation of sensory experiences in a virtual
 """
 
 import argparse
+from enum import Enum
 import json
 import os
 
 from aiden.models.brain import Sensory
 from aiden.models.scene import Action, ActionList, Compass, Direction, SceneConfig
+
+
+class EntityType(Enum):
+    OBJECT = "object"
+    ROOM = "room"
 
 
 class Scene:
@@ -110,16 +116,18 @@ class Scene:
             }
         )
 
-    def get_entity_by_position(self, position: tuple[int, int], entity_type: str):
+    def get_entity_by_position(
+        self, position: tuple[int, int], entity_type: EntityType
+    ):
         for room in self.rooms.values():
             x, y = position
             if (
-                entity_type == "room"
+                entity_type == EntityType.ROOM
                 and (room.position.x <= x < room.position.x + room.size.width)
                 and (room.position.y <= y < room.position.y + room.size.height)
             ):
                 return room
-            elif entity_type == "object":
+            elif entity_type == EntityType.OBJECT:
                 for obj in room.objects:
                     if (obj.position.x, obj.position.y) == position:
                         return obj
@@ -141,7 +149,9 @@ class Scene:
             return
 
         # Check for objects at the current position
-        object_at_position = self.get_entity_by_position(self.player_position, "object")
+        object_at_position = self.get_entity_by_position(
+            self.player_position, EntityType.OBJECT
+        )
         if object_at_position:
             current_states = self.object_states[object_at_position.name]
             available_interactions = [
@@ -196,8 +206,12 @@ class Scene:
             print("There is nothing here to interact with.")
 
     def update_sensory_data(self) -> Sensory:
-        current_room = self.get_entity_by_position(self.player_position, "room")
-        current_object = self.get_entity_by_position(self.player_position, "object")
+        current_room = self.get_entity_by_position(
+            self.player_position, EntityType.ROOM
+        )
+        current_object = self.get_entity_by_position(
+            self.player_position, EntityType.OBJECT
+        )
         visible_objects = self.get_field_of_view()
 
         # Initialize default senses
@@ -311,7 +325,7 @@ class Scene:
             nx, ny = self.player_position[0] + i * dx, self.player_position[1] + i * dy
             if not self.is_position_within_room((nx, ny)):
                 break  # Stop scanning if an obstruction or boundary is reached
-            obj = self.get_entity_by_position((nx, ny), "object")
+            obj = self.get_entity_by_position((nx, ny), EntityType.OBJECT)
             if obj:
                 visible_objects.append(obj)
         return visible_objects
@@ -342,11 +356,11 @@ class Scene:
                     else:
                         arrows = {"N": "^", "E": ">", "S": "v", "W": "<"}
                         char = arrows[self.player_orientation]
-                elif self.get_entity_by_position((x, y), "object"):
+                elif self.get_entity_by_position((x, y), EntityType.OBJECT):
                     char = "O"
                 elif self.find_door_exit_by_entry((x, y)):
                     char = "D"
-                elif self.get_entity_by_position((x, y), "room"):
+                elif self.get_entity_by_position((x, y), EntityType.ROOM):
                     char = "."
                 else:
                     char = "#"  # Barriers or boundaries
@@ -358,8 +372,12 @@ class Scene:
         print(f"Player position: {self.player_position}")
         print(f"Player orientation: {self.player_orientation}")
 
-        current_room = self.get_entity_by_position(self.player_position, "room")
-        current_object = self.get_entity_by_position(self.player_position, "object")
+        current_room = self.get_entity_by_position(
+            self.player_position, EntityType.ROOM
+        )
+        current_object = self.get_entity_by_position(
+            self.player_position, EntityType.OBJECT
+        )
 
         if current_object:
             print(f"Now at: {current_object.name}")

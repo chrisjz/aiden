@@ -2,7 +2,7 @@ import io
 import sys
 from unittest.mock import patch
 import pytest
-from aiden.app.scene import Scene
+from aiden.app.scene import EntityType, Scene
 from aiden.models.brain import Sensory
 from aiden.models.scene import (
     Door,
@@ -189,7 +189,7 @@ def test_object_interaction(complex_scene):
     complex_scene.process_action("right")  # Move east to x=2
     complex_scene.process_action("right")  # Move east to x=2, position of the sofa
     assert (
-        complex_scene.get_entity_by_position((2, 2), "object").name == "Sofa"
+        complex_scene.get_entity_by_position((2, 2), EntityType.OBJECT).name == "Sofa"
     ), "Should be at the position of the Sofa"
 
 
@@ -232,7 +232,7 @@ def test_sensory_data_interaction(complex_scene):
 
     # Move player to the position of the Durian
     complex_scene.player_position = (1, 1)
-    current_object = complex_scene.get_entity_by_position((1, 1), "object")
+    current_object = complex_scene.get_entity_by_position((1, 1), EntityType.OBJECT)
 
     # Ensure the object is the Durian and test each sensory attribute
     assert current_object.name == "Durian", "Should be at the position of the Durian"

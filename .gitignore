@@ -88,5 +88,5 @@ __pycache__/
 !.env.template
 
 # Ignore custom scene configuration files in the config directory
-config/*.json
-!config/default.json
+config/**/*.json
+!config/**/default.json

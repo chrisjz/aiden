@@ -22,6 +22,7 @@ RUN poetry config virtualenvs.create false \
 
 # Copy relevant project files
 COPY ./aiden ./aiden
+COPY ./config/brain ./config/brain
 
 # Run the application
 CMD ["uvicorn", "aiden.api.brain:app", "--host", "0.0.0.0", "--port", "8000"]

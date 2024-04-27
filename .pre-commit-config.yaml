@@ -8,6 +8,10 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
         exclude: '^(Assets/ThirdParty)'
+      - id: pretty-format-json
+        args:
+          - "--autofix"
+        exclude: '^(Assets/ThirdParty)'
       - id: trailing-whitespace
         exclude: '^(Assets/|ProjectSettings/)'
   - repo: https://github.com/charliermarsh/ruff-pre-commit

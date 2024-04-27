@@ -15,7 +15,7 @@ public class VisionAPIIntegration : MonoBehaviour
 
     private string apiURL;
     private string modelName;
-    
+
     private void Start()
     {
         // Set API URL from environment variables

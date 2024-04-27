@@ -103,7 +103,9 @@ public class CognitiveAPIIntegration : MonoBehaviour
         {
             string trimmedText = text.TrimStart();
             responseText.text += trimmedText;
-        } else {
+        }
+        else
+        {
             responseText.text += text;
         }
     }

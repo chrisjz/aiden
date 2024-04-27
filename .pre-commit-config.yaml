@@ -23,3 +23,4 @@ repos:
         language: system
         entry: dotnet format aiden.sln --include
         types_or: ["c#", "vb"]
+        exclude: '^(Assets/ThirdParty)'

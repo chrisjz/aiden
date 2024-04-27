@@ -1,16 +1,25 @@
 # AIden (AI Denizen)
 
-AIden aims to create a virtual AI entity with a structure and functionality
-inspired by the human brain. Utilizing a hierarchical API, AIden is designed
-to mimic various brain regions and sensory systems, allowing for the
-processing of auditory, visual, olfactory, gustatory, and tactile information.
-The project leverages various machine learning models, including OpenAI's
-Whisper for speech recognition and LLaVA for visual understanding, to enable
-AIden to interact with and respond to its virtual environment in a human-like
-manner. With endpoints representing different brain areas such as the
-hippocampus, neocortex, and amygdala, AIden is a step towards creating a more
-intelligent and intuitive AI denizen that can learn, perceive, and make
-decisions in a complex world.
+AIden is an advanced virtual AI entity designed to simulate the complex
+structure and functionality of the human brain. This project constructs
+a hierarchical API that mirrors the organization of different brain regions,
+enabling AIden to process and integrate sensory data such as auditory, visual,
+olfactory, gustatory, and tactile inputs.
+
+Leveraging most recent machine learning models, AIden incorporates BakLLaVA
+for advanced language and visual understanding, OpenAI's Whisper for accurate
+speech recognition and other swappable models. This allows AIden to interact
+with its environment in nuanced and human-like ways. Key components of the
+system include virtual representations of the hippocampus for memory, the
+neocortex for sensory perception, and the amygdala for emotional responses,
+making AIden capable of learning from, perceiving, and responding to complex
+stimuli in its environment.
+
+Our aim is to develop AIden into a highly intelligent and intuitive AI that
+can function dynamically within virtual environments, learning and adapting
+in real-time. This project invites contributors who are passionate about
+advancing the frontiers of artificial intelligence and cognitive science to
+collaborate in creating an advanced, interactive virtual being.
 
 ## Setup
 

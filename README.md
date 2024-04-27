@@ -95,6 +95,8 @@ Install pre-commit hooks for this project:
 poetry run pre-commit install
 ```
 
+If the `dotnet-format` hook doesn't work, you will need to download the `.NET SDK` version specified in the error output.
+
 Pre-commit hooks will now run automatically on each `git commit`. You can also manually run the hooks on all files with:
 
 ```shell

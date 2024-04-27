@@ -27,7 +27,7 @@ def capture_output(func, *args, **kwargs):
 
 
 @pytest.fixture
-def sample_scene():
+def simple_scene():
     player = Player(position=Position(x=0, y=0), orientation="S", fieldOfView=3)
     rooms = [
         Room(
@@ -145,32 +145,32 @@ def interactive_scene():
     return scene
 
 
-def test_move_forward(sample_scene):
-    sample_scene.move_player("forward")
-    assert sample_scene.player_position == (0, 1), "Should move South"
+def test_move_forward(simple_scene):
+    simple_scene.process_action("forward")
+    assert simple_scene.player_position == (0, 1), "Should move South"
 
 
-def test_backwards_movement(sample_scene):
-    sample_scene.process_action(
+def test_backwards_movement(simple_scene):
+    simple_scene.process_action(
         "backward"
     )  # Initially facing south, moving backward should keep the same position
-    assert sample_scene.player_position == (
+    assert simple_scene.player_position == (
         0,
         0,
     ), "Backward movement should not exit the room boundary"
 
 
-def test_turn_right(sample_scene):
-    sample_scene.turn_right()
+def test_turn_right(simple_scene):
+    simple_scene.turn_right()
     assert (
-        sample_scene.player_orientation == "W"
+        simple_scene.player_orientation == "W"
     ), "Should turn to West when initially facing South"
 
 
-def test_turn_left(sample_scene):
-    sample_scene.turn_left()
+def test_turn_left(simple_scene):
+    simple_scene.turn_left()
     assert (
-        sample_scene.player_orientation == "E"
+        simple_scene.player_orientation == "E"
     ), "Should turn to East when initially facing South"
 
 

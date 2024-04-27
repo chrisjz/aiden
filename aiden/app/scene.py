@@ -51,44 +51,19 @@ class Scene:
         }
 
         self.actions = {
-            "w": "forward",
-            "s": "backward",
-            "a": "left",
-            "d": "right",
-            "e": "use",
-            "forward": "forward",
-            "backward": "backward",
-            "left": "left",
-            "right": "right",
-            "use": "use",
+            "w": "move_player",
+            "s": "move_backward",
+            "a": "turn_left",
+            "d": "turn_right",
+            "e": "interact_with_object",
+            "forward": "move_player",
+            "backward": "move_backward",
+            "left": "turn_left",
+            "right": "turn_right",
+            "use": "interact_with_object",
         }
 
-        self.orientation_to_direction = {
-            "N": {
-                "forward": (0, -1),
-                "backward": (0, 1),
-                "left": (-1, 0),
-                "right": (1, 0),
-            },
-            "E": {
-                "forward": (1, 0),
-                "backward": (-1, 0),
-                "left": (0, -1),
-                "right": (0, 1),
-            },
-            "S": {
-                "forward": (0, 1),
-                "backward": (0, -1),
-                "left": (1, 0),
-                "right": (-1, 0),
-            },
-            "W": {
-                "forward": (-1, 0),
-                "backward": (1, 0),
-                "left": (0, 1),
-                "right": (0, -1),
-            },
-        }
+        self.directions = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
 
     def get_entity_by_position(self, position: tuple[int, int], entity_type: str):
         for room in self.rooms.values():
@@ -228,42 +203,38 @@ class Scene:
             taste=combined_senses["taste"].strip(),
         )
 
-    def process_action(self, command: str) -> None:
-        action = self.actions.get(command, None)
-
-        if action:
-            if action in ["forward", "backward", "left", "right"]:  # Movement commands
-                self.move_player(action)
-            elif action == "use":  # Interaction command
-                self.interact_with_object()
+    def process_action(self, command: str):
+        method = self.actions.get(command)
+        if method:
+            getattr(self, method)()
         else:
             print("Invalid command!")
 
-    def move_player(self, command: str):
-        direction_offset = self.orientation_to_direction[self.player_orientation][
-            command
-        ]
-        dx, dy = direction_offset
+    def move_player(self):
+        dx, dy = self.directions[self.player_orientation]
         new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
         if self.is_position_within_room(new_position):
             self.player_position = new_position
         else:
             print("Move blocked by environment boundaries.")
 
+    def move_backward(self):
+        dx, dy = self.directions[self.player_orientation]
+        new_position = (self.player_position[0] - dx, self.player_position[1] - dy)
+        if self.is_position_within_room(new_position):
+            self.player_position = new_position
+        else:
+            print("Move blocked by environment boundaries.")
+
     def turn_left(self):
-        orientations = ["N", "W", "S", "E"]  # Clockwise rotation
-        current_index = orientations.index(self.player_orientation)
-        self.player_orientation = orientations[(current_index + 1) % 4]
+        # Define a clockwise rotation for the map orientation
+        new_orientation = {"N": "W", "W": "S", "S": "E", "E": "N"}
+        self.player_orientation = new_orientation[self.player_orientation]
 
     def turn_right(self):
-        orientations = ["N", "E", "S", "W"]  # Counter-clockwise rotation
-        current_index = orientations.index(self.player_orientation)
-        self.player_orientation = orientations[(current_index + 1) % 4]
-
-    def turn_around(self):
-        orientations = ["N", "S", "E", "W"]
-        current_index = orientations.index(self.player_orientation)
-        self.player_orientation = orientations[(current_index + 2) % 4]
+        # Define a counter-clockwise rotation for the map orientation
+        new_orientation = {"N": "E", "E": "S", "S": "W", "W": "N"}
+        self.player_orientation = new_orientation[self.player_orientation]
 
     def is_position_within_room(self, position):
         return any(
@@ -303,7 +274,13 @@ class Scene:
             for x in range(max_x):
                 char = " "
                 if (x, y) == self.player_position:
-                    char = "🧍" if pretty else "P"
+                    # Choose arrow based on orientation
+                    if pretty:
+                        arrows = {"N": "⬆️", "E": "➡️", "S": "⬇️", "W": "⬅️"}
+                        char = arrows[self.player_orientation]
+                    else:
+                        arrows = {"N": "^", "E": ">", "S": "v", "W": "<"}
+                        char = arrows[self.player_orientation]
                 elif self.get_entity_by_position((x, y), "object"):
                     char = "O"
                 elif self.find_door_exit_by_entry((x, y)):
@@ -316,6 +293,9 @@ class Scene:
 
         for row in grid:
             print(" ".join(row))
+
+        print(f"Player position: {self.player_position}")
+        print(f"Player orientation: {self.player_orientation}")
 
         current_room = self.get_entity_by_position(self.player_position, "room")
         current_object = self.get_entity_by_position(self.player_position, "object")
@@ -378,8 +358,6 @@ def main(args) -> None:
 
         env.process_action(command)
         print(f"Action executed: {env.actions.get(command, '')}")
-        print(f"Player position: {env.player_position}")
-        print(f"Player orientation: {env.player_orientation}")
         env.print_scene(args.pretty)
 
 

@@ -153,6 +153,7 @@ class Scene:
     def update_sensory_data(self) -> SensoryData:
         current_room = self.get_entity_by_position(self.player_position, "room")
         current_object = self.get_entity_by_position(self.player_position, "object")
+        visible_objects = self.get_field_of_view()
 
         # Initialize default senses
         combined_senses = {
@@ -166,33 +167,21 @@ class Scene:
         # Combine room senses if present
         if current_room:
             room_senses = current_room.senses
-            combined_senses["vision"] += room_senses.vision
-            combined_senses["sound"] += room_senses.sound
-            combined_senses["tactile"] += room_senses.tactile
-            combined_senses["smell"] += room_senses.smell
-            combined_senses["taste"] += room_senses.taste
+            for key in combined_senses.keys():
+                combined_senses[key] += room_senses.__dict__[key]
 
-        # Combine object senses if present, considering current state
+        # Handle current object senses
         if current_object:
-            current_states = self.object_states[current_object.name]
-            matched_senses = None
-            for interaction in current_object.interactions:
-                if all(
-                    current_states.get(state) == value
-                    for state, value in interaction.states.nextStates.items()
-                ):
-                    matched_senses = interaction.senses
-                    break
+            self.add_object_senses(
+                current_object, self.object_states[current_object.name], combined_senses
+            )
 
-            # If no interaction matches, default to object's intrinsic senses
-            if not matched_senses:
-                matched_senses = current_object.senses
-
-            # Combining sensory data based on matched senses
-            for sense_key in combined_senses.keys():
-                sense_value = getattr(matched_senses, sense_key)
-                if sense_value:
-                    combined_senses[sense_key] += " | " + sense_value
+        # Combine senses from visible objects, considering their current state
+        for obj in visible_objects:
+            if obj != current_object:  # Avoid duplicating the current object's senses
+                self.add_object_senses(
+                    obj, self.object_states[obj.name], combined_senses
+                )
 
         # Return a new SensoryData instance filled with the combined sensory data
         return SensoryData(
@@ -202,6 +191,26 @@ class Scene:
             smell=combined_senses["smell"].strip(),
             taste=combined_senses["taste"].strip(),
         )
+
+    def add_object_senses(self, obj, current_states, combined_senses):
+        matched_senses = obj.senses  # Start with default object senses
+
+        # Check if any interactions' conditions are met to update senses
+        for interaction in obj.interactions:
+            if all(
+                current_states.get(state) == value
+                for state, value in interaction.states.nextStates.items()
+            ):
+                matched_senses = (
+                    interaction.senses
+                )  # Update senses to interaction-specific
+                break
+
+        # Combining sensory data based on matched senses
+        for sense_key in combined_senses.keys():
+            sense_value = getattr(matched_senses, sense_key)
+            if sense_value:
+                combined_senses[sense_key] += " | " + sense_value
 
     def process_action(self, command: str):
         method = self.actions.get(command)
@@ -227,14 +236,16 @@ class Scene:
             print("Move blocked by environment boundaries.")
 
     def turn_left(self):
-        # Define a clockwise rotation for the map orientation
-        new_orientation = {"N": "W", "W": "S", "S": "E", "E": "N"}
-        self.player_orientation = new_orientation[self.player_orientation]
+        orientation_order = ["N", "W", "S", "E"]  # Anti-clockwise rotation
+        self.player_orientation = orientation_order[
+            (orientation_order.index(self.player_orientation) + 1) % 4
+        ]
 
     def turn_right(self):
-        # Define a counter-clockwise rotation for the map orientation
-        new_orientation = {"N": "E", "E": "S", "S": "W", "W": "N"}
-        self.player_orientation = new_orientation[self.player_orientation]
+        orientation_order = ["N", "E", "S", "W"]  # Clockwise rotation
+        self.player_orientation = orientation_order[
+            (orientation_order.index(self.player_orientation) + 1) % 4
+        ]
 
     def is_position_within_room(self, position):
         return any(
@@ -245,14 +256,11 @@ class Scene:
 
     def get_field_of_view(self):
         """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
-        directions = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
-        dx, dy = directions[self.player_orientation]
+        dx, dy = self.directions[self.player_orientation]
         visible_objects = []
         for i in range(1, self.player_view_distance + 1):
             nx, ny = self.player_position[0] + i * dx, self.player_position[1] + i * dy
-            if not self.is_position_within_room(
-                (nx, ny)
-            ):  # Check for obstructions and room boundaries
+            if not self.is_position_within_room((nx, ny)):
                 break  # Stop scanning if an obstruction or boundary is reached
             obj = self.get_entity_by_position((nx, ny), "object")
             if obj:
@@ -275,8 +283,12 @@ class Scene:
                 char = " "
                 if (x, y) == self.player_position:
                     # Choose arrow based on orientation
-                    if pretty:
-                        arrows = {"N": "⬆️", "E": "➡️", "S": "⬇️", "W": "⬅️"}
+                    if (x, y) == self.player_position:
+                        arrows = (
+                            {"N": "⬆️", "E": "➡️", "S": "⬇️", "W": "⬅️"}
+                            if pretty
+                            else {"N": "^", "E": ">", "S": "v", "W": "<"}
+                        )
                         char = arrows[self.player_orientation]
                     else:
                         arrows = {"N": "^", "E": ">", "S": "v", "W": "<"}

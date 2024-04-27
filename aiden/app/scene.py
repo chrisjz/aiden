@@ -34,7 +34,7 @@ import argparse
 import json
 import os
 
-from aiden.models.brain import SensoryData
+from aiden.models.brain import Sensory
 from aiden.models.scene import SceneConfig
 
 
@@ -140,17 +140,17 @@ class Scene:
                     senses = chosen_interaction.senses
                     print(f"Executed '{chosen_interaction.command}':")
                     print(f"Vision: {senses.vision}")
-                    print(f"Sound: {senses.sound}")
-                    print(f"Smell: {senses.smell}")
-                    print(f"Taste: {senses.taste}")
+                    print(f"Auditory: {senses.auditory}")
                     print(f"Tactile: {senses.tactile}")
+                    print(f"Olfactory: {senses.olfactory}")
+                    print(f"Gustatory: {senses.gustatory}")
                     return
                 else:
                     print("No such command available or conditions not met.")
         else:
             print("There is nothing here to interact with.")
 
-    def update_sensory_data(self) -> SensoryData:
+    def update_sensory_data(self) -> Sensory:
         current_room = self.get_entity_by_position(self.player_position, "room")
         current_object = self.get_entity_by_position(self.player_position, "object")
         visible_objects = self.get_field_of_view()
@@ -158,10 +158,10 @@ class Scene:
         # Initialize default senses
         combined_senses = {
             "vision": "",
-            "sound": "",
+            "auditory": "",
             "tactile": "",
-            "smell": "",
-            "taste": "",
+            "olfactory": "",
+            "gustatory": "",
         }
 
         # Combine room senses if present
@@ -183,13 +183,13 @@ class Scene:
                     obj, self.object_states[obj.name], combined_senses
                 )
 
-        # Return a new SensoryData instance filled with the combined sensory data
-        return SensoryData(
+        # Return a new Sensory instance filled with the combined sensory data
+        return Sensory(
             vision=combined_senses["vision"].strip(),
-            auditory=combined_senses["sound"].strip(),
+            auditory=combined_senses["auditory"].strip(),
             tactile=combined_senses["tactile"].strip(),
-            smell=combined_senses["smell"].strip(),
-            taste=combined_senses["taste"].strip(),
+            olfactory=combined_senses["olfactory"].strip(),
+            gustatory=combined_senses["gustatory"].strip(),
         )
 
     def add_object_senses(self, obj, current_states, combined_senses):
@@ -324,10 +324,10 @@ class Scene:
         )  # Update sensory data after each command
 
         print(f"Vision: {sensory_data.vision}")
-        print(f"Sound: {sensory_data.auditory}")
-        print(f"Smell: {sensory_data.smell}")
-        print(f"Taste: {sensory_data.taste}")
+        print(f"Auditory: {sensory_data.auditory}")
         print(f"Tactile: {sensory_data.tactile}")
+        print(f"Olfactory: {sensory_data.olfactory}")
+        print(f"Gustatory: {sensory_data.gustatory}")
         print()
 
 

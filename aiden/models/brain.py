@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
 
-class SensoryData(BaseModel):
+class Sensory(BaseModel):
     vision: str = ""
     auditory: str = ""
     tactile: str = ""
-    smell: str = ""
-    taste: str = ""
+    olfactory: str = ""
+    gustatory: str = ""

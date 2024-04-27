@@ -1,6 +1,8 @@
 from typing import Optional, Any
 from pydantic import BaseModel, Field
 
+from aiden.models.brain import Sensory
+
 
 class States(BaseModel):
     requiredStates: dict[str, Any]
@@ -22,18 +24,10 @@ class Door(BaseModel):
     position: DoorPosition
 
 
-class Sense(BaseModel):
-    smell: str = ""
-    sound: str = ""
-    tactile: str = ""
-    taste: str = ""
-    vision: str = ""
-
-
 class Interaction(BaseModel):
     command: str
     description: str
-    senses: Optional[Sense] = Field(default_factory=Sense)
+    senses: Optional[Sensory] = Field(default_factory=Sensory)
     states: States
 
 
@@ -45,7 +39,7 @@ class Size(BaseModel):
 class Object(BaseModel):
     name: str
     position: Position
-    senses: Sense = Field(default_factory=Sense)
+    senses: Sensory = Field(default_factory=Sensory)
     symbol: Optional[str] = None
     initialStates: dict[str, Any]
     interactions: list[Interaction]
@@ -57,7 +51,7 @@ class Room(BaseModel):
     size: Size
     objects: list[Object] = []
     doors: list[Door] = []
-    senses: Sense = Field(default_factory=Sense)
+    senses: Sensory = Field(default_factory=Sensory)
     symbol: Optional[str] = None
 
 

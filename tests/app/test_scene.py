@@ -3,6 +3,7 @@ import sys
 from unittest.mock import patch
 import pytest
 from aiden.app.scene import Scene
+from aiden.models.brain import Sensory
 from aiden.models.scene import (
     Door,
     Object,
@@ -10,7 +11,6 @@ from aiden.models.scene import (
     Position,
     Room,
     Player,
-    Sense,
     Size,
     Interaction,
     States,
@@ -104,7 +104,7 @@ def interactive_scene():
                 ),
                 senses={
                     "vision": "TV playing a sports game",
-                    "sound": "You hear an audience cheer from the TV segment playing",
+                    "auditory": "You hear an audience cheer from the TV segment playing",
                 },
             ),
             Interaction(
@@ -115,7 +115,7 @@ def interactive_scene():
                 ),
                 senses={
                     "vision": "TV which is switched off",
-                    "sound": "No sound coming from the TV",
+                    "auditory": "No sound coming from the TV",
                 },
             ),
         ],
@@ -127,12 +127,12 @@ def interactive_scene():
             position=Position(x=0, y=0),
             size=Size(width=5, height=5),
             objects=[sofa, tv],
-            senses=Sense(
+            senses=Sensory(
                 vision="A spacious living room with large windows",
-                sound="A constant low hum from an air conditioner",
-                smell="Freshly brewed coffee",
+                auditory="A constant low hum from an air conditioner",
+                olfactory="Freshly brewed coffee",
                 tactile="Smooth, cool wooden floors underfoot",
-                taste="",
+                gustatory="",
             ),
         )
     ]
@@ -220,9 +220,9 @@ def test_sensory_data_interaction(complex_scene):
         position=Position(x=1, y=1),
         senses={
             "vision": "A large spiky Durian fruit on the table",
-            "sound": "Soft buzzing of fruit flies",
-            "smell": "A strong pungent smell that fills the room",
-            "taste": "Rich custard taste with hints of almond",
+            "auditory": "Soft buzzing of fruit flies",
+            "olfactory": "A strong pungent smell that fills the room",
+            "gustatory": "Rich custard taste with hints of almond",
             "tactile": "Spiky and hard outer shell",
         },
         initialStates={},
@@ -240,13 +240,13 @@ def test_sensory_data_interaction(complex_scene):
         current_object.senses.vision == "A large spiky Durian fruit on the table"
     ), "Vision should detect the Durian visually"
     assert (
-        current_object.senses.sound == "Soft buzzing of fruit flies"
+        current_object.senses.auditory == "Soft buzzing of fruit flies"
     ), "Should hear the sound associated with the Durian"
     assert (
-        current_object.senses.smell == "A strong pungent smell that fills the room"
+        current_object.senses.olfactory == "A strong pungent smell that fills the room"
     ), "Should smell the Durian's strong odor"
     assert (
-        current_object.senses.taste == "Rich custard taste with hints of almond"
+        current_object.senses.gustatory == "Rich custard taste with hints of almond"
     ), "Should taste the Durian flavor"
     assert (
         current_object.senses.tactile == "Spiky and hard outer shell"
@@ -308,7 +308,7 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "player_position, expected_vision, expected_sound, expected_smell, expected_tactile, expected_taste",
+    "player_position, expected_vision, expected_auditory, expected_olfactory, expected_tactile, expected_gustatory",
     [
         (
             (1, 1),
@@ -332,10 +332,10 @@ def test_update_sensory_data(
     interactive_scene,
     player_position,
     expected_vision,
-    expected_sound,
-    expected_smell,
+    expected_auditory,
+    expected_olfactory,
     expected_tactile,
-    expected_taste,
+    expected_gustatory,
 ):
     # Set player position
     interactive_scene.player_position = player_position
@@ -348,14 +348,14 @@ def test_update_sensory_data(
         sensory_data.vision == expected_vision
     ), f"Vision should correctly reflect the player's visual input for position {player_position}"
     assert (
-        sensory_data.auditory == expected_sound
+        sensory_data.auditory == expected_auditory
     ), f"Sound should match the environment auditory cues for position {player_position}"
     assert (
-        sensory_data.smell == expected_smell
+        sensory_data.olfactory == expected_olfactory
     ), f"Smell should match the environment olfactory cues for position {player_position}"
     assert (
         sensory_data.tactile == expected_tactile
     ), f"Tactile should match the environment touch feedback for position {player_position}"
     assert (
-        sensory_data.taste == expected_taste
+        sensory_data.gustatory == expected_gustatory
     ), f"Taste should match the environment taste input (if any) for position {player_position}"

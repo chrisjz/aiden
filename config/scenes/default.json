@@ -1,22 +1,45 @@
 {
   "player": {
+    "fieldOfView": 5,
+    "orientation": "E",
     "position": {
       "x": 2,
       "y": 2
-    },
-    "orientation": "E",
-    "fieldOfView": 5
+    }
   },
   "rooms": [
     {
+      "doors": [
+        {
+          "position": {
+            "entry": {
+              "x": 3,
+              "y": 4
+            },
+            "exit": {
+              "x": 3,
+              "y": 7
+            }
+          },
+          "to": "Bedroom"
+        },
+        {
+          "position": {
+            "entry": {
+              "x": 5,
+              "y": 2
+            },
+            "exit": {
+              "x": 8,
+              "y": 2
+            }
+          },
+          "to": "Kitchen"
+        }
+      ],
       "name": "Living Room",
-      "position": {"x": 1, "y": 1},
-      "size": {"width": 5, "height": 4},
       "objects": [
         {
-          "name": "Sofa",
-          "position": {"x": 1, "y": 1},
-          "symbol": "🛋️ ",
           "initialStates": {
             "isMessy": false
           },
@@ -25,18 +48,18 @@
               "command": "tidy up",
               "description": "Tidy up the sofa by straightening the cushions and removing any clutter.",
               "senses": {
-                "vision": "A neat and orderly sofa with cushions perfectly aligned.",
-                "sound": "",
                 "smell": "The fresh scent of a recently cleaned fabric.",
+                "sound": "",
+                "tactile": "Smooth, even surfaces of the well-arranged cushions on the sofa.",
                 "taste": "",
-                "tactile": "Smooth, even surfaces of the well-arranged cushions on the sofa."
+                "vision": "A neat and orderly sofa with cushions perfectly aligned."
               },
               "states": {
-                "requiredStates": {
-                  "isMessy": true
-                },
                 "nextStates": {
                   "isMessy": false
+                },
+                "requiredStates": {
+                  "isMessy": true
                 }
               }
             },
@@ -44,48 +67,51 @@
               "command": "make messy",
               "description": "Disarrange the sofa to a more relaxed, lived-in look.",
               "senses": {
-                "vision": "Cushions tossed about and slight disarray, making the sofa look invitingly lived-in.",
-                "sound": "",
                 "smell": "The same, unchanged scent of the sofa.",
+                "sound": "",
+                "tactile": "An uneven array of cushions and throws on the sofa.",
                 "taste": "",
-                "tactile": "An uneven array of cushions and throws on the sofa."
+                "vision": "Cushions tossed about and slight disarray, making the sofa look invitingly lived-in."
               },
               "states": {
-                "requiredStates": {
-                  "isMessy": false
-                },
                 "nextStates": {
                   "isMessy": true
+                },
+                "requiredStates": {
+                  "isMessy": false
                 }
               }
             }
-          ]
+          ],
+          "name": "Sofa",
+          "position": {
+            "x": 1,
+            "y": 1
+          },
+          "symbol": "\ud83d\udecb\ufe0f "
         },
         {
-          "name": "TV",
-          "position": {"x": 4, "y": 1},
-          "symbol": "📺",
           "initialStates": {
-            "isOn": false,
-            "currentChannel": 0
+            "currentChannel": 0,
+            "isOn": false
           },
-          "interactions": [            
+          "interactions": [
             {
               "command": "change channel to 0",
               "description": "Change the TV channel to 0.",
               "senses": {
-                "vision": "The TV is playing the current news around the world.",
+                "smell": "",
                 "sound": "An anchorman discusses the latest trends in artificial intelligence.",
                 "tactile": "Cold and smooth surface.",
-                "smell": "",
-                "taste": ""
+                "taste": "",
+                "vision": "The TV is playing the current news around the world."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "currentChannel": 0,
+                  "isOn": true
+                },
+                "requiredStates": {
                   "isOn": true
                 }
               }
@@ -94,18 +120,18 @@
               "command": "change channel to 1",
               "description": "Change the TV channel to the music channel.",
               "senses": {
-                "vision": "The TV is playing colorful music videos which are flashing on the screen.",
+                "smell": "",
                 "sound": "Dynamic pop tunes and catchy melodies play loudly.",
                 "tactile": "Cold and smooth surface.",
-                "smell": "",
-                "taste": ""
+                "taste": "",
+                "vision": "The TV is playing colorful music videos which are flashing on the screen."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "currentChannel": 1,
+                  "isOn": true
+                },
+                "requiredStates": {
                   "isOn": true
                 }
               }
@@ -114,18 +140,18 @@
               "command": "change channel to 2",
               "description": "Change the TV channel to the sitcom channel.",
               "senses": {
-                "vision": "A popular sitcom is playing on the TV, characters laughing and interacting.",
+                "smell": "",
                 "sound": "Laughter tracks and witty dialogues fill the air.",
                 "tactile": "Cold and smooth surface.",
-                "smell": "",
-                "taste": ""
+                "taste": "",
+                "vision": "A popular sitcom is playing on the TV, characters laughing and interacting."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "currentChannel": 2,
+                  "isOn": true
+                },
+                "requiredStates": {
                   "isOn": true
                 }
               }
@@ -134,18 +160,18 @@
               "command": "change channel to 3",
               "description": "Change the TV channel to the sports channel.",
               "senses": {
-                "vision": "The TV is playing a live sports event showcasing a thrilling soccer match.",
+                "smell": "",
                 "sound": "The crowd's cheers and the commentator's energetic voice can be heard.",
                 "tactile": "Cold and smooth surface.",
-                "smell": "",
-                "taste": ""
+                "taste": "",
+                "vision": "The TV is playing a live sports event showcasing a thrilling soccer match."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "currentChannel": 3,
+                  "isOn": true
+                },
+                "requiredStates": {
                   "isOn": true
                 }
               }
@@ -154,18 +180,18 @@
               "command": "change channel to 4",
               "description": "Change the TV channel to the game show channel.",
               "senses": {
-                "vision": "The TV is playing a game show with contestants solving puzzles and answering questions.",
+                "smell": "",
                 "sound": "Sounds of buzzers, applause, and the host's engaging questions.",
                 "tactile": "Cold and smooth surface.",
-                "smell": "",
-                "taste": ""
+                "taste": "",
+                "vision": "The TV is playing a game show with contestants solving puzzles and answering questions."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "currentChannel": 4,
+                  "isOn": true
+                },
+                "requiredStates": {
                   "isOn": true
                 }
               }
@@ -174,11 +200,11 @@
               "command": "turn on",
               "description": "Turn the TV on.",
               "states": {
-                "requiredStates": {
-                  "isOn": false
-                },
                 "nextStates": {
                   "isOn": true
+                },
+                "requiredStates": {
+                  "isOn": false
                 }
               }
             },
@@ -186,52 +212,79 @@
               "command": "turn off",
               "description": "Turn the TV off.",
               "senses": {
-                "vision": "A large flat-screen TV mounted on the wall. The TV is switched off.",
+                "smell": "",
                 "sound": "",
                 "tactile": "Cold and smooth surface.",
-                "smell": "",
-                "taste": ""
+                "taste": "",
+                "vision": "A large flat-screen TV mounted on the wall. The TV is switched off."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "isOn": false
+                },
+                "requiredStates": {
+                  "isOn": true
                 }
               }
             }
-          ]
+          ],
+          "name": "TV",
+          "position": {
+            "x": 4,
+            "y": 1
+          },
+          "symbol": "\ud83d\udcfa"
         }
       ],
-      "doors": [
-        {"to": "Bedroom", "position": {
-          "entry": {"x": 3, "y": 4},
-          "exit": {"x": 3, "y": 7}
-        }},
-        {"to": "Kitchen", "position": {
-          "entry": {"x": 5, "y": 2},
-          "exit": {"x": 8, "y": 2}
-        }}
-      ],
-      "senses": {
-        "vision": "A spacious living room with large windows",
-        "sound": "A constant low hum from an air conditioner",
-        "smell": "Freshly brewed coffee",
-        "taste": "",
-        "tactile": "Smooth, cool wooden floors underfoot"
+      "position": {
+        "x": 1,
+        "y": 1
       },
-      "symbol": "🟧"
+      "senses": {
+        "smell": "Freshly brewed coffee",
+        "sound": "A constant low hum from an air conditioner",
+        "tactile": "Smooth, cool wooden floors underfoot",
+        "taste": "",
+        "vision": "A spacious living room with large windows"
+      },
+      "size": {
+        "height": 4,
+        "width": 5
+      },
+      "symbol": "\ud83d\udfe7"
     },
     {
+      "doors": [
+        {
+          "position": {
+            "entry": {
+              "x": 8,
+              "y": 2
+            },
+            "exit": {
+              "x": 5,
+              "y": 2
+            }
+          },
+          "to": "Living Room"
+        },
+        {
+          "position": {
+            "entry": {
+              "x": 10,
+              "y": 4
+            },
+            "exit": {
+              "x": 13,
+              "y": 4
+            }
+          },
+          "to": "Garden"
+        }
+      ],
       "name": "Kitchen",
-      "position": {"x": 8, "y": 1},
-      "size": {"width": 3, "height": 4},
       "objects": [
         {
-          "name": "Refrigerator",
-          "position": {"x": 8, "y": 3},
-          "symbol": "🧊",
           "initialStates": {
             "isOpen": false
           },
@@ -240,18 +293,18 @@
               "command": "open refrigerator",
               "description": "Open the refrigerator to look inside.",
               "senses": {
-                "vision": "An open refrigerator having shelves stocked with various food items.",
-                "sound": "The loud hum of the refrigerator.",
                 "smell": "A cool blast of air brings a mix of scents.",
+                "sound": "The loud hum of the refrigerator.",
                 "tactile": "The refrigerator's cool air touches your face.",
-                "taste": ""
+                "taste": "",
+                "vision": "An open refrigerator having shelves stocked with various food items."
               },
               "states": {
-                "requiredStates": {
-                  "isOpen": false
-                },
                 "nextStates": {
                   "isOpen": true
+                },
+                "requiredStates": {
+                  "isOpen": false
                 }
               }
             },
@@ -259,27 +312,30 @@
               "command": "close refrigerator",
               "description": "Close the refrigerator.",
               "senses": {
-                "vision": "A refrigerator with its doors shut.",
-                "sound": "",
                 "smell": "",
+                "sound": "",
                 "tactile": "",
-                "taste": ""
+                "taste": "",
+                "vision": "A refrigerator with its doors shut."
               },
               "states": {
-                "requiredStates": {
-                  "isOpen": true
-                },
                 "nextStates": {
                   "isOpen": false
+                },
+                "requiredStates": {
+                  "isOpen": true
                 }
               }
             }
-          ]
+          ],
+          "name": "Refrigerator",
+          "position": {
+            "x": 8,
+            "y": 3
+          },
+          "symbol": "\ud83e\uddca"
         },
         {
-          "name": "Stove",
-          "position": {"x": 8, "y": 4},
-          "symbol": "🍳",
           "initialStates": {
             "isOn": false
           },
@@ -288,18 +344,18 @@
               "command": "turn on stove",
               "description": "Turn on the stove to start cooking.",
               "senses": {
-                "vision": "The stove is ignited and the burner glows red.",
-                "sound": "The sizzle of cooking food.",
                 "smell": "A cooked meal of a robust and savory flavor, with the pungent intensity of garlic and the subtle sweetness of onions enhancing the rich, umami taste.",
+                "sound": "The sizzle of cooking food.",
                 "tactile": "Heat radiates from the stove top.",
-                "taste": ""
+                "taste": "",
+                "vision": "The stove is ignited and the burner glows red."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": false
-                },
                 "nextStates": {
                   "isOn": true
+                },
+                "requiredStates": {
+                  "isOn": false
                 }
               }
             },
@@ -307,66 +363,96 @@
               "command": "turn off stove",
               "description": "Turn off the stove after cooking.",
               "senses": {
-                "vision": "A shiny, modern stove with pots on it. The stove is turned off.",
-                "sound": "",
                 "smell": "The lingering smell of cooked food.",
+                "sound": "",
                 "tactile": "",
-                "taste": ""
+                "taste": "",
+                "vision": "A shiny, modern stove with pots on it. The stove is turned off."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "isOn": false
+                },
+                "requiredStates": {
+                  "isOn": true
                 }
               }
             }
-          ]
+          ],
+          "name": "Stove",
+          "position": {
+            "x": 8,
+            "y": 4
+          },
+          "symbol": "\ud83c\udf73"
         },
         {
-          "name": "Fruit Bowl",
-          "position": {"x": 10, "y": 1},
-          "senses": {
-            "vision": "A bowl filled with fresh, colorful fruits",
-            "sound": "",
-            "smell": "The sweet fragrance of ripe fruits",
-            "taste": "The refreshing taste of mixed fruits",
-            "tactile": "The soft texture of ripe fruit skin"
-          },
-          "symbol": "🍇",
           "initialStates": {},
-          "interactions": []
+          "interactions": [],
+          "name": "Fruit Bowl",
+          "position": {
+            "x": 10,
+            "y": 1
+          },
+          "senses": {
+            "smell": "The sweet fragrance of ripe fruits",
+            "sound": "",
+            "tactile": "The soft texture of ripe fruit skin",
+            "taste": "The refreshing taste of mixed fruits",
+            "vision": "A bowl filled with fresh, colorful fruits"
+          },
+          "symbol": "\ud83c\udf47"
         }
       ],
-      "doors": [
-        {"to": "Living Room", "position": {
-          "entry": {"x": 8, "y": 2},
-          "exit": {"x": 5, "y": 2}
-        }},
-        {"to": "Garden", "position": {
-          "entry": {"x": 10, "y": 4},
-          "exit": {"x": 13, "y": 4}
-        }}
-      ],
-      "senses": {
-        "vision": "Modern appliances and a marble countertop",
-        "sound": "The sizzle of something frying on the stove",
-        "smell": "Garlic and onions cooking",
-        "taste": "",
-        "tactile": "Warm air filled with steam from boiling water"
+      "position": {
+        "x": 8,
+        "y": 1
       },
-      "symbol": "🟨"
+      "senses": {
+        "smell": "Garlic and onions cooking",
+        "sound": "The sizzle of something frying on the stove",
+        "tactile": "Warm air filled with steam from boiling water",
+        "taste": "",
+        "vision": "Modern appliances and a marble countertop"
+      },
+      "size": {
+        "height": 4,
+        "width": 3
+      },
+      "symbol": "\ud83d\udfe8"
     },
     {
+      "doors": [
+        {
+          "position": {
+            "entry": {
+              "x": 4,
+              "y": 8
+            },
+            "exit": {
+              "x": 7,
+              "y": 8
+            }
+          },
+          "to": "Bathroom"
+        },
+        {
+          "position": {
+            "entry": {
+              "x": 3,
+              "y": 7
+            },
+            "exit": {
+              "x": 3,
+              "y": 4
+            }
+          },
+          "to": "Living Room"
+        }
+      ],
       "name": "Bedroom",
-      "position": {"x": 1, "y": 7},
-      "size": {"width": 4, "height": 3},
       "objects": [
         {
-          "name": "Bed",
-          "position": {"x": 1, "y": 7},
-          "symbol": "🛏️ ",
           "initialStates": {
             "isMade": true
           },
@@ -375,18 +461,18 @@
               "command": "make bed",
               "description": "Neatly make the bed.",
               "senses": {
-                "vision": "Neatly made bed, with all the sheets and pillows in perfect order.",
-                "sound": "",
                 "smell": "The fresh scent of clean linen.",
+                "sound": "",
                 "tactile": "The smooth texture of the bed sheets.",
-                "taste": ""
+                "taste": "",
+                "vision": "Neatly made bed, with all the sheets and pillows in perfect order."
               },
               "states": {
-                "requiredStates": {
-                  "isMade": false
-                },
                 "nextStates": {
                   "isMade": true
+                },
+                "requiredStates": {
+                  "isMade": false
                 }
               }
             },
@@ -394,27 +480,30 @@
               "command": "mess up bed",
               "description": "Disarrange the bed to make it messy.",
               "senses": {
-                "vision": "Messy bed with sheets and pillows strewn about.",
-                "sound": "",
                 "smell": "The unchanged air of a used bed.",
+                "sound": "",
                 "tactile": "The disordered, crumpled texture of the bedclothes.",
-                "taste": ""
+                "taste": "",
+                "vision": "Messy bed with sheets and pillows strewn about."
               },
               "states": {
-                "requiredStates": {
-                  "isMade": true
-                },
                 "nextStates": {
                   "isMade": false
+                },
+                "requiredStates": {
+                  "isMade": true
                 }
               }
             }
-          ]
+          ],
+          "name": "Bed",
+          "position": {
+            "x": 1,
+            "y": 7
+          },
+          "symbol": "\ud83d\udecf\ufe0f "
         },
         {
-          "name": "Wardrobe",
-          "position": {"x": 4, "y": 9},
-          "symbol": "👗",
           "initialStates": {
             "isOpen": false
           },
@@ -423,18 +512,18 @@
               "command": "open wardrobe",
               "description": "Open the wardrobe to see your clothes.",
               "senses": {
-                "vision": "A large, open wooden wardrobe revealing rows of neatly hung clothes.",
-                "sound": "",
                 "smell": "A hint of cedar and mothballs emanating from within the wardrobe.",
+                "sound": "",
                 "tactile": "",
-                "taste": ""
+                "taste": "",
+                "vision": "A large, open wooden wardrobe revealing rows of neatly hung clothes."
               },
               "states": {
-                "requiredStates": {
-                  "isOpen": false
-                },
                 "nextStates": {
                   "isOpen": true
+                },
+                "requiredStates": {
+                  "isOpen": false
                 }
               }
             },
@@ -442,52 +531,66 @@
               "command": "close wardrobe",
               "description": "Close the wardrobe.",
               "senses": {
-                "vision": "A large wooden wardrobe with its doors closed.",
-                "sound": "",
                 "smell": "The slight scent of cedar and mothballs.",
+                "sound": "",
                 "tactile": "The smooth texture of polished wood.",
-                "taste": ""
+                "taste": "",
+                "vision": "A large wooden wardrobe with its doors closed."
               },
               "states": {
-                "requiredStates": {
-                  "isOpen": true
-                },
                 "nextStates": {
                   "isOpen": false
+                },
+                "requiredStates": {
+                  "isOpen": true
                 }
               }
             }
-          ]
+          ],
+          "name": "Wardrobe",
+          "position": {
+            "x": 4,
+            "y": 9
+          },
+          "symbol": "\ud83d\udc57"
         }
       ],
-      "doors": [
-        {"to": "Bathroom", "position": {
-          "entry": {"x": 4, "y": 8},
-          "exit": {"x": 7, "y": 8}
-        }},
-        {"to": "Living Room", "position": {
-          "entry": {"x": 3, "y": 7},
-          "exit": {"x": 3, "y": 4}
-        }}
-      ],
-      "senses": {
-        "vision": "A cozy room with muted lighting",
-        "sound": "Muffled sounds from outside",
-        "smell": "A faint scent of lavender",
-        "taste": "",
-        "tactile": "Carpeted floors providing a soft footing"
+      "position": {
+        "x": 1,
+        "y": 7
       },
-      "symbol": "🟦"
+      "senses": {
+        "smell": "A faint scent of lavender",
+        "sound": "Muffled sounds from outside",
+        "tactile": "Carpeted floors providing a soft footing",
+        "taste": "",
+        "vision": "A cozy room with muted lighting"
+      },
+      "size": {
+        "height": 3,
+        "width": 4
+      },
+      "symbol": "\ud83d\udfe6"
     },
     {
+      "doors": [
+        {
+          "position": {
+            "entry": {
+              "x": 7,
+              "y": 8
+            },
+            "exit": {
+              "x": 4,
+              "y": 8
+            }
+          },
+          "to": "Bedroom"
+        }
+      ],
       "name": "Bathroom",
-      "position": {"x": 7, "y": 7},
-      "size": {"width": 2, "height": 3},
       "objects": [
         {
-          "name": "Shower",
-          "position": {"x": 7, "y": 7},
-          "symbol": "🚿",
           "initialStates": {
             "isOn": false
           },
@@ -496,18 +599,18 @@
               "command": "turn on shower",
               "description": "Turn on the shower to take a bath.",
               "senses": {
-                "vision": "A glass shower stall with water spraying from the showerhead.",
-                "sound": "The sound of water splashing against the floor and walls.",
                 "smell": "The aroma of soap and steam filling the air.",
+                "sound": "The sound of water splashing against the floor and walls.",
                 "tactile": "Warm water cascades over your skin.",
-                "taste": ""
+                "taste": "",
+                "vision": "A glass shower stall with water spraying from the showerhead."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": false
-                },
                 "nextStates": {
                   "isOn": true
+                },
+                "requiredStates": {
+                  "isOn": false
                 }
               }
             },
@@ -515,27 +618,30 @@
               "command": "turn off shower",
               "description": "Turn off the shower after use.",
               "senses": {
-                "vision": "A glass shower stall with running water.",
-                "sound": "",
                 "smell": "The lingering scent of soap and steam.",
+                "sound": "",
                 "tactile": "",
-                "taste": ""
+                "taste": "",
+                "vision": "A glass shower stall with running water."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "isOn": false
+                },
+                "requiredStates": {
+                  "isOn": true
                 }
               }
             }
-          ]
+          ],
+          "name": "Shower",
+          "position": {
+            "x": 7,
+            "y": 7
+          },
+          "symbol": "\ud83d\udebf"
         },
         {
-          "name": "Sink",
-          "position": {"x": 8, "y": 9},
-          "symbol": "🚰",
           "initialStates": {
             "isOn": false
           },
@@ -544,18 +650,18 @@
               "command": "turn on",
               "description": "Turn on the sink to start water flow.",
               "senses": {
-                "vision": "A clean, white porcelain sink with water gushing out of the faucet, creating a swirl in the sink.",
-                "sound": "The sound of running water.",
                 "smell": "A misty scent of clean water.",
+                "sound": "The sound of running water.",
+                "tactile": "The cool splash of water.",
                 "taste": "",
-                "tactile": "The cool splash of water."
+                "vision": "A clean, white porcelain sink with water gushing out of the faucet, creating a swirl in the sink."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": false
-                },
                 "nextStates": {
                   "isOn": true
+                },
+                "requiredStates": {
+                  "isOn": false
                 }
               }
             },
@@ -563,86 +669,115 @@
               "command": "turn off",
               "description": "Turn off the sink to stop water flow.",
               "senses": {
-                "vision": "A clean, white porcelain sink.",
-                "sound": "",
                 "smell": "A clean, almost clinical scent.",
+                "sound": "",
+                "tactile": "The damp surface of the sink.",
                 "taste": "",
-                "tactile": "The damp surface of the sink."
+                "vision": "A clean, white porcelain sink."
               },
               "states": {
-                "requiredStates": {
-                  "isOn": true
-                },
                 "nextStates": {
                   "isOn": false
+                },
+                "requiredStates": {
+                  "isOn": true
                 }
               }
             }
-          ]
+          ],
+          "name": "Sink",
+          "position": {
+            "x": 8,
+            "y": 9
+          },
+          "symbol": "\ud83d\udeb0"
         }
       ],
-      "doors": [
-        {"to": "Bedroom", "position": {
-          "entry": {"x": 7, "y": 8},
-          "exit": {"x": 4, "y": 8}
-        }}
-      ],
+      "position": {
+        "x": 7,
+        "y": 7
+      },
       "senses": {
-        "vision": "Well-lit with tiled walls",
-        "sound": "Echoes of movements and water usage",
         "smell": "Fresh and sanitized",
+        "sound": "Echoes of movements and water usage",
+        "tactile": "The cool, smooth surface of the tiles",
         "taste": "",
-        "tactile": "The cool, smooth surface of the tiles"
+        "vision": "Well-lit with tiled walls"
+      },
+      "size": {
+        "height": 3,
+        "width": 2
       }
     },
     {
-      "name": "Garden",
-      "position": {"x": 13, "y": 1},
-      "size": {"width": 4, "height": 6},
-      "objects": [
+      "doors": [
         {
-          "name": "Tree",
-          "position": {"x": 14, "y": 2},
-          "senses": {
-            "vision": "A tall oak tree providing shade",
-            "sound": "Leaves rustling in the wind",
-            "smell": "The earthy scent of bark and leaves",
-            "taste": "",
-            "tactile": "The rough texture of the tree bark"
+          "position": {
+            "entry": {
+              "x": 13,
+              "y": 4
+            },
+            "exit": {
+              "x": 10,
+              "y": 4
+            }
           },
-          "symbol": "🌳",
-          "initialStates": {},
-          "interactions": []
-        },
-        {
-          "name": "Flower Bed",
-          "position": {"x": 15, "y": 5},
-          "senses": {
-            "vision": "Colorful tulips and daisies",
-            "sound": "Bees buzzing gently from flower to flower",
-            "smell": "The rich aroma of fresh earth and flowers",
-            "taste": "",
-            "tactile": "The rough texture of leaves and softness of petals"
-          },
-          "symbol": "🌼",
-          "initialStates": {},
-          "interactions": []
+          "to": "Kitchen"
         }
       ],
-      "doors": [
-        {"to": "Kitchen", "position": {
-          "entry": {"x": 13, "y": 4},
-          "exit": {"x": 10, "y": 4}
-        }}
+      "name": "Garden",
+      "objects": [
+        {
+          "initialStates": {},
+          "interactions": [],
+          "name": "Tree",
+          "position": {
+            "x": 14,
+            "y": 2
+          },
+          "senses": {
+            "smell": "The earthy scent of bark and leaves",
+            "sound": "Leaves rustling in the wind",
+            "tactile": "The rough texture of the tree bark",
+            "taste": "",
+            "vision": "A tall oak tree providing shade"
+          },
+          "symbol": "\ud83c\udf33"
+        },
+        {
+          "initialStates": {},
+          "interactions": [],
+          "name": "Flower Bed",
+          "position": {
+            "x": 15,
+            "y": 5
+          },
+          "senses": {
+            "smell": "The rich aroma of fresh earth and flowers",
+            "sound": "Bees buzzing gently from flower to flower",
+            "tactile": "The rough texture of leaves and softness of petals",
+            "taste": "",
+            "vision": "Colorful tulips and daisies"
+          },
+          "symbol": "\ud83c\udf3c"
+        }
       ],
-      "senses": {
-        "vision": "A lush green garden with a small pond",
-        "sound": "Birds chirping and water gently rippling in the pond",
-        "smell": "Fresh grass and damp soil",
-        "taste": "",
-        "tactile": "Grass underfoot, moist and springy"
+      "position": {
+        "x": 13,
+        "y": 1
       },
-      "symbol": "🟩"
+      "senses": {
+        "smell": "Fresh grass and damp soil",
+        "sound": "Birds chirping and water gently rippling in the pond",
+        "tactile": "Grass underfoot, moist and springy",
+        "taste": "",
+        "vision": "A lush green garden with a small pond"
+      },
+      "size": {
+        "height": 6,
+        "width": 4
+      },
+      "symbol": "\ud83d\udfe9"
     }
   ]
 }

@@ -1,121 +1,121 @@
 {
-    "templatePinStates": [],
-    "dependencyTypeInfos": [
-        {
-            "userAdded": false,
-            "type": "UnityEngine.AnimationClip",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEditor.Animations.AnimatorController",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.AnimatorOverrideController",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEditor.Audio.AudioMixerController",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.ComputeShader",
-            "defaultInstantiationMode": 1
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Cubemap",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.GameObject",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEditor.LightingDataAsset",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.LightingSettings",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Material",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEditor.MonoScript",
-            "defaultInstantiationMode": 1
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.PhysicMaterial",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.PhysicsMaterial2D",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Rendering.PostProcessing.PostProcessProfile",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Rendering.PostProcessing.PostProcessResources",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Rendering.VolumeProfile",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEditor.SceneAsset",
-            "defaultInstantiationMode": 1
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Shader",
-            "defaultInstantiationMode": 1
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.ShaderVariantCollection",
-            "defaultInstantiationMode": 1
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Texture",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Texture2D",
-            "defaultInstantiationMode": 0
-        },
-        {
-            "userAdded": false,
-            "type": "UnityEngine.Timeline.TimelineAsset",
-            "defaultInstantiationMode": 0
-        }
-    ],
-    "defaultDependencyTypeInfo": {
-        "userAdded": false,
-        "type": "<default_scene_template_dependencies>",
-        "defaultInstantiationMode": 1
+  "defaultDependencyTypeInfo": {
+    "defaultInstantiationMode": 1,
+    "type": "<default_scene_template_dependencies>",
+    "userAdded": false
+  },
+  "dependencyTypeInfos": [
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.AnimationClip",
+      "userAdded": false
     },
-    "newSceneOverride": 0
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEditor.Animations.AnimatorController",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.AnimatorOverrideController",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEditor.Audio.AudioMixerController",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 1,
+      "type": "UnityEngine.ComputeShader",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Cubemap",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.GameObject",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEditor.LightingDataAsset",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.LightingSettings",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Material",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 1,
+      "type": "UnityEditor.MonoScript",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.PhysicMaterial",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.PhysicsMaterial2D",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Rendering.PostProcessing.PostProcessProfile",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Rendering.PostProcessing.PostProcessResources",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Rendering.VolumeProfile",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 1,
+      "type": "UnityEditor.SceneAsset",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 1,
+      "type": "UnityEngine.Shader",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 1,
+      "type": "UnityEngine.ShaderVariantCollection",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Texture",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Texture2D",
+      "userAdded": false
+    },
+    {
+      "defaultInstantiationMode": 0,
+      "type": "UnityEngine.Timeline.TimelineAsset",
+      "userAdded": false
+    }
+  ],
+  "newSceneOverride": 0,
+  "templatePinStates": []
 }

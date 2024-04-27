@@ -16,3 +16,10 @@ repos:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
+  - repo: local
+    hooks:
+    -   id: dotnet-format
+        name: dotnet-format
+        language: system
+        entry: dotnet format aiden.sln --include
+        types_or: ["c#", "vb"]

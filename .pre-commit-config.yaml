@@ -2,20 +2,25 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      - id: trailing-whitespace
-        exclude: '^(Assets/|ProjectSettings/)'
       - id: check-json
       - id: check-yaml
       - id: debug-statements
       - id: detect-private-key
       - id: end-of-file-fixer
         exclude: '^(Assets/ThirdParty)'
+      - id: trailing-whitespace
+        exclude: '^(Assets/|ProjectSettings/)'
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.3.2
     hooks:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        exclude: '^(Assets/ThirdParty)'
   - repo: local
     hooks:
     -   id: dotnet-format

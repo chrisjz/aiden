@@ -35,7 +35,7 @@ import json
 import os
 
 from aiden.models.brain import Sensory
-from aiden.models.scene import SceneConfig
+from aiden.models.scene import Action, ActionList, Compass, Direction, SceneConfig
 
 
 class Scene:
@@ -50,20 +50,65 @@ class Scene:
             obj.name: obj.initialStates for room in config.rooms for obj in room.objects
         }
 
-        self.actions = {
-            "w": "move_player",
-            "s": "move_backward",
-            "a": "turn_left",
-            "d": "turn_right",
-            "e": "interact_with_object",
-            "forward": "move_player",
-            "backward": "move_backward",
-            "left": "turn_left",
-            "right": "turn_right",
-            "use": "interact_with_object",
-        }
+        self.actions = ActionList(
+            actions=[
+                Action(
+                    key="w",
+                    function_name="move_player",
+                    description="Move player forward",
+                ),
+                Action(
+                    key="s",
+                    function_name="move_backward",
+                    description="Move player backward",
+                ),
+                Action(
+                    key="a", function_name="turn_left", description="Turn player left"
+                ),
+                Action(
+                    key="d", function_name="turn_right", description="Turn player right"
+                ),
+                Action(
+                    key="e",
+                    function_name="interact_with_object",
+                    description="Interact with object",
+                ),
+                Action(
+                    key="forward",
+                    function_name="move_player",
+                    description="Move player forward",
+                ),
+                Action(
+                    key="backward",
+                    function_name="move_backward",
+                    description="Move player backward",
+                ),
+                Action(
+                    key="left",
+                    function_name="turn_left",
+                    description="Turn player left",
+                ),
+                Action(
+                    key="right",
+                    function_name="turn_right",
+                    description="Turn player right",
+                ),
+                Action(
+                    key="use",
+                    function_name="interact_with_object",
+                    description="Interact with object",
+                ),
+            ]
+        )
 
-        self.directions = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
+        self.directions = Compass(
+            directions={
+                "N": Direction(name="North", dx=0, dy=-1),
+                "E": Direction(name="East", dx=1, dy=0),
+                "S": Direction(name="South", dx=0, dy=1),
+                "W": Direction(name="West", dx=-1, dy=0),
+            }
+        )
 
     def get_entity_by_position(self, position: tuple[int, int], entity_type: str):
         for room in self.rooms.values():
@@ -213,14 +258,18 @@ class Scene:
                 combined_senses[sense_key] += " | " + sense_value
 
     def process_action(self, command: str):
-        method = self.actions.get(command)
-        if method:
-            getattr(self, method)()
+        function_name = self.actions.get_action_function(command)
+        if function_name:
+            method = getattr(self, function_name, None)
+            if method:
+                method()
+            else:
+                print("No method found for the command.")
         else:
             print("Invalid command!")
 
     def move_player(self):
-        dx, dy = self.directions[self.player_orientation]
+        dx, dy = self.directions.get_offset(self.player_orientation)
         new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
         if self.is_position_within_room(new_position):
             self.player_position = new_position
@@ -228,7 +277,7 @@ class Scene:
             print("Move blocked by environment boundaries.")
 
     def move_backward(self):
-        dx, dy = self.directions[self.player_orientation]
+        dx, dy = self.directions.get_offset(self.player_orientation)
         new_position = (self.player_position[0] - dx, self.player_position[1] - dy)
         if self.is_position_within_room(new_position):
             self.player_position = new_position
@@ -256,7 +305,7 @@ class Scene:
 
     def get_field_of_view(self):
         """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
-        dx, dy = self.directions[self.player_orientation]
+        dx, dy = self.directions.get_offset(self.player_orientation)
         visible_objects = []
         for i in range(1, self.player_view_distance + 1):
             nx, ny = self.player_position[0] + i * dx, self.player_position[1] + i * dy
@@ -369,7 +418,7 @@ def main(args) -> None:
             break
 
         env.process_action(command)
-        print(f"Action executed: {env.actions.get(command, '')}")
+        print(f"Action executed: {env.actions.get_action_function(command)}")
         env.print_scene(args.pretty)
 
 

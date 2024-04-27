@@ -4,6 +4,21 @@ from pydantic import BaseModel, Field
 from aiden.models.brain import Sensory
 
 
+class Action(BaseModel):
+    key: str
+    function_name: str
+    description: Optional[str] = None
+
+
+class ActionList(BaseModel):
+    actions: list[Action]
+
+    def get_action_function(self, key: str) -> Optional[str]:
+        # Find the action by key and return the function name if found
+        action = next((action for action in self.actions if action.key == key), None)
+        return action.function_name if action else None
+
+
 class States(BaseModel):
     requiredStates: dict[str, Any]
     nextStates: dict[str, Any]
@@ -12,6 +27,20 @@ class States(BaseModel):
 class Position(BaseModel):
     x: int
     y: int
+
+
+class Direction(BaseModel):
+    name: str
+    dx: int
+    dy: int
+
+
+class Compass(BaseModel):
+    directions: dict[str, Direction]
+
+    def get_offset(self, orientation: str) -> tuple[int, int]:
+        direction = self.directions.get(orientation)
+        return (direction.dx, direction.dy) if direction else (0, 0)
 
 
 class DoorPosition(BaseModel):

@@ -10,6 +10,7 @@ from aiden.models.scene import (
     Position,
     Room,
     Player,
+    Sense,
     Size,
     Interaction,
     States,
@@ -101,7 +102,10 @@ def interactive_scene():
                 states=States(
                     requiredStates={"isOn": False}, nextStates={"isOn": True}
                 ),
-                senses={"vision": "TV turns on", "sound": "Startup sound plays"},
+                senses={
+                    "vision": "TV playing a sports game",
+                    "sound": "You hear an audience cheer from the TV segment playing",
+                },
             ),
             Interaction(
                 command="turn off",
@@ -109,7 +113,10 @@ def interactive_scene():
                 states=States(
                     requiredStates={"isOn": True}, nextStates={"isOn": False}
                 ),
-                senses={"vision": "TV turns off", "sound": "Silence"},
+                senses={
+                    "vision": "TV turns off",
+                    "sound": "No sound coming from the TV",
+                },
             ),
         ],
         initialStates={"isOn": False},
@@ -120,6 +127,13 @@ def interactive_scene():
             position=Position(x=0, y=0),
             size=Size(width=5, height=5),
             objects=[sofa, tv],
+            senses=Sense(
+                vision="A spacious living room with large windows",
+                sound="A constant low hum from an air conditioner",
+                smell="Freshly brewed coffee",
+                tactile="Smooth, cool wooden floors underfoot",
+                taste="",
+            ),
         )
     ]
     config = SceneConfig(rooms=rooms, player=player)
@@ -137,7 +151,7 @@ def test_move_forward(sample_scene):
 
 
 def test_backwards_movement(sample_scene):
-    sample_scene.move_player(
+    sample_scene.process_action(
         "s"
     )  # Initially facing south, moving backward should keep the same position
     assert sample_scene.player_position == (
@@ -162,8 +176,8 @@ def test_turn_left(sample_scene):
 
 def test_teleport_to_room_via_door(complex_scene):
     complex_scene.player_position = (4, 3)  # Position at the door entry
-    complex_scene.move_player("w")
-    complex_scene.move_player("e")  # Trigget action to move through door
+    complex_scene.process_action("w")
+    complex_scene.process_action("e")  # Trigget action to move through door
     assert complex_scene.player_position == (
         0,
         0,
@@ -171,9 +185,9 @@ def test_teleport_to_room_via_door(complex_scene):
 
 
 def test_object_interaction(complex_scene):
-    complex_scene.move_player("w")  # Move north to y=0
-    complex_scene.move_player("d")  # Move east to x=2
-    complex_scene.move_player("d")  # Move east to x=2, position of the sofa
+    complex_scene.process_action("w")  # Move north to y=0
+    complex_scene.process_action("d")  # Move east to x=2
+    complex_scene.process_action("d")  # Move east to x=2, position of the sofa
     assert (
         complex_scene.find_object_by_position((2, 2)).name == "Sofa"
     ), "Should be at the position of the Sofa"
@@ -190,7 +204,9 @@ def test_view_field_sensing_objects(complex_scene):
 
 def test_no_movement_on_obstruction(complex_scene):
     complex_scene.player_position = (4, 0)  # On the northern boundary of the room
-    complex_scene.move_player("w")  # Trying to move out of the room's northern boundary
+    complex_scene.process_action(
+        "w"
+    )  # Trying to move out of the room's northern boundary
     assert complex_scene.player_position == (
         4,
         0,
@@ -258,11 +274,15 @@ def test_interaction_execution_changes_state(interactive_scene, monkeypatch):
     monkeypatch.setattr(sys, "stdout", captured_output)
 
     # Position player correctly and then simulate interaction
-    interactive_scene.move_player("e")  # Trigger interaction which should handle inputs
+    interactive_scene.process_action(
+        "e"
+    )  # Trigger interaction which should handle inputs
 
     # Fetch the captured output and check it
     output = captured_output.getvalue()
-    assert "TV turns on" in output, f"Expected 'TV turns on' in output, got: {output}"
+    assert (
+        "TV playing a sports game" in output
+    ), f"Expected 'TV playing a sports game' in output, got: {output}"
 
 
 def test_exit_interaction_command(interactive_scene):
@@ -274,7 +294,7 @@ def test_exit_interaction_command(interactive_scene):
 
 def test_no_interactions_available(interactive_scene, monkeypatch):
     # Move player to sofa location
-    interactive_scene.move_player("w")
+    interactive_scene.process_action("w")
     # Simulate user input for exiting interaction mode immediately
     monkeypatch.setattr("builtins.input", lambda _: "exit")
     output = capture_output(interactive_scene.interact_with_object)
@@ -285,3 +305,57 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
     assert (
         "sit" not in output
     ), "Sit command should not be available since the TV is already on"
+
+
+@pytest.mark.parametrize(
+    "player_position, expected_vision, expected_sound, expected_smell, expected_tactile, expected_taste",
+    [
+        (
+            (1, 1),
+            "A spacious living room with large windows",
+            "A constant low hum from an air conditioner",
+            "Freshly brewed coffee",
+            "Smooth, cool wooden floors underfoot",
+            "",
+        ),
+        (
+            (2, 2),
+            "TV playing a sports game",
+            "You hear an audience cheer from the TV segment playing",
+            "",
+            "",
+            "",
+        ),
+    ],
+)
+def test_get_sensory_data(
+    interactive_scene,
+    player_position,
+    expected_vision,
+    expected_sound,
+    expected_smell,
+    expected_tactile,
+    expected_taste,
+):
+    # Set player position
+    interactive_scene.player_position = player_position
+
+    # Execute the get_sensory_data function
+    sensory_data = interactive_scene.get_sensory_data()
+
+    # Assert each sense is correctly gathered
+    assert (
+        sensory_data.vision == expected_vision
+    ), f"Vision should correctly reflect the player's visual input for position {player_position}"
+    assert (
+        sensory_data.auditory == expected_sound
+    ), f"Sound should match the environment auditory cues for position {player_position}"
+    assert (
+        sensory_data.smell == expected_smell
+    ), f"Smell should match the environment olfactory cues for position {player_position}"
+    assert (
+        sensory_data.tactile == expected_tactile
+    ), f"Tactile should match the environment touch feedback for position {player_position}"
+    assert (
+        sensory_data.taste == expected_taste
+    ), f"Taste should match the environment taste input (if any) for position {player_position}"

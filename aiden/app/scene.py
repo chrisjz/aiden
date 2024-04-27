@@ -36,6 +36,7 @@ import argparse
 import json
 import os
 
+from aiden.models.brain import SensoryData
 from aiden.models.scene import SceneConfig, Sense
 
 
@@ -152,7 +153,45 @@ class Scene:
         else:
             print("There is nothing here to interact with.")
 
-    def move_player(self, command: str) -> None:
+    def get_sensory_data(self):
+        object_at_position = self.find_object_by_position(self.player_position)
+        if object_at_position:
+            current_states = self.object_states[object_at_position.name]
+            available_interactions = [
+                interaction
+                for interaction in object_at_position.interactions
+                if all(
+                    current_states.get(key) == value
+                    for key, value in interaction.states.requiredStates.items()
+                )
+            ]
+
+            # Find the first available interaction and get sensory data from it
+            if available_interactions:
+                first_interaction = available_interactions[0]
+                return SensoryData(
+                    vision=first_interaction.senses.vision,
+                    auditory=first_interaction.senses.sound,
+                    tactile=first_interaction.senses.tactile,
+                    smell=first_interaction.senses.smell,
+                    taste=first_interaction.senses.taste,
+                )
+            else:
+                # If no available interactions, return default sensory data
+                return SensoryData()
+
+        room = self.find_room_by_position(self.player_position)
+        if room:
+            return SensoryData(
+                vision=room.senses.vision,
+                auditory=room.senses.sound,
+                tactile=room.senses.tactile,
+                smell=room.senses.smell,
+                taste=room.senses.taste,
+            )
+        return SensoryData()
+
+    def process_action(self, command: str) -> None:
         if command in ("forward", "w"):
             self.advance()
         elif command in ("backward", "s"):
@@ -165,7 +204,7 @@ class Scene:
         elif command in ("use", "e"):
             self.interact_with_object()
         else:
-            print("Unknown command!")
+            print("Unknown action command!")
 
     def turn_around(self):
         self.player_orientation = {"N": "S", "S": "N", "E": "W", "W": "E"}[
@@ -394,7 +433,7 @@ def main(scene_file: str, pretty: bool, show_position: bool, verbose: bool) -> N
         if command == "q":
             break
         else:
-            env.move_player(command)
+            env.process_action(command)
             if verbose:
                 print(f"Action executed: {env.actions.get(command, '')}")
                 print(f"Player orientation: {env.player_orientation}")

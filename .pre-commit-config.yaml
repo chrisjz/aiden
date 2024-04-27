@@ -6,6 +6,9 @@ repos:
         exclude: '^(Assets/|ProjectSettings/)'
       - id: check-json
       - id: check-yaml
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.3.2
     hooks:

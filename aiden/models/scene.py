@@ -1,7 +1,13 @@
+from enum import Enum
 from typing import Optional, Any
 from pydantic import BaseModel, Field
 
 from aiden.models.brain import Sensory
+
+
+class EntityType(Enum):
+    OBJECT = "object"
+    ROOM = "room"
 
 
 class Action(BaseModel):

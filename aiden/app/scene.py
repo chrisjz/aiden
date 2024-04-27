@@ -31,17 +31,12 @@ This tool allows for a text-based simulation of sensory experiences in a virtual
 """
 
 import argparse
-from enum import Enum
 import json
 import os
 
 from aiden.models.brain import Sensory
 from aiden.models.scene import Action, ActionList, Compass, Direction, SceneConfig
-
-
-class EntityType(Enum):
-    OBJECT = "object"
-    ROOM = "room"
+from aiden.models.scene import EntityType
 
 
 class Scene:

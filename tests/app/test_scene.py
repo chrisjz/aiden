@@ -2,10 +2,11 @@ import io
 import sys
 from unittest.mock import patch
 import pytest
-from aiden.app.scene import EntityType, Scene
+from aiden.app.scene import Scene
 from aiden.models.brain import Sensory
 from aiden.models.scene import (
     Door,
+    EntityType,
     Object,
     SceneConfig,
     Position,

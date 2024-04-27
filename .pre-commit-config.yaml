@@ -3,6 +3,7 @@ repos:
     rev: v4.6.0
     hooks:
       - id: trailing-whitespace
+        exclude: '^(Assets/|ProjectSettings/)'
       - id: check-json
       - id: check-yaml
   - repo: https://github.com/charliermarsh/ruff-pre-commit

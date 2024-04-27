@@ -43,8 +43,8 @@ def main():
         "vision": vision_input,
         "auditory": auditory_input,
         "tactile": tactile_input,
-        "smell": olfactory_input,
-        "taste": gustatory_input,
+        "olfactory": olfactory_input,
+        "gustatory": gustatory_input,
     }
 
     # Send a POST request to the Cortical endpoint

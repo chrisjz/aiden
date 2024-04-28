@@ -5,7 +5,8 @@ from fastapi import FastAPI, HTTPException
 from starlette.responses import StreamingResponse
 import httpx
 
-from aiden.models.brain import BrainConfig, Personality, Sensory
+from aiden.models.brain import BrainConfig, Personality
+from aiden.models.brain import CorticalRequest
 from aiden.models.chat import ChatMessage, Message
 
 app = FastAPI()
@@ -25,9 +26,9 @@ def load_brain_config(config_file: str) -> BrainConfig:
 
 
 @app.post("/cortical/")
-async def cortical(sensory: Sensory, config: str = "./config/brain/default.json"):
+async def cortical(request: CorticalRequest):
     logger.info(f"Cognitive API URL: {COGNITIVE_API_URL}")
-    brain_config = load_brain_config(config)
+    brain_config = load_brain_config(request.config)
     personality: Personality = brain_config.personality
     try:
         system_prompt_template = brain_config.description + "\n"
@@ -43,11 +44,11 @@ Here is your personality profile:
 
         # Prepare the user prompt template based on available sensory data
         user_prompt_template = f"""
-My visual input: {sensory.vision}
-My auditory input: {sensory.auditory}
-My tactile input: {sensory.tactile}
-My olfactory input: {sensory.olfactory}
-My gustatory input: {sensory.gustatory}
+My visual input: {request.sensory.vision}
+My auditory input: {request.sensory.auditory}
+My tactile input: {request.sensory.tactile}
+My olfactory input: {request.sensory.olfactory}
+My gustatory input: {request.sensory.gustatory}
 {brain_config.action}
 """
 

@@ -7,6 +7,8 @@ import os
 import requests
 import json
 
+from aiden.models.brain import CorticalRequest, Sensory
+
 
 def main():
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
@@ -39,17 +41,21 @@ def main():
         or "I taste the minty flavour of the gum I'm chewing."
     )
 
-    sensory_data = {
-        "vision": vision_input,
-        "auditory": auditory_input,
-        "tactile": tactile_input,
-        "olfactory": olfactory_input,
-        "gustatory": gustatory_input,
-    }
+    sensory_data = Sensory(
+        auditory=auditory_input,
+        gustatory=gustatory_input,
+        olfactory=olfactory_input,
+        tactile=tactile_input,
+        vision=vision_input,
+    )
+
+    payload = CorticalRequest(
+        config="./config/brain/default.json", sensory=sensory_data
+    ).model_dump()
 
     # Send a POST request to the Cortical endpoint
     print("Send sensory data to Cortical endpoint.")
-    with requests.post(api_url, json=sensory_data, stream=True) as response:
+    with requests.post(api_url, json=payload, stream=True) as response:
         if response.status_code == 200:
             print("Response from Cortical API:")
             final_content = ""

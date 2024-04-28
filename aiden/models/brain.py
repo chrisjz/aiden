@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FeatureToggle(BaseModel):
@@ -25,3 +25,10 @@ class BrainConfig(BaseModel):
     instructions: list[str]
     personality: Personality
     feature_toggles: FeatureToggle
+
+
+class CorticalRequest(BaseModel):
+    sensory: Sensory
+    config: str = Field(
+        default="./config/brain/default.json"
+    )  # TODO: pass BrainConfig instead

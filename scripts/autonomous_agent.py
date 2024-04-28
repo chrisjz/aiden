@@ -34,6 +34,7 @@ import os
 
 import httpx
 from aiden.app.scene import Scene, load_scene
+from aiden.models.brain import CorticalRequest
 
 
 def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
@@ -65,7 +66,9 @@ def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
     return logger
 
 
-async def autonomous_agent_simulation(scene: Scene, logger: logging.Logger):
+async def autonomous_agent_simulation(
+    brain_config_file: str, scene: Scene, logger: logging.Logger
+):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
 
     async with httpx.AsyncClient() as client:
@@ -77,8 +80,11 @@ async def autonomous_agent_simulation(scene: Scene, logger: logging.Logger):
             sensory_data = scene.update_sensory_data()
             logger.info(f"Sensory data: {sensory_data}")
 
+            payload = CorticalRequest(
+                config=brain_config_file, sensory=sensory_data
+            ).model_dump()
             response = await client.post(
-                api_url, json=sensory_data.model_dump()
+                api_url, json=payload
             )  # Send sensory data to brain API
             content = ""
             if response.status_code == 200:
@@ -142,6 +148,12 @@ def process_response(content: str, logger: logging.Logger) -> str | None:
 async def main():
     parser = argparse.ArgumentParser(description="Run the AIden simulation.")
     parser.add_argument(
+        "--config",
+        type=str,
+        default="./config/brain/default.json",
+        help="Path to the brain configuration file.",
+    )
+    parser.add_argument(
         "--scene",
         type=str,
         default="./config/scenes/default.json",
@@ -162,7 +174,7 @@ async def main():
     logger = setup_logging(args.log, args.terminal_level, args.file_level)
     scene_config = load_scene(args.scene)
     scene = Scene(scene_config)
-    await autonomous_agent_simulation(scene, logger)
+    await autonomous_agent_simulation(args.config, scene, logger)
 
 
 if __name__ == "__main__":

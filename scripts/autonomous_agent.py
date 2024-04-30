@@ -34,7 +34,9 @@ import os
 
 import httpx
 from aiden.app.scene import Scene, load_scene
+from aiden.app.utils import build_user_prompt_template, load_brain_config
 from aiden.models.brain import CorticalRequest
+from aiden.models.chat import Message
 
 
 def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
@@ -70,18 +72,84 @@ async def autonomous_agent_simulation(
     brain_config_file: str, scene: Scene, logger: logging.Logger
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
+    brain_config = load_brain_config(brain_config_file)
 
     async with httpx.AsyncClient() as client:
         chat_history = []
         while True:  # Loop indefinitely to keep processing sensory data and actions
             logger.debug("Refreshing scene display...")
             print("\033c", end="")
+
             scene.print_scene(False)
             sensory_data = scene.update_sensory_data()
-            logger.info(f"Sensory data: {sensory_data}")
+            history = [
+                hist for hist in chat_history
+            ]  # TODO: Configure history length for short-term memory
+
+            # TEMP - set pre-determined path for AI movement
+            # TODO: Add action in payload to cortical API
+            agent_action = ""
+            match scene.player_position:
+                case (2, 2):
+                    scene.process_action("left")
+                    scene.process_action("forward")
+                    agent_action = "You turn left and move forward."
+                case (2, 1):
+                    scene.process_action("right")
+                    scene.process_action("forward")
+                    agent_action = "You turn right and move forward."
+                case (3, 1):
+                    scene.process_action("forward")
+                    agent_action = "You move forward."
+                case (4, 1):
+                    scene.process_action("right")
+                    scene.process_action("forward")
+                    agent_action = "You turn right and move forward."
+                case (4, 2):
+                    scene.process_action("left")
+                    scene.process_action("forward")
+                    agent_action = "You turn left and move forward."
+                case (5, 2):
+                    scene.process_action("use")
+                    agent_action = "You enter through a door."
+                case (8, 2):
+                    scene.process_action("right")
+                    scene.process_action("forward")
+                    agent_action = "You turn right and move forward."
+                case (8, 3):
+                    scene.process_action("forward")
+                    agent_action = "You move forward."
+                case (8, 4):
+                    scene.process_action("left")
+                    scene.process_action("forward")
+                    agent_action = "You turn left and move forward."
+                case (9, 4):
+                    scene.process_action("forward")
+                    agent_action = "You move forward."
+                case (10, 4):
+                    scene.process_action("use")
+                    agent_action = "You enter through a door."
+                case (13, 4):
+                    scene.process_action("right")
+                    scene.process_action("forward")
+                    agent_action = "You turn right and move forward."
+                case (13, 5):
+                    scene.process_action("left")
+                    scene.process_action("forward")
+                    agent_action = "You turn left and move forward."
+                case (14, 5):
+                    scene.process_action("left")
+                    scene.process_action("forward")
+                    scene.process_action("right")  # To match starting point orientation
+                    agent_action = "You turn left, move forward and then turn right."
+                case _:
+                    scene.player_position = (2, 2)
 
             payload = CorticalRequest(
-                config=brain_config_file, sensory=sensory_data
+                action=agent_action,
+                config=brain_config_file,
+                sensory=sensory_data,
+                history=history,
             ).model_dump()
             response = await client.post(
                 api_url, json=payload
@@ -94,16 +162,24 @@ async def autonomous_agent_simulation(
                         content += json_line.get("message", {}).get("content", "")
                 action = process_response(content, logger)
                 if action:
-                    scene.process_action(
-                        action
-                    )  # Process the action derived from response
+                    scene.process_action(action)
             else:
                 logger.error(f"Error: {response.status_code}")
 
+            user_prompt_template = build_user_prompt_template(
+                sensory_data, brain_config
+            )
+
+            # Flush short-term memory when AI start repeating the same response.
+            if chat_history and content == chat_history[-1].content:
+                chat_history = []
+            else:
+                chat_history.append(Message(role="user", content=user_prompt_template))
+                chat_history.append(Message(role="assistant", content=content))
+
             logger.debug("Chat history:")
-            for instance in chat_history[-5:]:
+            for instance in chat_history[-10:]:
                 logger.debug(instance)
-            chat_history.append(content)
 
             await asyncio.sleep(1)  # Sleep to simulate time passing between actions
 

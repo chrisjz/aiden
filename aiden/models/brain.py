@@ -1,4 +1,7 @@
+from typing import Optional
 from pydantic import BaseModel, Field
+
+from aiden.models.chat import Message
 
 
 class FeatureToggle(BaseModel):
@@ -28,7 +31,9 @@ class BrainConfig(BaseModel):
 
 
 class CorticalRequest(BaseModel):
-    sensory: Sensory
+    action: str = ""
     config: str = Field(
         default="./config/brain/default.json"
     )  # TODO: pass BrainConfig instead
+    sensory: Sensory
+    history: Optional[list[Message]] = None

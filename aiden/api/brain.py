@@ -1,13 +1,14 @@
-import json
 import logging
 import os
 from fastapi import FastAPI, HTTPException
 from starlette.responses import StreamingResponse
 import httpx
 
-from aiden.models.brain import BrainConfig, Personality
+from aiden.app.utils import load_brain_config
+from aiden.app.utils import build_user_prompt_template
+from aiden.models.brain import Personality
 from aiden.models.brain import CorticalRequest
-from aiden.models.chat import ChatMessage, Message
+from aiden.models.chat import ChatMessage, Message, Options
 
 app = FastAPI()
 
@@ -17,12 +18,31 @@ logger = logging.getLogger("uvicorn")
 COGNITIVE_API_URL = f'{os.environ.get("COGNITIVE_API_PROTOCOL", "http")}://{os.environ.get("COGNITIVE_API_HOST", "localhost")}:{os.environ.get("COGNITIVE_API_PORT", "8000")}/api/chat'
 
 
-def load_brain_config(config_file: str) -> BrainConfig:
-    if not os.path.exists(config_file):
-        raise FileNotFoundError("Cannot find the brain configuration file")
-    with open(config_file, "r", encoding="utf8") as f:
-        data = json.load(f)
-    return BrainConfig(**data)
+async def rewrite_user_prompt(initial_prompt: str):
+    messages = [
+        Message(
+            role="system",
+            content="Rewrite the prompt you receive from a first-person perspective.",
+        ),
+        Message(role="user", content=initial_prompt),
+    ]
+
+    chat_message = ChatMessage(
+        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
+        messages=messages,
+        stream=False,
+    )
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(COGNITIVE_API_URL, json=chat_message.model_dump())
+        if response.status_code == 200:
+            logger.info(f"Rewritten response json: {response.json()}")
+            rewritten_prompt = (
+                response.json().get("message", {}).get("content", initial_prompt)
+            )
+            return rewritten_prompt
+        else:
+            return initial_prompt
 
 
 @app.post("/cortical/")
@@ -43,27 +63,35 @@ Here is your personality profile:
         system_prompt_template += "\n".join(brain_config.instructions)
 
         # Prepare the user prompt template based on available sensory data
-        user_prompt_template = f"""
-My visual input: {request.sensory.vision}
-My auditory input: {request.sensory.auditory}
-My tactile input: {request.sensory.tactile}
-My olfactory input: {request.sensory.olfactory}
-My gustatory input: {request.sensory.gustatory}
-{brain_config.action}
-"""
+        user_prompt_template = build_user_prompt_template(request.sensory, brain_config)
 
-        logger.info(f"System prompt formatted: {system_prompt_template.strip()}")
-        logger.info(f"Sensory data formatted: {user_prompt_template.strip()}")
+        logger.info(f"Original user prompt template: {user_prompt_template}")
+        user_prompt_template = await rewrite_user_prompt(user_prompt_template)
+        logger.info(f"Rewritten user prompt template: {user_prompt_template}")
 
         # Prepare the chat message for the Cognitive API
+        messages = [Message(role="system", content=system_prompt_template)]
+        if request.history:
+            messages.extend(request.history)
+        messages.append(Message(role="user", content=user_prompt_template))
+
         chat_message = ChatMessage(
             model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
-            messages=[
-                Message(role="system", content=system_prompt_template),
-                Message(role="user", content=user_prompt_template),
-            ],
+            messages=messages,
             stream=True,
+            options=Options(
+                frequency_penalty=1.2,
+                penalize_newline=False,
+                presence_penalty=1.7,
+                repeat_last_n=48,
+                repeat_penalty=1.3,
+                temperature=0.9,
+                top_k=16,
+                top_p=0.9,
+            ),
         )
+
+        logger.info(f"Chat message: {chat_message.model_dump()}")
 
         async def stream_response():
             async with httpx.AsyncClient() as client:

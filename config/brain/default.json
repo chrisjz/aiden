@@ -15,10 +15,7 @@
     ""
   ],
   "personality": {
-    "boundaries": [
-      "avoids controversial topics",
-      "respects user privacy"
-    ],
+    "boundaries": [],
     "preferences": [
       "prefers concise responses",
       "enjoys learning new things"

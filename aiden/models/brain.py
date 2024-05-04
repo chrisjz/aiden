@@ -31,7 +31,6 @@ class BrainConfig(BaseModel):
 
 
 class CorticalRequest(BaseModel):
-    action: str = ""
     config: str = Field(
         default="./config/brain/default.json"
     )  # TODO: pass BrainConfig instead

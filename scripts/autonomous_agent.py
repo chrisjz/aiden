@@ -87,11 +87,9 @@ async def autonomous_agent_simulation(
             ]  # TODO: Configure history length for short-term memory
 
             # TEMP - set pre-determined path for AI movement
-            # TODO: Add action in payload to cortical API
-            agent_action = process_next_predetermined_action(scene)
+            _ = process_next_predetermined_action(scene)
 
             payload = CorticalRequest(
-                action=agent_action,
                 config=brain_config_file,
                 sensory=sensory_data,
                 history=history,

@@ -42,10 +42,15 @@ async def thalamus(integrated_sensory_data: str) -> str:
         model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
         messages=messages,
         stream=False,
+        options=Options(),
     )
 
+    logger.info(f"Thalamus chat message: {chat_message.model_dump()}")
+
     async with httpx.AsyncClient() as client:
-        response = await client.post(COGNITIVE_API_URL, json=chat_message.model_dump())
+        response = await client.post(
+            COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
+        )
         if response.status_code == 200:
             logger.info(f"Rewritten response json: {response.json()}")
             rewritten_prompt = (
@@ -118,7 +123,7 @@ Here is your personality profile:
             ),
         )
 
-        logger.info(f"Chat message: {chat_message.model_dump()}")
+        logger.info(f"Cortical chat message: {chat_message.model_dump()}")
 
         async def stream_response():
             async with httpx.AsyncClient() as client:

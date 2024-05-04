@@ -6,7 +6,7 @@ import httpx
 
 from aiden.app.utils import load_brain_config
 from aiden.app.utils import build_sensory_input_prompt_template
-from aiden.models.brain import Personality
+from aiden.models.brain import BrainConfig, Personality
 from aiden.models.brain import CorticalRequest
 from aiden.models.chat import ChatMessage, Message, Options
 
@@ -18,7 +18,7 @@ logger = logging.getLogger("uvicorn")
 COGNITIVE_API_URL = f'{os.environ.get("COGNITIVE_API_PROTOCOL", "http")}://{os.environ.get("COGNITIVE_API_HOST", "localhost")}:{os.environ.get("COGNITIVE_API_PORT", "8000")}/api/chat'
 
 
-async def thalamus(integrated_sensory_data: str) -> str:
+async def thalamus(integrated_sensory_data: str, brain_config: BrainConfig) -> str:
     """
     Simulate the thalamic process of rewriting the received prompt to ensure it
     matches a specific narrative structure. It requests a rewriting from the
@@ -26,14 +26,15 @@ async def thalamus(integrated_sensory_data: str) -> str:
 
     Args:
         integrated_sensory_data (str): The initial sensory data and narrative content.
+        brain_config (BrainConfig): The brain configuration.
 
     Returns:
-        str: The rewritten prompt or the original if the request fails.
+        str: The rewritten sensory prompt or the original if the request fails.
     """
     messages = [
         Message(
             role="system",
-            content="Rewrite the prompt you receive from a first-person perspective.",
+            content=brain_config.regions.thalamus.instruction,
         ),
         Message(role="user", content=integrated_sensory_data),
     ]
@@ -52,7 +53,6 @@ async def thalamus(integrated_sensory_data: str) -> str:
             COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
         )
         if response.status_code == 200:
-            logger.info(f"Rewritten response json: {response.json()}")
             rewritten_prompt = (
                 response.json()
                 .get("message", {})
@@ -80,32 +80,34 @@ async def cortical(request: CorticalRequest) -> StreamingResponse:
         HTTPException: Raises an exception for any internal processing errors.
     """
     logger.info(f"Cognitive API URL: {COGNITIVE_API_URL}")
-    brain_config = load_brain_config(request.config)
-    personality: Personality = brain_config.personality
+    brain_config: BrainConfig = load_brain_config(request.config)
+    cortical_config = brain_config.regions.cortical
+    personality: Personality = cortical_config.personality
     try:
-        system_prompt_template = brain_config.description + "\n"
-        if brain_config.feature_toggles.personality:
-            system_prompt_template += f"""
+        system_input = cortical_config.about + "\n"
+        if brain_config.settings.feature_toggles.personality:
+            system_input += f"""
 Here is your personality profile:
 - Traits: {', '.join(personality.traits)}
 - Preferences: {', '.join(personality.preferences)}
 - Boundaries: {', '.join(personality.boundaries)}
 
 """
-        system_prompt_template += "\n".join(brain_config.instructions)
+        system_input += "\n".join(cortical_config.description)
 
         # Prepare the user prompt template based on available sensory data
-        user_prompt_template = build_sensory_input_prompt_template(request.sensory)
+        raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
 
-        logger.info(f"Original user prompt template: {user_prompt_template}")
-        user_prompt_template = await thalamus(user_prompt_template)
-        logger.info(f"Rewritten user prompt template: {user_prompt_template}")
+        logger.info(f"Raw sensory input prompt template: {raw_sensory_input}")
+        sensory_input = await thalamus(raw_sensory_input, brain_config)
+        sensory_input += f"\n{cortical_config.instruction}"
+        logger.info(f"Sensory input prompt template: {sensory_input}")
 
         # Prepare the chat message for the Cognitive API
-        messages = [Message(role="system", content=system_prompt_template)]
+        messages = [Message(role="system", content=system_input)]
         if request.history:
             messages.extend(request.history)
-        messages.append(Message(role="user", content=user_prompt_template))
+        messages.append(Message(role="user", content=sensory_input))
 
         chat_message = ChatMessage(
             model=os.environ.get("COGNITIVE_MODEL", "bakllava"),

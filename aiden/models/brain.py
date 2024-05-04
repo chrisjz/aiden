@@ -22,12 +22,29 @@ class Sensory(BaseModel):
     gustatory: str = ""
 
 
-class BrainConfig(BaseModel):
-    action: str
-    description: str
-    instructions: list[str]
+class Cortical(BaseModel):
+    about: str
+    description: list[str]
+    instruction: str
     personality: Personality
+
+
+class Thalamus(BaseModel):
+    instruction: str
+
+
+class BrainSettings(BaseModel):
     feature_toggles: FeatureToggle
+
+
+class Regions(BaseModel):
+    cortical: Cortical
+    thalamus: Thalamus
+
+
+class BrainConfig(BaseModel):
+    regions: Regions
+    settings: BrainSettings
 
 
 class CorticalRequest(BaseModel):

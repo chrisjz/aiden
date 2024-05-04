@@ -123,7 +123,10 @@ Here is your personality profile:
         async def stream_response():
             async with httpx.AsyncClient() as client:
                 async with client.stream(
-                    "POST", COGNITIVE_API_URL, json=chat_message.model_dump()
+                    "POST",
+                    COGNITIVE_API_URL,
+                    json=chat_message.model_dump(),
+                    timeout=30.0,
                 ) as response:
                     async for chunk in response.aiter_raw():
                         if chunk:

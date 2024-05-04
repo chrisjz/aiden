@@ -97,7 +97,7 @@ async def autonomous_agent_simulation(
                 history=history,
             ).model_dump()
             response = await client.post(
-                api_url, json=payload
+                api_url, json=payload, timeout=30.0
             )  # Send sensory data to brain API
             content = ""
             if response.status_code == 200:

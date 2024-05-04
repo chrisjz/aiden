@@ -5,7 +5,7 @@ from starlette.responses import StreamingResponse
 import httpx
 
 from aiden.app.utils import load_brain_config
-from aiden.app.utils import build_user_prompt_template
+from aiden.app.utils import build_sensory_input_prompt_template
 from aiden.models.brain import Personality
 from aiden.models.brain import CorticalRequest
 from aiden.models.chat import ChatMessage, Message, Options
@@ -95,7 +95,7 @@ Here is your personality profile:
         system_prompt_template += "\n".join(brain_config.instructions)
 
         # Prepare the user prompt template based on available sensory data
-        user_prompt_template = build_user_prompt_template(request.sensory, brain_config)
+        user_prompt_template = build_sensory_input_prompt_template(request.sensory)
 
         logger.info(f"Original user prompt template: {user_prompt_template}")
         user_prompt_template = await thalamus(user_prompt_template)

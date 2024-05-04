@@ -34,7 +34,7 @@ import os
 
 import httpx
 from aiden.app.scene import Scene, load_scene
-from aiden.app.utils import build_user_prompt_template, load_brain_config
+from aiden.app.utils import build_sensory_input_prompt_template
 from aiden.models.brain import CorticalRequest
 from aiden.models.chat import Message
 
@@ -72,7 +72,6 @@ async def autonomous_agent_simulation(
     brain_config_file: str, scene: Scene, logger: logging.Logger, pretty: bool = False
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
-    brain_config = load_brain_config(brain_config_file)
 
     async with httpx.AsyncClient() as client:
         chat_history = []
@@ -109,9 +108,7 @@ async def autonomous_agent_simulation(
             else:
                 logger.error(f"Error: {response.status_code}")
 
-            user_prompt_template = build_user_prompt_template(
-                sensory_data, brain_config
-            )
+            user_prompt_template = build_sensory_input_prompt_template(sensory_data)
 
             # Flush short-term memory when AI start repeating the same response.
             # TODO: Revisit this rule once AI performance improves.

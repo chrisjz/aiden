@@ -14,15 +14,14 @@ def load_brain_config(config_file: str) -> BrainConfig:
     return BrainConfig(**data)
 
 
-def build_user_prompt_template(sensory: Sensory, brain_config: BrainConfig):
-    user_prompt_template = f"""
+def build_sensory_input_prompt_template(sensory: Sensory):
+    prompt = f"""
 Timestamp: {datetime.datetime.now(datetime.UTC).isoformat()}
 Your current visual input: {sensory.vision}
 Your current auditory input: {sensory.auditory}
 Your current tactile input: {sensory.tactile}
 Your current olfactory input: {sensory.olfactory}
 Your current gustatory input: {sensory.gustatory}
-{brain_config.action}
 """
 
-    return user_prompt_template
+    return prompt

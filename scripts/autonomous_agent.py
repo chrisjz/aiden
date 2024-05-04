@@ -69,7 +69,7 @@ def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
 
 
 async def autonomous_agent_simulation(
-    brain_config_file: str, scene: Scene, logger: logging.Logger
+    brain_config_file: str, scene: Scene, logger: logging.Logger, pretty: bool = False
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
     brain_config = load_brain_config(brain_config_file)
@@ -80,7 +80,7 @@ async def autonomous_agent_simulation(
             logger.debug("Refreshing scene display...")
             print("\033c", end="")
 
-            scene.print_scene(False)
+            scene.print_scene(pretty=pretty)
             sensory_data = scene.update_sensory_data()
             history = [
                 hist for hist in chat_history
@@ -236,6 +236,11 @@ async def main():
         help="Path to the brain configuration file.",
     )
     parser.add_argument(
+        "--pretty",
+        action="store_true",
+        help="Enable emoji representations of grid components.",
+    )
+    parser.add_argument(
         "--scene",
         type=str,
         default="./config/scenes/default.json",
@@ -256,7 +261,7 @@ async def main():
     logger = setup_logging(args.log, args.terminal_level, args.file_level)
     scene_config = load_scene(args.scene)
     scene = Scene(scene_config)
-    await autonomous_agent_simulation(args.config, scene, logger)
+    await autonomous_agent_simulation(args.config, scene, logger, args.pretty)
 
 
 if __name__ == "__main__":

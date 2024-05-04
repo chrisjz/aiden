@@ -343,7 +343,7 @@ class Scene:
                     # Choose arrow based on orientation
                     if (x, y) == self.player_position:
                         arrows = (
-                            {"N": "⬆️", "E": "➡️", "S": "⬇️", "W": "⬅️"}
+                            {"N": "⬆️ ", "E": "➡️ ", "S": "⬇️ ", "W": "⬅️ "}
                             if pretty
                             else {"N": "^", "E": ">", "S": "v", "W": "<"}
                         )
@@ -351,18 +351,22 @@ class Scene:
                     else:
                         arrows = {"N": "^", "E": ">", "S": "v", "W": "<"}
                         char = arrows[self.player_orientation]
-                elif self.get_entity_by_position((x, y), EntityType.OBJECT):
-                    char = "O"
+                elif obj := self.get_entity_by_position((x, y), EntityType.OBJECT):
+                    char = (
+                        obj.symbol if obj.symbol and pretty else "❓" if pretty else "?"
+                    )
                 elif self.find_door_exit_by_entry((x, y)):
-                    char = "D"
-                elif self.get_entity_by_position((x, y), EntityType.ROOM):
-                    char = "."
+                    char = "🚪" if pretty else "D"
+                elif room := self.get_entity_by_position((x, y), EntityType.ROOM):
+                    empty_symbol = room.symbol if room.symbol else "⬜"
+                    char = empty_symbol if pretty else "."
                 else:
-                    char = "#"  # Barriers or boundaries
+                    char = "⬛" if pretty else "#"  # Barriers or boundaries
                 grid[y][x] = char
 
         for row in grid:
-            print(" ".join(row))
+            separator = "" if pretty else " "
+            print(separator.join(row))
 
         print(f"Player position: {self.player_position}")
         print(f"Player orientation: {self.player_orientation}")

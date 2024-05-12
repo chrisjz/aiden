@@ -2,7 +2,7 @@ import json
 import pytest
 from httpx import AsyncClient, Response
 
-from aiden.api.brain import app
+from aiden.api.brain import _map_decision_to_action, app
 
 # Sample sensory data for testing
 sensory_data = {
@@ -53,3 +53,12 @@ async def test_integration_with_mock_ollama(mocker):
             mock_response_content["message"]["content"]
             in response_json["message"]["content"]
         )
+
+
+@pytest.mark.asyncio
+async def test_map_decision_to_action():
+    assert await _map_decision_to_action("Move forward") == "forward"
+    assert await _map_decision_to_action("move_left") == "left"
+    assert await _map_decision_to_action("Backward") == "backward"
+    assert await _map_decision_to_action("right") == "right"
+    assert await _map_decision_to_action("0199393921") == "none"

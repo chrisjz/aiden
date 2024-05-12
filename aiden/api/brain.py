@@ -6,7 +6,7 @@ import httpx
 
 from aiden.app.utils import load_brain_config
 from aiden.app.utils import build_sensory_input_prompt_template
-from aiden.models.brain import BrainConfig, Personality
+from aiden.models.brain import BrainConfig, Personality, SimpleAction
 from aiden.models.brain import CorticalRequest
 from aiden.models.chat import ChatMessage, Message, Options
 
@@ -16,6 +16,96 @@ logger = logging.getLogger("uvicorn")
 
 # Cognitive API URL
 COGNITIVE_API_URL = f'{os.environ.get("COGNITIVE_API_PROTOCOL", "http")}://{os.environ.get("COGNITIVE_API_HOST", "localhost")}:{os.environ.get("COGNITIVE_API_PORT", "8000")}/api/chat'
+
+
+async def _map_decision_to_action(decision: str) -> str:
+    """
+    Maps a textual decision into a defined action.
+
+    This function analyzes the given decision string to determine which of the
+    predefined actions it corresponds to. It uses a simple substring match after
+    normalizing the input text, which makes the function robust against variations
+    in case or underscores versus spaces.
+
+    Args:
+        decision (str): The raw decision text from which to infer the action.
+
+    Returns:
+        str: The matched action as a string. If no action matches, returns "none".
+
+    Example:
+        >>> await _map_decision_to_action("Move forward quickly")
+        'forward'
+
+        >>> await _map_decision_to_action("turn_Left")
+        'left'
+
+        >>> await _map_decision_to_action("stop here")
+        'none'
+    """
+
+    # Format the decision text to improve match robustness
+    decision_formatted = decision.lower().replace("_", " ")
+
+    # Check against all possible actions
+    for action in SimpleAction:
+        if action.value in decision_formatted:
+            return action.value
+
+    # Default action if no matches found
+    return SimpleAction.NONE.value
+
+
+async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
+    """
+    Simulate the prefrontal cortex process of deciding the next action based on sensory input. It sends a request to the Cognitive API and handles the response.
+
+    TODO: Consider adding internal state and preferences as deciding factors.
+
+    Args:
+        sensory_input (str): The sensory input after processing by the thalamus.
+        brain_config (BrainConfig): The brain configuration.
+
+    Returns:
+        str: The decision on what action to take next, or no action if the request fails.
+    """
+    instruction = "\n".join(brain_config.regions.prefrontal.instruction)
+
+    decision_prompt = f"Sensory input:\n{sensory_input}\nYour action:"
+
+    messages = [
+        Message(
+            role="system",
+            content=instruction,
+        ),
+        Message(role="user", content=decision_prompt),
+    ]
+
+    chat_message = ChatMessage(
+        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
+        messages=messages,
+        stream=False,
+        options=Options(
+            frequency_penalty=2.0,  # Strongly discourage repetition
+            presence_penalty=1.0,  # Moderately discourage new tokens
+            temperature=0.3,  # Lower temperature for more deterministic output
+            top_p=1.0,
+            max_tokens=60,  # Limit the length of the completion
+        ),
+    )
+
+    logger.info(f"Prefrontal chat message: {chat_message.model_dump()}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
+        )
+        if response.status_code == 200:
+            decision = response.json().get("message", {}).get("content", sensory_input)
+            logger.info(f"Prefrontal decision: {decision}")
+            return await _map_decision_to_action(decision)
+        else:
+            return None
 
 
 async def thalamus(integrated_sensory_data: str, brain_config: BrainConfig) -> str:
@@ -98,10 +188,19 @@ Here is your personality profile:
         # Prepare the user prompt template based on available sensory data
         raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
 
-        logger.info(f"Raw sensory input prompt template: {raw_sensory_input}")
+        # Sensory integration through thalamus function
+        logger.info(f"Raw sensory: {raw_sensory_input}")
         sensory_input = await thalamus(raw_sensory_input, brain_config)
+        logger.info(f"Integrated sensory from thalamus: {sensory_input}")
+
+        # Decision-making through prefrontal function
+        action_decision = await prefrontal(sensory_input, brain_config)
+        logger.info(f"Action decision from prefrontal: {action_decision}")
+        # TODO: Make the action more verbose e.g. forward > move forward
+        # TODO: Do not append this if the action is 'none'
+        sensory_input += f"\nYou are performing the following action: {action_decision}"
+
         sensory_input += f"\n{cortical_config.instruction}"
-        logger.info(f"Sensory input prompt template: {sensory_input}")
 
         # Prepare the chat message for the Cognitive API
         messages = [Message(role="system", content=system_input)]
@@ -139,6 +238,7 @@ Here is your personality profile:
                         if chunk:
                             yield chunk
 
+        # TODO: Return <action>
         return StreamingResponse(stream_response(), media_type="application/json")
 
     except Exception as e:

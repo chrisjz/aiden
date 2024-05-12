@@ -1,7 +1,16 @@
+from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, Field
 
 from aiden.models.chat import Message
+
+
+class SimpleAction(Enum):
+    FORWARD = "forward"
+    BACKWARD = "backward"
+    LEFT = "left"
+    RIGHT = "right"
+    NONE = "none"
 
 
 class FeatureToggle(BaseModel):
@@ -29,17 +38,22 @@ class Cortical(BaseModel):
     personality: Personality
 
 
+class Prefrontal(BaseModel):
+    instruction: list[str]
+
+
 class Thalamus(BaseModel):
     instruction: str
 
 
-class BrainSettings(BaseModel):
-    feature_toggles: FeatureToggle
-
-
 class Regions(BaseModel):
     cortical: Cortical
+    prefrontal: Prefrontal
     thalamus: Thalamus
+
+
+class BrainSettings(BaseModel):
+    feature_toggles: FeatureToggle
 
 
 class BrainConfig(BaseModel):

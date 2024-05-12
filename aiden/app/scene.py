@@ -55,7 +55,7 @@ class Scene:
             actions=[
                 Action(
                     key="w",
-                    function_name="move_player",
+                    function_name="move_forward",
                     description="Move player forward",
                 ),
                 Action(
@@ -76,7 +76,7 @@ class Scene:
                 ),
                 Action(
                     key="forward",
-                    function_name="move_player",
+                    function_name="move_forward",
                     description="Move player forward",
                 ),
                 Action(
@@ -277,7 +277,7 @@ class Scene:
         else:
             print("Invalid command!")
 
-    def move_player(self):
+    def move_forward(self):
         dx, dy = self.directions.get_offset(self.player_orientation)
         new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
         if self.is_position_within_room(new_position):

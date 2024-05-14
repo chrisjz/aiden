@@ -15,11 +15,11 @@ def load_brain_config(config_file: str) -> BrainConfig:
 
 def build_sensory_input_prompt_template(sensory: Sensory):
     prompt = f"""
-Your current visual input: {sensory.vision or "None detected"}
-Your current auditory input: {sensory.auditory or "None detected"}
-Your current tactile input: {sensory.tactile or "None detected"}
-Your current olfactory input: {sensory.olfactory or "None detected"}
-Your current gustatory input: {sensory.gustatory or "None detected"}
+Your current visual input: {sensory.vision or "No visual input detected"}
+Your current auditory input: {sensory.auditory or "No sounds detected"}
+Your current tactile input: {sensory.tactile or "No tactile input detected"}
+Your current olfactory input: {sensory.olfactory or "No smells detected"}
+Your current gustatory input: {sensory.gustatory or "No taste detected"}
 """
 
     return prompt

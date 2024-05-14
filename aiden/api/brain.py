@@ -46,7 +46,7 @@ async def _map_decision_to_action(decision: str) -> str:
     """
 
     # Format the decision text to improve match robustness
-    decision_formatted = decision.lower().replace(" ", "_")
+    decision_formatted = decision.lower().replace(" ", "_").replace("-", "_")
 
     # Check against all possible actions
     for action in SimpleAction:
@@ -106,8 +106,11 @@ async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
         if response.status_code == 200:
             decision = response.json().get("message", {}).get("content", sensory_input)
             logger.info(f"Prefrontal decision: {decision}")
-            return await _map_decision_to_action(decision)
+            mapped_action = await _map_decision_to_action(decision)
+            logger.info(f"Mapped action: {mapped_action}")
+            return mapped_action
         else:
+            logger.error(f"Failed decision-making with status: {response.status_code}")
             return SimpleAction.NONE.value
 
 
@@ -203,9 +206,9 @@ Here is your personality profile:
 
         # Prepare the user prompt template based on available sensory data
         raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
+        logger.info(f"Raw sensory: {raw_sensory_input}")
 
         # Sensory integration through thalamus function
-        logger.info(f"Raw sensory: {raw_sensory_input}")
         sensory_input = await thalamus(raw_sensory_input, brain_config)
         logger.info(f"Integrated sensory from thalamus: {sensory_input}")
 

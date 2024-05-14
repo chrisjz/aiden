@@ -85,9 +85,6 @@ async def autonomous_agent_simulation(
                 hist for hist in chat_history
             ]  # TODO: Configure history length for short-term memory
 
-            # TEMP - set pre-determined path for AI movement
-            _ = process_next_predetermined_action(scene)
-
             payload = CorticalRequest(
                 config=brain_config_file,
                 sensory=sensory_data,
@@ -127,66 +124,6 @@ async def autonomous_agent_simulation(
             await asyncio.sleep(1)  # Sleep to simulate time passing between actions
 
 
-def process_next_predetermined_action(scene: Scene) -> str:
-    match scene.player_position:
-        case (2, 2):
-            scene.process_action("left")
-            scene.process_action("forward")
-            agent_action = "You turn left and move forward."
-        case (2, 1):
-            scene.process_action("right")
-            scene.process_action("forward")
-            agent_action = "You turn right and move forward."
-        case (3, 1):
-            scene.process_action("forward")
-            agent_action = "You move forward."
-        case (4, 1):
-            scene.process_action("right")
-            scene.process_action("forward")
-            agent_action = "You turn right and move forward."
-        case (4, 2):
-            scene.process_action("left")
-            scene.process_action("forward")
-            agent_action = "You turn left and move forward."
-        case (5, 2):
-            scene.process_action("use")
-            agent_action = "You enter through a door."
-        case (8, 2):
-            scene.process_action("right")
-            scene.process_action("forward")
-            agent_action = "You turn right and move forward."
-        case (8, 3):
-            scene.process_action("forward")
-            agent_action = "You move forward."
-        case (8, 4):
-            scene.process_action("left")
-            scene.process_action("forward")
-            agent_action = "You turn left and move forward."
-        case (9, 4):
-            scene.process_action("forward")
-            agent_action = "You move forward."
-        case (10, 4):
-            scene.process_action("use")
-            agent_action = "You enter through a door."
-        case (13, 4):
-            scene.process_action("right")
-            scene.process_action("forward")
-            agent_action = "You turn right and move forward."
-        case (13, 5):
-            scene.process_action("left")
-            scene.process_action("forward")
-            agent_action = "You turn left and move forward."
-        case (14, 5):
-            scene.process_action("left")
-            scene.process_action("forward")
-            scene.process_action("right")  # To match starting point orientation
-            agent_action = "You turn left, move forward and then turn right."
-        case _:
-            scene.player_position = (2, 2)
-            agent_action = ""
-    return agent_action
-
-
 def process_response(content: str, logger: logging.Logger) -> tuple[str, str, str]:
     """Process the response from AI and extract thoughts, speech, and actions."""
     thoughts = False
@@ -197,19 +134,19 @@ def process_response(content: str, logger: logging.Logger) -> tuple[str, str, st
         start = content.find("<thoughts>") + 10
         end = content.find("</thoughts>")
         thoughts = content[start:end].strip()
-        logger.info(f"Thoughts:\n{thoughts}")
+        logger.info(f"Thoughts:\n{thoughts}\n")
 
     if "<speech>" in content:
         start = content.find("<speech>") + 8
         end = content.find("</speech>")
         speech = content[start:end].strip()
-        logger.info(f"Speech:\n{speech}")
+        logger.info(f"\nSpeech:\n{speech}\n")
 
     if "<action>" in content:
         start = content.find("<action>") + 8
         end = content.find("</action>")
         action = content[start:end].strip()
-        logger.info(f"Action to perform:\n{action}")
+        logger.info(f"\nAction to perform:\n{action}\n")
 
     # If none of these explicitly found, assume they are thoughts
     if not thoughts and not speech and not action:

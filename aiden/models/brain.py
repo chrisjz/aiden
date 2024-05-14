@@ -62,8 +62,6 @@ class BrainConfig(BaseModel):
 
 
 class CorticalRequest(BaseModel):
-    config: str = Field(
-        default="./config/brain/default.json"
-    )  # TODO: pass BrainConfig instead
+    config: str = Field(default="./config/brain/default.json")
     sensory: Sensory
     history: Optional[list[Message]] = None

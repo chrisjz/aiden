@@ -196,7 +196,6 @@ Here is your personality profile:
         # Decision-making through prefrontal function
         action_decision = await prefrontal(sensory_input, brain_config)
         logger.info(f"Action decision from prefrontal: {action_decision}")
-        # TODO: Do not append this if the action is 'none'
         if action_decision != SimpleAction.NONE.value:
             action_decision_formatted = action_decision.replace("_", " ")
             sensory_input += f"\nYou are performing the following action: {action_decision_formatted}"

@@ -228,6 +228,20 @@ Here is your personality profile:
         logger.info(f"Cortical chat message: {chat_message.model_dump()}")
 
         async def stream_response():
+            # Stream action
+            if action_decision != SimpleAction.NONE.value:
+                yield (
+                    json.dumps(
+                        {
+                            "message": {
+                                "content": f"<action>{action_decision}</action>\n"
+                            }
+                        }
+                    )
+                    + "\n"
+                )
+
+            # Stream thoughts
             yield json.dumps({"message": {"content": "<thoughts>\n"}}) + "\n"
 
             async with httpx.AsyncClient() as client:

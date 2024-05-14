@@ -69,18 +69,33 @@ def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
 
 
 async def autonomous_agent_simulation(
-    brain_config_file: str, scene: Scene, logger: logging.Logger, pretty: bool = False
+    brain_config_file: str,
+    scene: Scene,
+    logger: logging.Logger,
+    enable_speech: bool = False,
+    pretty: bool = False,
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
 
     async with httpx.AsyncClient() as client:
         chat_history = []
+        first_loop = True
         while True:  # Loop indefinitely to keep processing sensory data and actions
+            # User speech input
+            if enable_speech and not first_loop:
+                speech_input = input("Your input: ")
+                if speech_input:
+                    logger.warning("Passing speech to AI is not implemented.")
+                    await asyncio.sleep(1)
+
+            first_loop = False
+
             logger.debug("Refreshing scene display...")
             print("\033c", end="")
 
             scene.print_scene(pretty=pretty)
             sensory_data = scene.update_sensory_data()
+
             history = [
                 hist for hist in chat_history
             ]  # TODO: Configure history length for short-term memory
@@ -159,6 +174,7 @@ async def main():
     parser = argparse.ArgumentParser(description="Run the AIden simulation.")
     parser.add_argument(
         "--config",
+        dest="config_path",
         type=str,
         default="./config/brain/default.json",
         help="Path to the brain configuration file.",
@@ -170,9 +186,16 @@ async def main():
     )
     parser.add_argument(
         "--scene",
+        dest="scene_path",
         type=str,
         default="./config/scenes/default.json",
         help="Path to the scene configuration file.",
+    )
+    parser.add_argument(
+        "--speech",
+        dest="enable_speech",
+        action="store_true",
+        help="Enable speech input.",
     )
     parser.add_argument("--log", action="store_true", help="Enable logging to a file.")
     parser.add_argument(
@@ -187,9 +210,11 @@ async def main():
     args = parser.parse_args()
 
     logger = setup_logging(args.log, args.terminal_level, args.file_level)
-    scene_config = load_scene(args.scene)
+    scene_config = load_scene(args.scene_path)
     scene = Scene(scene_config)
-    await autonomous_agent_simulation(args.config, scene, logger, args.pretty)
+    await autonomous_agent_simulation(
+        args.config_path, scene, logger, args.enable_speech, args.pretty
+    )
 
 
 if __name__ == "__main__":

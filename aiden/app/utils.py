@@ -1,4 +1,3 @@
-import datetime
 from aiden.models.brain import BrainConfig, Sensory
 
 
@@ -16,12 +15,11 @@ def load_brain_config(config_file: str) -> BrainConfig:
 
 def build_sensory_input_prompt_template(sensory: Sensory):
     prompt = f"""
-Timestamp: {datetime.datetime.now(datetime.UTC).isoformat()}
-Your current visual input: {sensory.vision}
-Your current auditory input: {sensory.auditory}
-Your current tactile input: {sensory.tactile}
-Your current olfactory input: {sensory.olfactory}
-Your current gustatory input: {sensory.gustatory}
+Your current visual input: {sensory.vision or "None detected"}
+Your current auditory input: {sensory.auditory or "None detected"}
+Your current tactile input: {sensory.tactile or "None detected"}
+Your current olfactory input: {sensory.olfactory or "None detected"}
+Your current gustatory input: {sensory.gustatory or "None detected"}
 """
 
     return prompt

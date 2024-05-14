@@ -82,11 +82,13 @@ async def autonomous_agent_simulation(
         first_loop = True
         while True:  # Loop indefinitely to keep processing sensory data and actions
             # User speech input
+            speech_input_formatted = None
             if enable_speech and not first_loop:
                 speech_input = input("Your input: ")
                 if speech_input:
-                    logger.warning("Passing speech to AI is not implemented.")
-                    await asyncio.sleep(1)
+                    speech_input_formatted = (
+                        f'In your earpiece you hear someone nearby say "{speech_input}"'
+                    )
 
             first_loop = False
 
@@ -95,6 +97,14 @@ async def autonomous_agent_simulation(
 
             scene.print_scene(pretty=pretty)
             sensory_data = scene.update_sensory_data()
+
+            # Append user speech
+            if speech_input_formatted:
+                sensory_data.auditory = ". ".join(
+                    filter(None, [sensory_data.auditory, speech_input_formatted])
+                )
+                logger.info(f"Auditory (amended): {sensory_data.auditory}\n")
+                await asyncio.sleep(1)
 
             history = [
                 hist for hist in chat_history

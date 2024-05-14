@@ -95,7 +95,9 @@ async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
         ),
     )
 
-    logger.info(f"Prefrontal chat message: {chat_message.model_dump()}")
+    logger.info(
+        f"Prefrontal chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+    )
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -148,7 +150,9 @@ async def thalamus(integrated_sensory_data: str, brain_config: BrainConfig) -> s
         ),
     )
 
-    logger.info(f"Thalamus chat message: {chat_message.model_dump()}")
+    logger.info(
+        f"Thalamus chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+    )
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -208,11 +212,14 @@ Here is your personality profile:
         # Decision-making through prefrontal function
         action_decision = await prefrontal(sensory_input, brain_config)
         logger.info(f"Action decision from prefrontal: {action_decision}")
+
+        # Format final output for streaming
+        final_thoughts = f"\n{cortical_config.instruction}\n{sensory_input}"
         if action_decision != SimpleAction.NONE.value:
             action_decision_formatted = action_decision.replace("_", " ")
-            sensory_input += f"\nYou are performing the following action: {action_decision_formatted}"
-
-        sensory_input += f"\n{cortical_config.instruction}"
+            final_thoughts += (
+                f"\nYou decide to perform the action: {action_decision_formatted}."
+            )
 
         # Prepare the chat message for the Cognitive API
         messages = [Message(role="system", content=system_input)]
@@ -221,7 +228,7 @@ Here is your personality profile:
         if request.history:
             messages.extend(request.history)
 
-        messages.append(Message(role="user", content=sensory_input))
+        messages.append(Message(role="user", content=final_thoughts))
 
         chat_message = ChatMessage(
             model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
@@ -239,7 +246,9 @@ Here is your personality profile:
             ),
         )
 
-        logger.info(f"Cortical chat message: {chat_message.model_dump()}")
+        logger.info(
+            f"Cortical chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+        )
 
         async def stream_response():
             # Stream action

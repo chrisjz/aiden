@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from fastapi import FastAPI, HTTPException
@@ -227,6 +228,8 @@ Here is your personality profile:
         logger.info(f"Cortical chat message: {chat_message.model_dump()}")
 
         async def stream_response():
+            yield json.dumps({"message": {"content": "<thoughts>\n"}}) + "\n"
+
             async with httpx.AsyncClient() as client:
                 async with client.stream(
                     "POST",
@@ -238,7 +241,10 @@ Here is your personality profile:
                         if chunk:
                             yield chunk
 
-        # TODO: Return <action>
+            yield json.dumps({"message": {"content": "\n</thoughts>"}}) + "\n"
+
+        # TODO: Return <action> stream
+        # TODO: Return <speech> stream
         return StreamingResponse(stream_response(), media_type="application/json")
 
     except Exception as e:

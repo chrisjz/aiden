@@ -196,25 +196,25 @@ def process_response(content: str, logger: logging.Logger) -> str | None:
         end = content.find("</thoughts>")
         thoughts = content[start:end].strip()
         found_thoughts = True
-        logger.info(f"Thoughts: {thoughts}")
+        logger.info(f"Thoughts:\n{thoughts}")
 
     if "<speech>" in content:
         start = content.find("<speech>") + 8
         end = content.find("</speech>")
         speech = content[start:end].strip()
         found_speech = True
-        logger.info(f"Speech: {speech}")
+        logger.info(f"Speech:\n{speech}")
 
     if "<action>" in content:
         start = content.find("<action>") + 8
         end = content.find("</action>")
         action = content[start:end].strip()
         found_action = True
-        logger.info(f"Action to perform: {action}")
+        logger.info(f"Action to perform:\n{action}")
 
     # If none of these explicitly found, assume they are thoughts
     if not found_thoughts and not found_speech and not found_action:
-        logger.info(f"Thoughts: {content}")
+        logger.warning("No valid response obtained from Brain API.")
 
     if found_action:
         return action

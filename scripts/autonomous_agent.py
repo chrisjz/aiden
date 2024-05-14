@@ -102,7 +102,8 @@ async def autonomous_agent_simulation(
                     if line:
                         json_line = json.loads(line)
                         content += json_line.get("message", {}).get("content", "")
-                action = process_response(content, logger)
+                logger.debug(f"Response: {content}")
+                thoughts, _, action = process_response(content, logger)
                 if action:
                     scene.process_action(action)
             else:
@@ -112,11 +113,12 @@ async def autonomous_agent_simulation(
 
             # Flush short-term memory when AI start repeating the same response.
             # TODO: Revisit this rule once AI performance improves.
-            if chat_history and content == chat_history[-1].content:
+            # TODO: Also append speech to content once we introduce it.
+            if chat_history and thoughts == chat_history[-1].content:
                 chat_history = []
             else:
                 chat_history.append(Message(role="user", content=user_prompt_template))
-                chat_history.append(Message(role="assistant", content=content))
+                chat_history.append(Message(role="assistant", content=thoughts))
 
             logger.debug("Chat history:")
             for instance in chat_history[-10:]:
@@ -185,41 +187,35 @@ def process_next_predetermined_action(scene: Scene) -> str:
     return agent_action
 
 
-def process_response(content: str, logger: logging.Logger) -> str | None:
+def process_response(content: str, logger: logging.Logger) -> tuple[str, str, str]:
     """Process the response from AI and extract thoughts, speech, and actions."""
-    found_thoughts = False
-    found_speech = False
-    found_action = False
+    thoughts = False
+    speech = False
+    action = False
 
     if "<thoughts>" in content:
         start = content.find("<thoughts>") + 10
         end = content.find("</thoughts>")
         thoughts = content[start:end].strip()
-        found_thoughts = True
         logger.info(f"Thoughts:\n{thoughts}")
 
     if "<speech>" in content:
         start = content.find("<speech>") + 8
         end = content.find("</speech>")
         speech = content[start:end].strip()
-        found_speech = True
         logger.info(f"Speech:\n{speech}")
 
     if "<action>" in content:
         start = content.find("<action>") + 8
         end = content.find("</action>")
         action = content[start:end].strip()
-        found_action = True
         logger.info(f"Action to perform:\n{action}")
 
     # If none of these explicitly found, assume they are thoughts
-    if not found_thoughts and not found_speech and not found_action:
+    if not thoughts and not speech and not action:
         logger.warning("No valid response obtained from Brain API.")
 
-    if found_action:
-        return action
-
-    return None  # No action to process
+    return thoughts, speech, action
 
 
 async def main():

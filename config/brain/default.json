@@ -40,14 +40,8 @@
     },
     "thalamus": {
       "instruction": [
-        "Here are your current sensory inputs. Please rephrase them clearly and concisely, ",
-        "focusing on the key details. Direct speech should be quoted accurately. For example, ",
-        "if you perceive something visually, describe it in simple terms. If you hear speech, ",
-        "include it exactly as heard:\n",
-        "\nExample:\n",
-        "Input: Visual: A spacious room with windows. Auditory: Someone says 'What time is it?'\n",
-        "Output: I am in a large room with many windows. I hear someone asking, 'What time is it?'\n",
-        "\nNow, describe the following inputs:\n"
+        "Here are your current sensory inputs. Please summarize or rephrase them clearly and concisely, ",
+        "focusing on the key details. Direct speech should be quoted accurately.\n"
       ]
     }
   },

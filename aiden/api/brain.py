@@ -45,11 +45,11 @@ async def _map_decision_to_action(decision: str) -> str:
     """
 
     # Format the decision text to improve match robustness
-    decision_formatted = decision.lower().replace("_", " ")
+    decision_formatted = decision.lower().replace(" ", "_")
 
     # Check against all possible actions
     for action in SimpleAction:
-        if action.value in decision_formatted:
+        if action.value in decision_formatted or decision_formatted in action.value:
             return action.value
 
     # Default action if no matches found
@@ -105,7 +105,7 @@ async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
             logger.info(f"Prefrontal decision: {decision}")
             return await _map_decision_to_action(decision)
         else:
-            return None
+            return SimpleAction.NONE.value
 
 
 async def thalamus(integrated_sensory_data: str, brain_config: BrainConfig) -> str:
@@ -196,9 +196,10 @@ Here is your personality profile:
         # Decision-making through prefrontal function
         action_decision = await prefrontal(sensory_input, brain_config)
         logger.info(f"Action decision from prefrontal: {action_decision}")
-        # TODO: Make the action more verbose e.g. forward > move forward
         # TODO: Do not append this if the action is 'none'
-        sensory_input += f"\nYou are performing the following action: {action_decision}"
+        if action_decision != SimpleAction.NONE.value:
+            action_decision_formatted = action_decision.replace("_", " ")
+            sensory_input += f"\nYou are performing the following action: {action_decision_formatted}"
 
         sensory_input += f"\n{cortical_config.instruction}"
 

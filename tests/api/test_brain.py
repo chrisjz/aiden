@@ -57,8 +57,8 @@ async def test_integration_with_mock_ollama(mocker):
 
 @pytest.mark.asyncio
 async def test_map_decision_to_action():
-    assert await _map_decision_to_action("Move forward") == "forward"
-    assert await _map_decision_to_action("move_left") == "left"
-    assert await _map_decision_to_action("Backward") == "backward"
-    assert await _map_decision_to_action("right") == "right"
+    assert await _map_decision_to_action("Move forward") == "move_forward"
+    assert await _map_decision_to_action("turn_left") == "turn_left"
+    assert await _map_decision_to_action("Backward") == "move_backward"
+    assert await _map_decision_to_action("right") == "turn_right"
     assert await _map_decision_to_action("0199393921") == "none"

@@ -6,10 +6,10 @@ from aiden.models.chat import Message
 
 
 class SimpleAction(Enum):
-    FORWARD = "forward"
-    BACKWARD = "backward"
-    LEFT = "left"
-    RIGHT = "right"
+    MOVE_FORWARD = "move_forward"
+    MOVE_BACKWARD = "move_backward"
+    TURN_LEFT = "turn_left"
+    TURN_RIGHT = "turn_right"
     NONE = "none"
 
 

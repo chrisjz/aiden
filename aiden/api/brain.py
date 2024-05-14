@@ -72,7 +72,7 @@ async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
 
-    decision_prompt = f"Sensory input:\n{sensory_input}\nYour action:"
+    decision_prompt = f"{sensory_input}\nYour action decision:"
 
     messages = [
         Message(
@@ -87,11 +87,11 @@ async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
         messages=messages,
         stream=False,
         options=Options(
-            frequency_penalty=2.0,  # Strongly discourage repetition
-            presence_penalty=1.0,  # Moderately discourage new tokens
-            temperature=0.3,  # Lower temperature for more deterministic output
-            top_p=1.0,
-            max_tokens=60,  # Limit the length of the completion
+            frequency_penalty=1.0,
+            presence_penalty=0.6,
+            temperature=0.6,
+            top_p=0.95,
+            max_tokens=80,
         ),
     )
 
@@ -104,7 +104,11 @@ async def prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
             COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
         )
         if response.status_code == 200:
-            decision = response.json().get("message", {}).get("content", sensory_input)
+            decision = (
+                response.json()
+                .get("message", {})
+                .get("content", SimpleAction.NONE.value)
+            )
             logger.info(f"Prefrontal decision: {decision}")
             mapped_action = await _map_decision_to_action(decision)
             logger.info(f"Mapped action: {mapped_action}")

@@ -23,19 +23,12 @@
     },
     "prefrontal": {
       "instruction": [
-        "Based on the sensory input provided, choose exactly one of the following actions. Below are examples of inputs and corresponding outputs:",
-        "- Input: 'There is an obstacle in front.' Output: 'move_backward'",
-        "- Input: 'The path is clear ahead or I want to move forward.' Output: 'move_forward'",
-        "- Input: 'Something interesting is to the left.' Output: 'turn_left'",
-        "- Input: 'I want to see what's on the right.' Output: 'turn_right'",
-        " - Input: 'All directions blocked or I don't want to move.' Output: 'none'",
-        "",
-        "Now, for the given sensory input, choose one:",
-        "- move_forward",
-        "- move_backward",
-        "- turn_left",
-        "- turn_right",
-        "- none"
+        "Based on the sensory inputs provided, decide the best action.",
+        "- 'move_forward' if the path ahead is clear.",
+        "- 'move_backward' if there's a hazard directly in front.",
+        "- 'turn_left' or 'turn_right' to explore something important.",
+        "- 'none' if staying still is safest.",
+        "What action would you choose?"
       ]
     },
     "thalamus": {

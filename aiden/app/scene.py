@@ -59,25 +59,19 @@ class Scene:
                     description="Move player forward",
                 ),
                 Action(
-                    key="s",
-                    function_name="move_backward",
-                    description="Move player backward",
-                ),
-                Action(
-                    key="a", function_name="turn_left", description="Turn player left"
-                ),
-                Action(
-                    key="d", function_name="turn_right", description="Turn player right"
-                ),
-                Action(
-                    key="e",
-                    function_name="interact_with_object",
-                    description="Interact with object",
-                ),
-                Action(
                     key="forward",
                     function_name="move_forward",
                     description="Move player forward",
+                ),
+                Action(
+                    key="move_forward",
+                    function_name="move_forward",
+                    description="Move player forward",
+                ),
+                Action(
+                    key="s",
+                    function_name="move_backward",
+                    description="Move player backward",
                 ),
                 Action(
                     key="backward",
@@ -85,14 +79,40 @@ class Scene:
                     description="Move player backward",
                 ),
                 Action(
+                    key="move_backward",
+                    function_name="move_backward",
+                    description="Move player backward",
+                ),
+                Action(
+                    key="a", function_name="turn_left", description="Turn player left"
+                ),
+                Action(
                     key="left",
                     function_name="turn_left",
                     description="Turn player left",
                 ),
                 Action(
+                    key="turn_left",
+                    function_name="turn_left",
+                    description="Turn player left",
+                ),
+                Action(
+                    key="d", function_name="turn_right", description="Turn player right"
+                ),
+                Action(
                     key="right",
                     function_name="turn_right",
                     description="Turn player right",
+                ),
+                Action(
+                    key="turn_right",
+                    function_name="turn_right",
+                    description="Turn player right",
+                ),
+                Action(
+                    key="e",
+                    function_name="interact_with_object",
+                    description="Interact with object",
                 ),
                 Action(
                     key="use",

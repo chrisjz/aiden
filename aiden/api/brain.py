@@ -122,10 +122,12 @@ async def thalamus(integrated_sensory_data: str, brain_config: BrainConfig) -> s
     Returns:
         str: The rewritten sensory prompt or the original if the request fails.
     """
+    instruction = "\n".join(brain_config.regions.thalamus.instruction)
+
     messages = [
         Message(
             role="system",
-            content=brain_config.regions.thalamus.instruction,
+            content=instruction,
         ),
         Message(role="user", content=integrated_sensory_data),
     ]
@@ -134,7 +136,16 @@ async def thalamus(integrated_sensory_data: str, brain_config: BrainConfig) -> s
         model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
         messages=messages,
         stream=False,
-        options=Options(),
+        options=Options(
+            frequency_penalty=1.2,
+            penalize_newline=False,
+            presence_penalty=1.0,
+            repeat_last_n=32,
+            repeat_penalty=1.0,
+            temperature=0.7,
+            top_k=40,
+            top_p=0.9,
+        ),
     )
 
     logger.info(f"Thalamus chat message: {chat_message.model_dump()}")
@@ -205,8 +216,11 @@ Here is your personality profile:
 
         # Prepare the chat message for the Cognitive API
         messages = [Message(role="system", content=system_input)]
+
+        # TODO: Handle history server side, maybe using Redis
         if request.history:
             messages.extend(request.history)
+
         messages.append(Message(role="user", content=sensory_input))
 
         chat_message = ChatMessage(

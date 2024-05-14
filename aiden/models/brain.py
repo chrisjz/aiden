@@ -43,7 +43,7 @@ class Prefrontal(BaseModel):
 
 
 class Thalamus(BaseModel):
-    instruction: str
+    instruction: list[str]
 
 
 class Regions(BaseModel):

@@ -287,7 +287,6 @@ Here is your personality profile:
 
             yield json.dumps({"message": {"content": "\n</thoughts>"}}) + "\n"
 
-        # TODO: Return <action> stream
         # TODO: Return <speech> stream
         return StreamingResponse(stream_response(), media_type="application/json")
 

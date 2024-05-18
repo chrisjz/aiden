@@ -28,6 +28,96 @@ async def _map_decision_to_action(decision: str) -> str:
     return SimpleAction.NONE.value
 
 
+async def process_cortical(request) -> str:
+    """
+    Processes a cortical request to determine the AI's actions and thoughts based on sensory input.
+
+    Args:
+        request (CorticalRequest): The request containing sensory data and configuration.
+
+    Returns:
+        Generator: A generator yielding the AI's responses as a stream.
+    """
+    brain_config = load_brain_config(request.config)
+    cortical_config = brain_config.regions.cortical
+    personality = cortical_config.personality
+
+    # Prepare the system prompt
+    system_input = cortical_config.about + "\n"
+    if brain_config.settings.feature_toggles.personality:
+        system_input += f"Personality Profile:\n- Traits: {', '.join(personality.traits)}\n- Preferences: {', '.join(personality.preferences)}\n- Boundaries: {', '.join(personality.boundaries)}\n\n"
+    system_input += "\n".join(cortical_config.description)
+
+    # Prepare the user prompt based on available sensory data
+    raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
+    logger.info(f"Raw sensory: {raw_sensory_input}")
+
+    # Sensory integration through thalamus function
+    sensory_input = await process_thalamus(raw_sensory_input, brain_config)
+    logger.info(f"Integrated sensory from thalamus: {sensory_input}")
+
+    # Decision-making through prefrontal function
+    action_decision = await process_prefrontal(sensory_input, brain_config)
+    logger.info(f"Action decision from prefrontal: {action_decision}")
+
+    # Format final thoughts output for streaming
+    final_thoughts = f"\n{cortical_config.instruction}\n{sensory_input}"
+    if action_decision != SimpleAction.NONE.value:
+        action_decision_formatted = action_decision.replace("_", " ")
+        final_thoughts += (
+            f"\nYou decide to perform the action: {action_decision_formatted}."
+        )
+
+    # Prepare the chat message for the Cognitive API
+    messages = [Message(role="system", content=system_input)]
+    if request.history:
+        messages.extend(request.history)
+    messages.append(Message(role="user", content=final_thoughts))
+
+    chat_message = ChatMessage(
+        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
+        messages=messages,
+        stream=True,
+        options=Options(
+            frequency_penalty=1.2,
+            penalize_newline=False,
+            presence_penalty=1.7,
+            repeat_last_n=48,
+            repeat_penalty=1.3,
+            temperature=0.9,
+            top_k=16,
+            top_p=0.9,
+        ),
+    )
+
+    logger.info(
+        f"Cortical chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+    )
+
+    async def stream_response():
+        # Stream action
+        if action_decision != SimpleAction.NONE.value:
+            yield (
+                json.dumps(
+                    {"message": {"content": f"<action>{action_decision}</action>\n"}}
+                )
+                + "\n"
+            )
+
+        # Stream thoughts
+        yield json.dumps({"message": {"content": "<thoughts>\n"}}) + "\n"
+        async with httpx.AsyncClient() as client:
+            async with client.stream(
+                "POST", COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
+            ) as response:
+                async for chunk in response.aiter_raw():
+                    if chunk:
+                        yield chunk
+        yield json.dumps({"message": {"content": "\n</thoughts>"}}) + "\n"
+
+    return stream_response()
+
+
 async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     Simulates the prefrontal cortex decision-making based on sensory input.
@@ -131,93 +221,3 @@ async def process_thalamus(
             return rewritten_prompt
         else:
             return integrated_sensory_data
-
-
-async def process_cortical(request) -> str:
-    """
-    Processes a cortical request to determine the AI's actions and thoughts based on sensory input.
-
-    Args:
-        request (CorticalRequest): The request containing sensory data and configuration.
-
-    Returns:
-        Generator: A generator yielding the AI's responses as a stream.
-    """
-    brain_config = load_brain_config(request.config)
-    cortical_config = brain_config.regions.cortical
-    personality = cortical_config.personality
-
-    # Prepare the system prompt
-    system_input = cortical_config.about + "\n"
-    if brain_config.settings.feature_toggles.personality:
-        system_input += f"Personality Profile:\n- Traits: {', '.join(personality.traits)}\n- Preferences: {', '.join(personality.preferences)}\n- Boundaries: {', '.join(personality.boundaries)}\n\n"
-    system_input += "\n".join(cortical_config.description)
-
-    # Prepare the user prompt based on available sensory data
-    raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
-    logger.info(f"Raw sensory: {raw_sensory_input}")
-
-    # Sensory integration through thalamus function
-    sensory_input = await process_thalamus(raw_sensory_input, brain_config)
-    logger.info(f"Integrated sensory from thalamus: {sensory_input}")
-
-    # Decision-making through prefrontal function
-    action_decision = await process_prefrontal(sensory_input, brain_config)
-    logger.info(f"Action decision from prefrontal: {action_decision}")
-
-    # Format final thoughts output for streaming
-    final_thoughts = f"\n{cortical_config.instruction}\n{sensory_input}"
-    if action_decision != SimpleAction.NONE.value:
-        action_decision_formatted = action_decision.replace("_", " ")
-        final_thoughts += (
-            f"\nYou decide to perform the action: {action_decision_formatted}."
-        )
-
-    # Prepare the chat message for the Cognitive API
-    messages = [Message(role="system", content=system_input)]
-    if request.history:
-        messages.extend(request.history)
-    messages.append(Message(role="user", content=final_thoughts))
-
-    chat_message = ChatMessage(
-        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
-        messages=messages,
-        stream=True,
-        options=Options(
-            frequency_penalty=1.2,
-            penalize_newline=False,
-            presence_penalty=1.7,
-            repeat_last_n=48,
-            repeat_penalty=1.3,
-            temperature=0.9,
-            top_k=16,
-            top_p=0.9,
-        ),
-    )
-
-    logger.info(
-        f"Cortical chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
-    )
-
-    async def stream_response():
-        # Stream action
-        if action_decision != SimpleAction.NONE.value:
-            yield (
-                json.dumps(
-                    {"message": {"content": f"<action>{action_decision}</action>\n"}}
-                )
-                + "\n"
-            )
-
-        # Stream thoughts
-        yield json.dumps({"message": {"content": "<thoughts>\n"}}) + "\n"
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "POST", COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
-            ) as response:
-                async for chunk in response.aiter_raw():
-                    if chunk:
-                        yield chunk
-        yield json.dumps({"message": {"content": "\n</thoughts>"}}) + "\n"
-
-    return stream_response()

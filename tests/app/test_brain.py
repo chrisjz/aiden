@@ -70,57 +70,6 @@ async def test_map_decision_to_action():
 
 
 @pytest.mark.asyncio
-async def test_process_prefrontal_decision(mocker, brain_config):
-    # Mock the response from the cognitive API
-    mock_response = {"message": {"content": "move_forward"}}
-
-    # Use pytest-mock to create an async mock for the httpx.AsyncClient
-    with httpx.Client() as client:
-        client.post = AsyncMock(
-            return_value=httpx.Response(status_code=200, json=mock_response)
-        )
-
-        mocker.patch(
-            "httpx.AsyncClient.post",
-            return_value=httpx.Response(status_code=200, json=mock_response),
-        )
-
-        # Simulate the prefrontal function call
-        decision = await process_prefrontal(
-            "Sensory input leads to a clear path", brain_config
-        )
-
-        # Assert the decision is as expected
-        assert decision == "move_forward"
-
-
-@pytest.mark.asyncio
-async def test_thalamus_rewrite(mocker, brain_config):
-    # Mock the response from the cognitive API
-    mock_response = {
-        "message": {"content": "Rewritten sensory input based on narrative structure."}
-    }
-
-    with httpx.Client() as client:
-        client.post = AsyncMock(
-            return_value=httpx.Response(status_code=200, json=mock_response)
-        )
-
-        mocker.patch(
-            "httpx.AsyncClient.post",
-            return_value=httpx.Response(status_code=200, json=mock_response),
-        )
-
-        # Simulate the thalamus function call
-        rewritten_input = await process_thalamus("Initial sensory data", brain_config)
-
-        # Assert the rewritten input is as expected
-        assert (
-            rewritten_input == "Rewritten sensory input based on narrative structure."
-        )
-
-
-@pytest.mark.asyncio
 async def test_process_cortical_request(mocker, brain_config):
     # Mock the CorticalRequest
     cortical_request = mocker.Mock()
@@ -171,3 +120,54 @@ async def test_process_cortical_request(mocker, brain_config):
     assert "<action>move_forward</action>" in response_text
     assert "<thoughts>" in response_text
     assert "Processed by thalamus" in response_text
+
+
+@pytest.mark.asyncio
+async def test_process_prefrontal_decision(mocker, brain_config):
+    # Mock the response from the cognitive API
+    mock_response = {"message": {"content": "move_forward"}}
+
+    # Use pytest-mock to create an async mock for the httpx.AsyncClient
+    with httpx.Client() as client:
+        client.post = AsyncMock(
+            return_value=httpx.Response(status_code=200, json=mock_response)
+        )
+
+        mocker.patch(
+            "httpx.AsyncClient.post",
+            return_value=httpx.Response(status_code=200, json=mock_response),
+        )
+
+        # Simulate the prefrontal function call
+        decision = await process_prefrontal(
+            "Sensory input leads to a clear path", brain_config
+        )
+
+        # Assert the decision is as expected
+        assert decision == "move_forward"
+
+
+@pytest.mark.asyncio
+async def test_thalamus_rewrite(mocker, brain_config):
+    # Mock the response from the cognitive API
+    mock_response = {
+        "message": {"content": "Rewritten sensory input based on narrative structure."}
+    }
+
+    with httpx.Client() as client:
+        client.post = AsyncMock(
+            return_value=httpx.Response(status_code=200, json=mock_response)
+        )
+
+        mocker.patch(
+            "httpx.AsyncClient.post",
+            return_value=httpx.Response(status_code=200, json=mock_response),
+        )
+
+        # Simulate the thalamus function call
+        rewritten_input = await process_thalamus("Initial sensory data", brain_config)
+
+        # Assert the rewritten input is as expected
+        assert (
+            rewritten_input == "Rewritten sensory input based on narrative structure."
+        )

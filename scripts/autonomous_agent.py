@@ -16,7 +16,10 @@ Features:
 
 Usage:
     python main.py --scene [path] --log --terminal-level [level] --file-level [level]
+    --config: Specify the path to the brain configuration file.
+    --pretty: Print scene output using emojis.
     --scene: Specify the path to the scene configuration file.
+    --speech: Enable human speech input (via text).
     --log: Enable logging to file.
     --terminal-level: Set the logging level for terminal output (default: DEBUG).
     --file-level: Set the logging level for file output (default: INFO).

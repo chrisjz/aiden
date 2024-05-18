@@ -29,15 +29,13 @@ async def _map_decision_to_action(decision: str) -> str:
     return SimpleAction.NONE.value
 
 
-async def process_broca(
-    integrated_sensory_input: str, brain_config: BrainConfig
-) -> str:
+async def process_broca(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     Process the integrated sensory input dynamically using instructions to decide
     if the AI needs to say something based on its understanding.
 
     Args:
-        integrated_sensory_input (str): The combined sensory data.
+        integrated_sensory_input (str): Processed sensory input.
         brain_config (BrainConfig): Configuration for the brain, used to guide the response.
 
     Returns:
@@ -47,7 +45,7 @@ async def process_broca(
 
     messages = [
         Message(role="system", content=instruction),
-        Message(role="user", content=integrated_sensory_input),
+        Message(role="user", content=sensory_input),
     ]
 
     chat_message = ChatMessage(
@@ -121,15 +119,19 @@ async def process_cortical(request) -> str:
     logger.info(f"Integrated sensory from thalamus: {sensory_input}")
 
     # Decision-making through prefrontal function
-    action_decision = await process_prefrontal(sensory_input, brain_config)
-    logger.info(f"Action decision from prefrontal: {action_decision}")
+    action_output = await process_prefrontal(sensory_input, brain_config)
+    logger.info(f"Action decision from prefrontal: {action_output}")
+
+    # Verbal output through broca function
+    speech_output = await process_broca(sensory_input, brain_config)
+    logger.info(f"Speech output from broca: {speech_output}")
 
     # Format final thoughts output for streaming
     final_thoughts = f"\n{cortical_config.instruction}\n{sensory_input}"
-    if action_decision != SimpleAction.NONE.value:
-        action_decision_formatted = action_decision.replace("_", " ")
+    if action_output != SimpleAction.NONE.value:
+        action_output_formatted = action_output.replace("_", " ")
         final_thoughts += (
-            f"\nYou decide to perform the action: {action_decision_formatted}."
+            f"\nYou decide to perform the action: {action_output_formatted}."
         )
 
     # Prepare the chat message for the Cognitive API
@@ -160,10 +162,10 @@ async def process_cortical(request) -> str:
 
     async def stream_response():
         # Stream action
-        if action_decision != SimpleAction.NONE.value:
+        if action_output != SimpleAction.NONE.value:
             yield (
                 json.dumps(
-                    {"message": {"content": f"<action>{action_decision}</action>\n"}}
+                    {"message": {"content": f"<action>{action_output}</action>\n"}}
                 )
                 + "\n"
             )
@@ -179,24 +181,31 @@ async def process_cortical(request) -> str:
                         yield chunk
         yield json.dumps({"message": {"content": "\n</thoughts>"}}) + "\n"
 
+        # Stream speech
+        if speech_output:
+            yield (
+                json.dumps(
+                    {"message": {"content": f"<speech>{speech_output}</speech>\n"}}
+                )
+                + "\n"
+            )
+
     return stream_response()
 
 
-async def process_prefrontal(
-    integrated_sensory_input: str, brain_config: BrainConfig
-) -> str:
+async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     Simulates the prefrontal cortex decision-making based on sensory input.
 
     Args:
-        integrated_sensory_input (str): Processed sensory input.
+        sensory_input (str): Processed sensory input.
         brain_config (BrainConfig): Configuration of the brain.
 
     Returns:
         str: The decision on the next action.
     """
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
-    decision_prompt = f"{integrated_sensory_input}\nYour action decision:"
+    decision_prompt = f"{sensory_input}\nYour action decision:"
     messages = [
         Message(role="system", content=instruction),
         Message(role="user", content=decision_prompt),

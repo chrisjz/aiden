@@ -1,8 +1,14 @@
+import uuid
 from aiden.models.brain import BrainConfig, Sensory
 
 
 import json
 import os
+
+
+def generate_session_id():
+    """Generate a unique session ID based on UUID4."""
+    return str(uuid.uuid4())
 
 
 def load_brain_config(config_file: str) -> BrainConfig:

@@ -37,9 +37,8 @@ import os
 
 import httpx
 from aiden.app.scene import Scene, load_scene
-from aiden.app.utils import build_sensory_input_prompt_template
+from aiden.app.utils import generate_session_id
 from aiden.models.brain import CorticalRequest
-from aiden.models.chat import Message
 
 
 def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
@@ -80,8 +79,8 @@ async def autonomous_agent_simulation(
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
 
+    session_id = generate_session_id()
     async with httpx.AsyncClient() as client:
-        chat_history = []
         first_loop = True
         while True:  # Loop indefinitely to keep processing sensory data and actions
             # User speech input
@@ -109,14 +108,8 @@ async def autonomous_agent_simulation(
                 logger.info(f"Auditory (amended): {sensory_data.auditory}\n")
                 await asyncio.sleep(1)
 
-            history = [
-                hist for hist in chat_history
-            ]  # TODO: Configure history length for short-term memory
-
             payload = CorticalRequest(
-                config=brain_config_file,
-                sensory=sensory_data,
-                history=history,
+                config=brain_config_file, sensory=sensory_data, session_id=session_id
             ).model_dump()
             response = await client.post(
                 api_url, json=payload, timeout=60.0
@@ -128,26 +121,11 @@ async def autonomous_agent_simulation(
                         json_line = json.loads(line)
                         content += json_line.get("message", {}).get("content", "")
                 logger.debug(f"Response: {content}")
-                thoughts, _, action = process_response(content, logger)
+                _, _, action = process_response(content, logger)
                 if action:
                     scene.process_action(action)
             else:
                 logger.error(f"Error: {response.status_code}")
-
-            user_prompt_template = build_sensory_input_prompt_template(sensory_data)
-
-            # Flush short-term memory when AI start repeating the same response.
-            # TODO: Revisit this rule once AI performance improves.
-            # TODO: Also append speech to content once we introduce it.
-            if chat_history and thoughts == chat_history[-1].content:
-                chat_history = []
-            else:
-                chat_history.append(Message(role="user", content=user_prompt_template))
-                chat_history.append(Message(role="assistant", content=thoughts))
-
-            logger.debug("Chat history:")
-            for instance in chat_history[-10:]:
-                logger.debug(instance)
 
             await asyncio.sleep(1)  # Sleep to simulate time passing between actions
 

@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI, HTTPException
 from starlette.responses import StreamingResponse
 
-from aiden.app.brain import process_cortical
+from aiden.app.brain.cognition import process_cortical
 from aiden.models.brain import CorticalRequest
 
 app = FastAPI()

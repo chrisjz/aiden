@@ -1,16 +1,17 @@
-import json
 from unittest.mock import AsyncMock
 import httpx
 import pytest
 
-from aiden.app.brain import (
+from aiden.app.brain.cognition import (
     _map_decision_to_action,
     process_broca,
     process_cortical,
     process_prefrontal,
+    process_subconscious,
     process_thalamus,
 )
 from aiden.models.brain import BrainConfig
+from aiden.models.chat import ChatMessage, Message, Options
 
 
 @pytest.fixture
@@ -126,35 +127,35 @@ async def test_process_cortical_request(mocker, brain_config):
     cortical_request.sensory = {"vision": "Clear path ahead", "auditory": "No sounds"}
 
     # Mock loading the brain configuration
-    mocker.patch("aiden.app.brain.load_brain_config", return_value=brain_config)
+    mocker.patch(
+        "aiden.app.brain.cognition.load_brain_config", return_value=brain_config
+    )
 
     # Mock the sensory input template
     mocker.patch(
-        "aiden.app.brain.build_sensory_input_prompt_template",
+        "aiden.app.brain.cognition.build_sensory_input_prompt_template",
         return_value="Your sensory inputs",
     )
 
-    # Use pytest-mock to mock the thalamus and prefrontal functions
+    # Use pytest-mock to mock the various brain region functions
     mocker.patch(
-        "aiden.app.brain.process_thalamus", return_value="Processed by thalamus"
+        "aiden.app.brain.cognition.process_thalamus",
+        return_value="Processed by thalamus",
     )
-    mocker.patch("aiden.app.brain.process_prefrontal", return_value="move_forward")
-
-    # Prepare the mocked data for the stream response
-    mock_response_data = [
-        json.dumps({"message": {"content": "<action>move_forward</action>\n"}}),
-        json.dumps({"message": {"content": "<thoughts>\n"}}),
-        json.dumps({"message": {"content": "Processed by thalamus\n</thoughts>\n"}}),
-    ]
-
-    # Mock the httpx client used in your actual function to simulate LLM responses
-    async def mock_stream():
-        for item in mock_response_data:
-            yield item
-
     mocker.patch(
-        "httpx.AsyncClient.stream", return_value=MockStreamResponse(mock_stream())
+        "aiden.app.brain.cognition.process_prefrontal", return_value="move_forward"
     )
+    mocker.patch(
+        "aiden.app.brain.cognition.process_broca", return_value="I am doing well."
+    )
+    mocker.patch(
+        "aiden.app.brain.cognition.process_subconscious",
+        return_value="I wonder where I should go next.",
+    )
+
+    # Mock the save_memory and get_memory functions from the hippocampus script
+    mocker.patch("aiden.app.brain.memory.hippocampus.save_memory", return_value=None)
+    mocker.patch("aiden.app.brain.memory.hippocampus.get_memory", return_value=[])
 
     # Call the function
     response_stream = await process_cortical(cortical_request)
@@ -166,8 +167,8 @@ async def test_process_cortical_request(mocker, brain_config):
 
     # Check that the action and thoughts are in the response
     assert "<action>move_forward</action>" in response_text
-    assert "<thoughts>" in response_text
-    assert "Processed by thalamus" in response_text
+    assert "<speech>I am doing well.</speech>" in response_text
+    assert "<thoughts>I wonder where I should go next.</thoughts>" in response_text
 
 
 @pytest.mark.asyncio
@@ -193,6 +194,35 @@ async def test_process_prefrontal_decision(mocker, brain_config):
 
         # Assert the decision is as expected
         assert decision == "move_forward"
+
+
+@pytest.mark.asyncio
+async def test_process_subconscious_thoughts(mocker):
+    # Mock the chat message
+    chat_message = ChatMessage(
+        model="my model",
+        messages=[Message(role="user", content="What are you thinking?")],
+        stream=False,
+        options=Options(),
+    )
+    # Mock the response from the cognitive API
+    mock_response = {"message": {"content": "I am having a wonderful day."}}
+
+    with httpx.Client() as client:
+        client.post = AsyncMock(
+            return_value=httpx.Response(status_code=200, json=mock_response)
+        )
+
+        mocker.patch(
+            "httpx.AsyncClient.post",
+            return_value=httpx.Response(status_code=200, json=mock_response),
+        )
+
+        # Simulate the subconscious function call
+        thoughts = await process_subconscious(chat_message)
+
+        # Assert the thoughts are as expected
+        assert thoughts == "I am having a wonderful day."
 
 
 @pytest.mark.asyncio

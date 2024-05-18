@@ -3,7 +3,7 @@ CLI to interact directly with the process_thalamus function in the Brain module.
 """
 
 import asyncio
-from aiden.app.brain import process_thalamus
+from aiden.app.brain.cognition import process_thalamus
 from aiden.app.utils import load_brain_config
 
 

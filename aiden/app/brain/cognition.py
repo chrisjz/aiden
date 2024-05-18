@@ -3,7 +3,12 @@ import logging
 import os
 import re
 import httpx
-from aiden.app.utils import load_brain_config, build_sensory_input_prompt_template
+from aiden.app.brain.memory.hippocampus import get_memory, save_memory
+from aiden.app.utils import (
+    generate_session_id,
+    load_brain_config,
+    build_sensory_input_prompt_template,
+)
 from aiden.models.brain import BrainConfig, SimpleAction
 from aiden.models.chat import ChatMessage, Message, Options
 
@@ -104,6 +109,9 @@ async def process_cortical(request) -> str:
     cortical_config = brain_config.regions.cortical
     personality = cortical_config.personality
 
+    # Check if session_id is provided in request or generate a new one
+    session_id = getattr(request, "session_id", generate_session_id())
+
     # Prepare the system prompt
     system_input = cortical_config.about + "\n"
     if brain_config.settings.feature_toggles.personality:
@@ -116,34 +124,39 @@ async def process_cortical(request) -> str:
 
     # Sensory integration through thalamus function
     sensory_input = await process_thalamus(raw_sensory_input, brain_config)
-    logger.info(f"Integrated sensory from thalamus: {sensory_input}")
 
     # Decision-making through prefrontal function
     action_output = await process_prefrontal(sensory_input, brain_config)
-    logger.info(f"Action decision from prefrontal: {action_output}")
 
     # Verbal output through broca function
     speech_output = await process_broca(sensory_input, brain_config)
-    logger.info(f"Speech output from broca: {speech_output}")
 
-    # Format final thoughts output for streaming
-    final_thoughts = f"\n{cortical_config.instruction}\n{sensory_input}"
+    # Format final thoughts prompt
+    final_thoughts_input = (
+        f"\n{cortical_config.instruction}\nYour sensory data: {sensory_input}"
+    )
     if action_output != SimpleAction.NONE.value:
         action_output_formatted = action_output.replace("_", " ")
-        final_thoughts += (
+        final_thoughts_input += (
             f"\nYou decide to perform the action: {action_output_formatted}."
         )
 
+    # Retrieve short-term memory
+    history = get_memory(session_id)
+
+    logger.info(f"History from redis: {history}")
+
     # Prepare the chat message for the Cognitive API
     messages = [Message(role="system", content=system_input)]
-    if request.history:
-        messages.extend(request.history)
-    messages.append(Message(role="user", content=final_thoughts))
+    if history:
+        messages.extend(history)
+
+    messages.append(Message(role="user", content=final_thoughts_input))
 
     chat_message = ChatMessage(
         model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
         messages=messages,
-        stream=True,
+        stream=False,
         options=Options(
             frequency_penalty=1.2,
             penalize_newline=False,
@@ -156,39 +169,30 @@ async def process_cortical(request) -> str:
         ),
     )
 
-    logger.info(
-        f"Cortical chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+    # Thoughts output through subconcious function
+    thoughts_output = await process_subconscious(chat_message)
+
+    # Combine action, thoughts, and speech into one message
+    combined_message_content = ""
+    if action_output != SimpleAction.NONE.value:
+        combined_message_content += f"<action>{action_output}</action>\n"
+    combined_message_content += f"<thoughts>{thoughts_output}</thoughts>\n"
+    if speech_output:
+        combined_message_content += f"<speech>{speech_output}</speech>\n"
+
+    # Append formatted combined message to messages
+    combined_message_content_formatted = f"My thoughts:\n{thoughts_output}\nMy speech:\n{speech_output}\nMy actions performed: {action_output}"
+    messages.append(
+        Message(role="assistant", content=combined_message_content_formatted)
     )
 
+    # TODO: Stream all of these separately
     async def stream_response():
-        # Stream action
-        if action_output != SimpleAction.NONE.value:
-            yield (
-                json.dumps(
-                    {"message": {"content": f"<action>{action_output}</action>\n"}}
-                )
-                + "\n"
-            )
+        # Stream the combined message
+        yield json.dumps({"message": {"content": combined_message_content}}) + "\n"
 
-        # Stream thoughts
-        yield json.dumps({"message": {"content": "<thoughts>\n"}}) + "\n"
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "POST", COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
-            ) as response:
-                async for chunk in response.aiter_raw():
-                    if chunk:
-                        yield chunk
-        yield json.dumps({"message": {"content": "\n</thoughts>"}}) + "\n"
-
-        # Stream speech
-        if speech_output:
-            yield (
-                json.dumps(
-                    {"message": {"content": f"<speech>{speech_output}</speech>\n"}}
-                )
-                + "\n"
-            )
+        # Store the updated history in Redis
+        save_memory(session_id, messages)
 
     return stream_response()
 
@@ -246,6 +250,34 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
             return SimpleAction.NONE.value
 
 
+async def process_subconscious(chat_message: ChatMessage) -> str:
+    """
+    Process the thoughts from the subconscious areas of the AI model and return them as a string.
+
+    Args:
+        chat_message (ChatMessage): The message to be processed.
+
+    Returns:
+        str: The processed thoughts as a string. If processing fails, returns an empty string.
+    """
+    logger.info(
+        f"Subconcious chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+    )
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=45.0
+        )
+        if response.status_code == 200:
+            thoughts = response.json().get("message", {}).get("content", "").strip()
+            logger.info(f"Thoughts: {thoughts}")
+            return thoughts
+        else:
+            logger.error(
+                f"Failed thoughts processing with status: {response.status_code}"
+            )
+            return ""
+
+
 async def process_thalamus(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     Simulates the thalamic process of restructuring sensory input.
@@ -286,9 +318,13 @@ async def process_thalamus(sensory_input: str, brain_config: BrainConfig) -> str
             COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
         )
         if response.status_code == 200:
-            rewritten_prompt = (
+            integrated_sensory_input = (
                 response.json().get("message", {}).get("content", sensory_input)
             )
-            return rewritten_prompt
+            logger.info(f"Restructured sensory input: {integrated_sensory_input}")
+            return integrated_sensory_input
         else:
+            logger.error(
+                f"Failed restructuring sensory input with status: {response.status_code}"
+            )
             return sensory_input

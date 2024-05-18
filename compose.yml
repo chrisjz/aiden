@@ -45,6 +45,9 @@ services:
       - COGNITIVE_API_PORT=${COGNITIVE_API_PORT:-11434}
       - COGNITIVE_API_PROTOCOL=${COGNITIVE_API_PROTOCOL:-http}
       - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
 
   cognitive-api:
     <<: *base_service
@@ -75,6 +78,14 @@ services:
     environment:
       - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
     entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${COGNITIVE_MODEL}"]
+
+  redis:
+    image: redis:latest
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
 
   vision-api:
     <<: *base_service

@@ -1,6 +1,6 @@
 """
-CLI to interact with the Brain API for testing purposes,
-without needing to evaluate it through the Unity simulation.
+CLI to interact with the Brain API for evaluation purposes,
+without needing to through the Unity simulation.
 """
 
 import os

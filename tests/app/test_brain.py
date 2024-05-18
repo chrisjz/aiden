@@ -76,27 +76,45 @@ async def test_map_decision_to_action():
 
 
 @pytest.mark.asyncio
-async def test_process_broca_decision(mocker, brain_config):
+async def test_process_broca_direct_address(mocker, brain_config):
     # Mock the response from the cognitive API
-    mock_response = {"message": {"content": "I am good, thank you!"}}
+    mock_response = {"message": {"content": '"I am well, thank you."'}}
 
-    with httpx.Client() as client:
-        client.post = AsyncMock(
-            return_value=httpx.Response(status_code=200, json=mock_response)
-        )
+    # Use mocker to patch the HTTP client used in process_broca
+    mocker.patch.object(
+        httpx.AsyncClient,
+        "post",
+        return_value=httpx.Response(status_code=200, json=mock_response),
+    )
 
-        mocker.patch(
-            "httpx.AsyncClient.post",
-            return_value=httpx.Response(status_code=200, json=mock_response),
-        )
+    # Simulate the function call
+    response = await process_broca('Someone asks: "How are you today?"', brain_config)
 
-        # Simulate the thalamus function call
-        rewritten_input = await process_broca(
-            "Someone says: How are you today?", brain_config
-        )
+    # Check if the response matches the expected verbal response within quotes
+    assert (
+        response == "I am well, thank you."
+    ), f"Expected: 'I am well, thank you.', but got: {response}"
 
-        # Assert the rewritten input is as expected
-        assert rewritten_input == "I am good, thank you!"
+
+@pytest.mark.asyncio
+async def test_process_broca_silence_when_unnecessary(mocker, brain_config):
+    # Test that the AI remains silent when no direct interaction or notable event occurs
+    mock_response = {"message": {"content": ""}}
+
+    # Patch the HTTP client
+    mocker.patch.object(
+        httpx.AsyncClient,
+        "post",
+        return_value=httpx.Response(status_code=200, json=mock_response),
+    )
+
+    # Simulate the function call
+    response = await process_broca(
+        "You notice a small bird flying in the distance.", brain_config
+    )
+
+    # Check if the AI correctly remains silent
+    assert response == "", "Expected silence, but got some verbal output."
 
 
 @pytest.mark.asyncio

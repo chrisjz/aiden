@@ -11,14 +11,16 @@ async def main():
     # Load or create a BrainConfig object
     brain_config = load_brain_config("./config/brain/default.json")
 
-    # Prompt user for auditory input
-    auditory_input = (
-        input("Enter auditory input (e.g., 'Someone says: How are you today?'): ")
-        or "Someone says: How are you today?"
+    # Prompt user for sensory input
+    sensory_input = (
+        input(
+            "Enter sensory input (e.g., 'You see a person in front of you. They ask \"How are you today?\"'): "
+        )
+        or 'You see a person in front of you. They ask "How are you today?"'
     )
 
     # Call the process_broca function directly
-    spoken_response = await process_broca(auditory_input, brain_config)
+    spoken_response = await process_broca(sensory_input, brain_config)
 
     print("AI spoken response:", spoken_response)
 

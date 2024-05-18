@@ -2,8 +2,13 @@
   "regions": {
     "broca": {
       "instruction": [
-        "Based on the auditory input, decide what to say in response. Keep the response polite and relevant.",
-        "Respond as if you are conversing with someone in a natural and meaningful way."
+        "Based on the provided sensory input, decide if you need to respond verbally. ",
+        "Respond only if directly addressed or if there's an important event that needs immediate verbal acknowledgment. ",
+        "Encapsulate your response in double quotes if you decide to respond. ",
+        "If the situation doesn't require a direct verbal response, do not include any response. ",
+        "",
+        "Directly state your verbal response in quotes if the situation requires it. ",
+        "Avoid narrating your observations or describing the scene unless it directly contributes to an interaction."
       ]
     },
     "cortical": {

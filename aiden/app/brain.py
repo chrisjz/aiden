@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 import httpx
 from aiden.app.utils import load_brain_config, build_sensory_input_prompt_template
 from aiden.models.brain import BrainConfig, SimpleAction
@@ -28,30 +29,25 @@ async def _map_decision_to_action(decision: str) -> str:
     return SimpleAction.NONE.value
 
 
-async def process_broca(auditory_input: str, brain_config: BrainConfig) -> str:
+async def process_broca(
+    integrated_sensory_input: str, brain_config: BrainConfig
+) -> str:
     """
-    Simulate the Broca's area process of deciding what to speak in response to auditory input.
-
-    TODO: Handle input other than auditory e.g. responding to a text message.
+    Process the integrated sensory input dynamically using instructions to decide
+    if the AI needs to say something based on its understanding.
 
     Args:
-        auditory_input (str): The auditory sensory input processed by the thalamus.
-        brain_config (BrainConfig): The configuration settings of the brain.
+        integrated_sensory_input (str): The combined sensory data.
+        brain_config (BrainConfig): Configuration for the brain, used to guide the response.
 
     Returns:
-        str: The speech to be spoken out loud by the AI, or an empty string if no response is needed.
+        str: The AI's spoken response or an empty string if there is nothing to say.
     """
-    # TODO: Automatically detect if AI should respond based on if they are engaged in a conversation.
-    if not auditory_input or "someone say" not in auditory_input.lower():
-        logger.info("No one is speaking to the AI or relevant auditory input missing.")
-        return ""
-
     instruction = "\n".join(brain_config.regions.broca.instruction)
-    decision_prompt = f"Auditory input: {auditory_input}\nYour response:"
 
     messages = [
         Message(role="system", content=instruction),
-        Message(role="user", content=decision_prompt),
+        Message(role="user", content=integrated_sensory_input),
     ]
 
     chat_message = ChatMessage(
@@ -59,11 +55,11 @@ async def process_broca(auditory_input: str, brain_config: BrainConfig) -> str:
         messages=messages,
         stream=False,
         options=Options(
-            frequency_penalty=1.0,
+            frequency_penalty=1.2,
             presence_penalty=0.6,
-            temperature=0.5,
-            top_p=0.9,
-            max_tokens=60,
+            temperature=0.4,
+            top_p=0.85,
+            max_tokens=150,
         ),
     )
 
@@ -79,8 +75,16 @@ async def process_broca(auditory_input: str, brain_config: BrainConfig) -> str:
             speech_output = (
                 response.json().get("message", {}).get("content", "").strip()
             )
-            logger.info(f"Broca's decision: {speech_output}")
-            return speech_output
+            logger.info(f"Broca's raw decision: {speech_output}")
+
+            # Extract the response within double quotes
+            match = re.search(r'"([^"]*)"', speech_output)
+            if match:
+                final_response = match.group(1)
+                logger.info(f"Extracted verbal response: {final_response}")
+                return final_response
+            else:
+                return ""
         else:
             logger.error(
                 f"Failed speech production with status: {response.status_code}"

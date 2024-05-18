@@ -178,19 +178,21 @@ async def process_cortical(request) -> str:
     return stream_response()
 
 
-async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
+async def process_prefrontal(
+    integrated_sensory_input: str, brain_config: BrainConfig
+) -> str:
     """
     Simulates the prefrontal cortex decision-making based on sensory input.
 
     Args:
-        sensory_input (str): Processed sensory input.
+        integrated_sensory_input (str): Processed sensory input.
         brain_config (BrainConfig): Configuration of the brain.
 
     Returns:
         str: The decision on the next action.
     """
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
-    decision_prompt = f"{sensory_input}\nYour action decision:"
+    decision_prompt = f"{integrated_sensory_input}\nYour action decision:"
     messages = [
         Message(role="system", content=instruction),
         Message(role="user", content=decision_prompt),
@@ -231,14 +233,12 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
             return SimpleAction.NONE.value
 
 
-async def process_thalamus(
-    integrated_sensory_data: str, brain_config: BrainConfig
-) -> str:
+async def process_thalamus(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     Simulates the thalamic process of restructuring sensory input.
 
     Args:
-        integrated_sensory_data (str): The initial sensory data.
+        sensory_input (str): The initial sensory data.
         brain_config (BrainConfig): Configuration of the brain.
 
     Returns:
@@ -247,7 +247,7 @@ async def process_thalamus(
     instruction = "\n".join(brain_config.regions.thalamus.instruction)
     messages = [
         Message(role="system", content=instruction),
-        Message(role="user", content=integrated_sensory_data),
+        Message(role="user", content=sensory_input),
     ]
     chat_message = ChatMessage(
         model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
@@ -274,10 +274,8 @@ async def process_thalamus(
         )
         if response.status_code == 200:
             rewritten_prompt = (
-                response.json()
-                .get("message", {})
-                .get("content", integrated_sensory_data)
+                response.json().get("message", {}).get("content", sensory_input)
             )
             return rewritten_prompt
         else:
-            return integrated_sensory_data
+            return sensory_input

@@ -31,6 +31,10 @@ class Sensory(BaseModel):
     gustatory: str = ""
 
 
+class Broca(BaseModel):
+    instruction: list[str]
+
+
 class Cortical(BaseModel):
     about: str
     description: list[str]
@@ -47,6 +51,7 @@ class Thalamus(BaseModel):
 
 
 class Regions(BaseModel):
+    broca: Broca
     cortical: Cortical
     prefrontal: Prefrontal
     thalamus: Thalamus

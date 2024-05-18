@@ -1,5 +1,11 @@
 {
   "regions": {
+    "broca": {
+      "instruction": [
+        "Based on the auditory input, decide what to say in response. Keep the response polite and relevant.",
+        "Respond as if you are conversing with someone in a natural and meaningful way."
+      ]
+    },
     "cortical": {
       "about": "You are an AI with sensory capabilities designed to navigate and interact within a simulated environment. Your goal is to explore, learn, and respond to sensory inputs accurately.",
       "description": [

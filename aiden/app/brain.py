@@ -28,6 +28,66 @@ async def _map_decision_to_action(decision: str) -> str:
     return SimpleAction.NONE.value
 
 
+async def process_broca(auditory_input: str, brain_config: BrainConfig) -> str:
+    """
+    Simulate the Broca's area process of deciding what to speak in response to auditory input.
+
+    TODO: Handle input other than auditory e.g. responding to a text message.
+
+    Args:
+        auditory_input (str): The auditory sensory input processed by the thalamus.
+        brain_config (BrainConfig): The configuration settings of the brain.
+
+    Returns:
+        str: The speech to be spoken out loud by the AI, or an empty string if no response is needed.
+    """
+    # TODO: Automatically detect if AI should respond based on if they are engaged in a conversation.
+    if not auditory_input or "someone say" not in auditory_input.lower():
+        logger.info("No one is speaking to the AI or relevant auditory input missing.")
+        return ""
+
+    instruction = "\n".join(brain_config.regions.broca.instruction)
+    decision_prompt = f"Auditory input: {auditory_input}\nYour response:"
+
+    messages = [
+        Message(role="system", content=instruction),
+        Message(role="user", content=decision_prompt),
+    ]
+
+    chat_message = ChatMessage(
+        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
+        messages=messages,
+        stream=False,
+        options=Options(
+            frequency_penalty=1.0,
+            presence_penalty=0.6,
+            temperature=0.5,
+            top_p=0.9,
+            max_tokens=60,
+        ),
+    )
+
+    logger.info(
+        f"Broca's area chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
+    )
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
+        )
+        if response.status_code == 200:
+            speech_output = (
+                response.json().get("message", {}).get("content", "").strip()
+            )
+            logger.info(f"Broca's decision: {speech_output}")
+            return speech_output
+        else:
+            logger.error(
+                f"Failed speech production with status: {response.status_code}"
+            )
+            return ""
+
+
 async def process_cortical(request) -> str:
     """
     Processes a cortical request to determine the AI's actions and thoughts based on sensory input.

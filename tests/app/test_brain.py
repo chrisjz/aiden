@@ -5,6 +5,7 @@ import pytest
 
 from aiden.app.brain import (
     _map_decision_to_action,
+    process_broca,
     process_cortical,
     process_prefrontal,
     process_thalamus,
@@ -16,6 +17,11 @@ from aiden.models.brain import BrainConfig
 def brain_config():
     return BrainConfig(
         regions={
+            "broca": {
+                "instruction": [
+                    "Based on the auditory input, decide what to say in response."
+                ],
+            },
             "cortical": {
                 "about": "You are an AI...",
                 "description": ["Respond using the sensory data."],
@@ -67,6 +73,30 @@ async def test_map_decision_to_action():
     assert await _map_decision_to_action("Backward") == "move_backward"
     assert await _map_decision_to_action("right") == "turn_right"
     assert await _map_decision_to_action("0199393921") == "none"
+
+
+@pytest.mark.asyncio
+async def test_process_broca_decision(mocker, brain_config):
+    # Mock the response from the cognitive API
+    mock_response = {"message": {"content": "I am good, thank you!"}}
+
+    with httpx.Client() as client:
+        client.post = AsyncMock(
+            return_value=httpx.Response(status_code=200, json=mock_response)
+        )
+
+        mocker.patch(
+            "httpx.AsyncClient.post",
+            return_value=httpx.Response(status_code=200, json=mock_response),
+        )
+
+        # Simulate the thalamus function call
+        rewritten_input = await process_broca(
+            "Someone says: How are you today?", brain_config
+        )
+
+        # Assert the rewritten input is as expected
+        assert rewritten_input == "I am good, thank you!"
 
 
 @pytest.mark.asyncio
@@ -148,7 +178,7 @@ async def test_process_prefrontal_decision(mocker, brain_config):
 
 
 @pytest.mark.asyncio
-async def test_thalamus_rewrite(mocker, brain_config):
+async def test_process_thalamus_rewrite(mocker, brain_config):
     # Mock the response from the cognitive API
     mock_response = {
         "message": {"content": "Rewritten sensory input based on narrative structure."}

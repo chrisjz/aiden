@@ -81,18 +81,15 @@ async def autonomous_agent_simulation(
 
     session_id = generate_session_id()
     async with httpx.AsyncClient() as client:
-        first_loop = True
         while True:  # Loop indefinitely to keep processing sensory data and actions
             # User speech input
             speech_input_formatted = None
-            if enable_speech and not first_loop:
+            if enable_speech:
                 speech_input = input("Your input: ")
                 if speech_input:
                     speech_input_formatted = (
                         f'In your earpiece you hear someone nearby say "{speech_input}"'
                     )
-
-            first_loop = False
 
             logger.debug("Refreshing scene display...")
             print("\033c", end="")
@@ -112,7 +109,7 @@ async def autonomous_agent_simulation(
                 config=brain_config_file, sensory=sensory_data, session_id=session_id
             ).model_dump()
             response = await client.post(
-                api_url, json=payload, timeout=60.0
+                api_url, json=payload, timeout=90.0
             )  # Send sensory data to brain API
             content = ""
             if response.status_code == 200:

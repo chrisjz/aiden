@@ -1,13 +1,11 @@
-import logging
 from fastapi import FastAPI, HTTPException
 from starlette.responses import StreamingResponse
 
-from aiden.app.brain.cognition import process_cortical
+from aiden import logger
+from aiden.app.brain.cortical import process_cortical
 from aiden.models.brain import CorticalRequest
 
 app = FastAPI()
-
-logger = logging.getLogger("uvicorn")
 
 
 @app.post("/cortical/")

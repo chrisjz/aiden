@@ -60,7 +60,7 @@ def main():
     print("Send sensory data to Cortical endpoint.")
     with requests.post(api_url, json=payload, stream=True) as response:
         if response.status_code == 200:
-            print("Response from Cortical API:")
+            print("\nResponse from Cortical API:\n")
             final_content = ""
             for line in response.iter_lines():
                 if line:
@@ -68,7 +68,7 @@ def main():
                     print(decoded_line)
                     json_line = json.loads(decoded_line)
                     final_content += json_line.get("message", {}).get("content", "")
-            print("Final combined content:", final_content)
+            print("\nFinal combined content:\n", final_content)
         else:
             print(f"Error: {response.status_code}")
 

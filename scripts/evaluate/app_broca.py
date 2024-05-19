@@ -3,7 +3,7 @@ CLI to interact directly with the process_broca function in the Brain module.
 """
 
 import asyncio
-from aiden.app.brain.cognition import process_broca
+from aiden.app.brain.cognition.broca import process_broca
 from aiden.app.utils import load_brain_config
 
 

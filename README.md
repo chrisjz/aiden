@@ -35,6 +35,16 @@ To run the simulation locally, you will need the following:
 
 Make a copy of `.env.template` called `.env` and update any required values.
 
+Explanation of the more ambiguous environment variables:
+
+| Name       | Details                                                                                                                                                                 | Default       |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| AGENT_ID   | Identifier of the default AI agent. Determines which Agent is active, if not overriden elsewhere. Brain-related interactions map to this agent, such as memory storage. | 1<sup>1</sup> |
+| AGENT_NAME | Name of the default AI agent.                                                                                                                                           | AIden         |
+
+> <sup>1</sup> The ID "0" is treated as a catch-all in this system,
+and shouldn't be used.
+
 ## Usage
 
 ### Starting Services

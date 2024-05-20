@@ -39,9 +39,9 @@ async def test_process_cortical_request(mocker, brain_config):
         return_value="I wonder where I should go next.",
     )
 
-    # Mock the save_memory and get_memory functions from the hippocampus script
-    mocker.patch("aiden.app.brain.cortical.save_memory", return_value=None)
-    mocker.patch("aiden.app.brain.cortical.get_memory", return_value=[])
+    # Mock the update_memory and read_memory functions from the hippocampus script
+    mocker.patch("aiden.app.brain.cortical.update_memory", return_value=None)
+    mocker.patch("aiden.app.brain.cortical.read_memory", return_value=[])
 
     # Call the function
     response_stream = await process_cortical(cortical_request)

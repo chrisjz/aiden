@@ -17,6 +17,7 @@ Features:
 Usage:
     python main.py --scene [path] --log --terminal-level [level] --file-level [level]
     --config: Specify the path to the brain configuration file.
+    --neuralyzer: Wipe short-term memory of AI agent at the start.
     --pretty: Print scene output using emojis.
     --scene: Specify the path to the scene configuration file.
     --speech: Enable human speech input (via text).
@@ -36,8 +37,8 @@ import logging
 import os
 
 import httpx
+from aiden.app.brain.memory.hippocampus import wipe_memory
 from aiden.app.scene import Scene, load_scene
-from aiden.app.utils import generate_session_id
 from aiden.models.brain import CorticalRequest
 
 
@@ -75,11 +76,18 @@ async def autonomous_agent_simulation(
     scene: Scene,
     logger: logging.Logger,
     enable_speech: bool = False,
+    neuralyzer: bool = False,
     pretty: bool = False,
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
 
-    session_id = generate_session_id()
+    agent_id = os.environ.get("AGENT_ID", "0")
+
+    # Wipe agent's short-term memory
+    if neuralyzer:
+        logger.debug("Wiping agent's short-term memory.")
+        wipe_memory(agent_id)
+
     async with httpx.AsyncClient() as client:
         while True:  # Loop indefinitely to keep processing sensory data and actions
             # User speech input
@@ -106,7 +114,7 @@ async def autonomous_agent_simulation(
                 await asyncio.sleep(1)
 
             payload = CorticalRequest(
-                config=brain_config_file, sensory=sensory_data, session_id=session_id
+                config=brain_config_file, sensory=sensory_data, agent_id=agent_id
             ).model_dump()
             response = await client.post(
                 api_url, json=payload, timeout=90.0
@@ -168,6 +176,11 @@ async def main():
         help="Path to the brain configuration file.",
     )
     parser.add_argument(
+        "--neuralyzer",
+        action="store_true",
+        help="Wipe short-term memory of AI agent at the start.",
+    )
+    parser.add_argument(
         "--pretty",
         action="store_true",
         help="Enable emoji representations of grid components.",
@@ -201,7 +214,12 @@ async def main():
     scene_config = load_scene(args.scene_path)
     scene = Scene(scene_config)
     await autonomous_agent_simulation(
-        args.config_path, scene, logger, args.enable_speech, args.pretty
+        args.config_path,
+        scene,
+        logger,
+        args.enable_speech,
+        args.neuralyzer,
+        args.pretty,
     )
 
 

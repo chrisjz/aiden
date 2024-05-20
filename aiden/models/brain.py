@@ -67,7 +67,7 @@ class BrainConfig(BaseModel):
 
 
 class CorticalRequest(BaseModel):
+    agent_id: str
     config: str = Field(default="./config/brain/default.json")
     sensory: Sensory
-    session_id: str
     history: Optional[list[Message]] = None

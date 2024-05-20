@@ -1,12 +1,11 @@
 from aiden import logger
-from aiden.app.brain.memory.hippocampus import get_memory, save_memory
+from aiden.app.brain.memory.hippocampus import read_memory, update_memory
 from aiden.app.brain.cognition.broca import process_broca
 from aiden.app.brain.cognition.prefrontal import process_prefrontal
 from aiden.app.brain.cognition.subconscious import process_subconscious
 from aiden.app.brain.cognition.thalamus import process_thalamus
 from aiden.app.utils import (
     build_sensory_input_prompt_template,
-    generate_session_id,
     load_brain_config,
 )
 from aiden.models.brain import SimpleAction
@@ -31,8 +30,8 @@ async def process_cortical(request) -> str:
     cortical_config = brain_config.regions.cortical
     personality = cortical_config.personality
 
-    # Check if session_id is provided in request or generate a new one
-    session_id = getattr(request, "session_id", generate_session_id())
+    # Check if agent_id is provided in request or default to the catch-all zero ID
+    agent_id = getattr(request, "agent_id", "0")
 
     # Prepare the system prompt
     system_input = cortical_config.about + "\n"
@@ -64,7 +63,7 @@ async def process_cortical(request) -> str:
         )
 
     # Retrieve short-term memory
-    history = get_memory(session_id)
+    history = read_memory(agent_id)
 
     logger.info(f"History from redis: {history}")
 
@@ -103,7 +102,15 @@ async def process_cortical(request) -> str:
         combined_message_content += f"<speech>{speech_output}</speech>\n"
 
     # Append formatted combined message to messages
-    combined_message_content_formatted = f"My thoughts:\n{thoughts_output}\nMy speech:\n{speech_output}\nMy actions performed: {action_output}"
+    combined_message_content_formatted = f"My thoughts:\n{thoughts_output}"
+    combined_message_content_formatted += (
+        f"\nMy speech:\n{speech_output}" if speech_output else ""
+    )
+    combined_message_content_formatted += (
+        f"\nMy actions performed: {action_output}"
+        if action_output != SimpleAction.NONE
+        else ""
+    )
     messages.append(
         Message(role="assistant", content=combined_message_content_formatted)
     )
@@ -114,6 +121,6 @@ async def process_cortical(request) -> str:
         yield json.dumps({"message": {"content": combined_message_content}}) + "\n"
 
         # Store the updated history in Redis
-        save_memory(session_id, messages)
+        update_memory(agent_id, messages)
 
     return stream_response()

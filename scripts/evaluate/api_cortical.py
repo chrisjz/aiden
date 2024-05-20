@@ -7,7 +7,6 @@ import os
 import requests
 import json
 
-from aiden.app.utils import generate_session_id
 from aiden.models.brain import CorticalRequest, Sensory
 
 
@@ -53,7 +52,7 @@ def main():
     payload = CorticalRequest(
         config="./config/brain/default.json",
         sensory=sensory_data,
-        session_id=generate_session_id(),
+        agent_id=os.environ.get("AGENT_ID", "0"),
     ).model_dump()
 
     # Send a POST request to the Cortical endpoint

@@ -1,19 +1,19 @@
+import json
+import os
+
 from aiden import logger
-from aiden.app.brain.memory.hippocampus import read_memory, update_memory
+from aiden.app.brain.memory.hippocampus import MemoryManager
 from aiden.app.brain.cognition.broca import process_broca
 from aiden.app.brain.cognition.prefrontal import process_prefrontal
 from aiden.app.brain.cognition.subconscious import process_subconscious
 from aiden.app.brain.cognition.thalamus import process_thalamus
+from aiden.app.clients.redis_client import redis_client
 from aiden.app.utils import (
     build_sensory_input_prompt_template,
     load_brain_config,
 )
 from aiden.models.brain import SimpleAction
 from aiden.models.chat import ChatMessage, Message, Options
-
-
-import json
-import os
 
 
 async def process_cortical(request) -> str:
@@ -63,7 +63,8 @@ async def process_cortical(request) -> str:
         )
 
     # Retrieve short-term memory
-    history = read_memory(agent_id)
+    memory_manager = MemoryManager(redis_client=redis_client)
+    history = memory_manager.read_memory(agent_id)
 
     logger.info(f"History from redis: {history}")
 
@@ -121,6 +122,6 @@ async def process_cortical(request) -> str:
         yield json.dumps({"message": {"content": combined_message_content}}) + "\n"
 
         # Store the updated history in Redis
-        update_memory(agent_id, messages)
+        memory_manager.update_memory(agent_id, messages)
 
     return stream_response()

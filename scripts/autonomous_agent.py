@@ -37,7 +37,8 @@ import logging
 import os
 
 import httpx
-from aiden.app.brain.memory.hippocampus import wipe_memory
+from aiden.app.brain.memory.hippocampus import MemoryManager
+from aiden.app.clients.redis_client import redis_client
 from aiden.app.scene import Scene, load_scene
 from aiden.models.brain import CorticalRequest
 
@@ -86,7 +87,8 @@ async def autonomous_agent_simulation(
     # Wipe agent's short-term memory
     if neuralyzer:
         logger.debug("Wiping agent's short-term memory.")
-        wipe_memory(agent_id)
+        memory_manager = MemoryManager(redis_client=redis_client)
+        memory_manager.wipe_memory(agent_id)
 
     async with httpx.AsyncClient() as client:
         while True:  # Loop indefinitely to keep processing sensory data and actions

@@ -2,7 +2,7 @@ import json
 
 from pydantic import parse_obj_as
 
-from aiden.app.redis_client import redis_client
+from aiden.app.clients.redis_client import redis_client
 from aiden.models.chat import Message
 
 

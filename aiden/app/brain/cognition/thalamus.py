@@ -1,5 +1,5 @@
 from aiden import logger
-from aiden.app.brain.cognition import COGNITIVE_API_URL
+from aiden.app.brain.cognition import COGNITIVE_API_URL_CHAT
 from aiden.models.brain import BrainConfig
 from aiden.models.chat import ChatMessage, Message, Options
 
@@ -48,7 +48,7 @@ async def process_thalamus(sensory_input: str, brain_config: BrainConfig) -> str
     )
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=30.0
+            COGNITIVE_API_URL_CHAT, json=chat_message.model_dump(), timeout=30.0
         )
         if response.status_code == 200:
             integrated_sensory_input = (

@@ -1,5 +1,5 @@
 from aiden import logger
-from aiden.app.brain.cognition import COGNITIVE_API_URL
+from aiden.app.brain.cognition import COGNITIVE_API_URL_CHAT
 from aiden.models.chat import ChatMessage
 
 
@@ -24,7 +24,7 @@ async def process_subconscious(chat_message: ChatMessage) -> str:
     )
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            COGNITIVE_API_URL, json=chat_message.model_dump(), timeout=60.0
+            COGNITIVE_API_URL_CHAT, json=chat_message.model_dump(), timeout=60.0
         )
         if response.status_code == 200:
             thoughts = response.json().get("message", {}).get("content", "").strip()

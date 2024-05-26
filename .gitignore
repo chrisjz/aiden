@@ -90,3 +90,6 @@ __pycache__/
 # Ignore custom scene configuration files in the config directory
 config/**/*.json
 !config/**/default.json
+
+# Data
+data/memory/*

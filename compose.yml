@@ -41,13 +41,24 @@ services:
     ports:
       - "${BRAIN_API_PORT:-8000}:8000"
     environment:
+      - CHROMA_HOST=chroma
       - COGNITIVE_API_HOST=cognitive-api
       - COGNITIVE_API_PORT=${COGNITIVE_API_PORT:-11434}
       - COGNITIVE_API_PROTOCOL=${COGNITIVE_API_PROTOCOL:-http}
       - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
       - REDIS_HOST=redis
     depends_on:
+      - chroma
       - redis
+
+  chroma:
+    image: chromadb/chroma:latest
+    environment:
+      - IS_PERSISTENT=TRUE
+    volumes:
+      - ./data/memory:/chroma/chroma/
+    ports:
+      - 8432:8000
 
   cognitive-api:
     <<: *base_service

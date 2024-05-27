@@ -79,3 +79,56 @@ def test_wipe_memory(redis_client):
 
     # Then
     assert redis_client.get("agent:0:memory") is None
+
+
+def test_consolidate_memory(monkeypatch, redis_client):
+    # Given
+    monkeypatch.setenv("MEMORY_CONSOLIDATION_HISTORY_MIN_CONSOLIDATE", "4")
+    monkeypatch.setenv("MEMORY_CONSOLIDATION_HISTORY_KEEP_LATEST", "2")
+    memory_manager = MemoryManager(redis_client=redis_client)
+    messages = [
+        Message(role="user", content="User message 1"),
+        Message(role="assistant", content="Assistant message 1"),
+        Message(role="user", content="User message 2"),
+        Message(role="assistant", content="Assistant message 2"),
+        Message(role="user", content="User message 3"),
+        Message(role="assistant", content="Assistant message 3"),
+        Message(role="user", content="User message 4"),
+        Message(role="assistant", content="Assistant message 4"),
+        Message(role="user", content="User message 5"),
+        Message(role="assistant", content="Assistant message 5"),
+    ]
+    redis_client.set("agent:0:memory", json.dumps(messages, default=jsonable_encoder))
+
+    # When / then
+    # TODO: Update test after final implementation
+    with pytest.raises(Exception):
+        memory_manager.consolidate_memory("0")
+
+    updated_messages = [
+        Message(role="user", content="User message 4"),
+        Message(role="assistant", content="Assistant message 4"),
+        Message(role="user", content="User message 5"),
+        Message(role="assistant", content="Assistant message 5"),
+    ]
+    memory = memory_manager.read_memory("0")
+    assert memory == updated_messages
+
+
+def test_dont_consolidate_memory(monkeypatch, redis_client):
+    # Given
+    monkeypatch.setenv("MEMORY_CONSOLIDATION_HISTORY_MIN_CONSOLIDATE", "3")
+    memory_manager = MemoryManager(redis_client=redis_client)
+    messages = [
+        Message(role="user", content="User message 1"),
+        Message(role="assistant", content="Assistant message 1"),
+    ]
+    redis_client.set("agent:0:memory", json.dumps(messages, default=jsonable_encoder))
+
+    # When
+    memory_manager.consolidate_memory("0")
+
+    # Then
+    memory = memory_manager.read_memory("0")
+    assert memory == messages
+    # TODO: Check consolidated memory not in long-term memory

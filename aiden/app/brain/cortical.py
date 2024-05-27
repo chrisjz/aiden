@@ -68,6 +68,9 @@ async def process_cortical(request) -> str:
 
     logger.info(f"History from redis: {history}")
 
+    # # Perform memory consolidation
+    memory_manager.consolidate_memory(agent_id)
+
     # Prepare the chat message for the Cognitive API
     messages = [Message(role="system", content=system_input)]
     if history:

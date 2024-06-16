@@ -20,7 +20,7 @@ async def test_process_broca_direct_address(mocker, brain_config):
     # Simulate the function call
     response = await process_broca('Someone asks: "How are you today?"', brain_config)
 
-    # Assert the rewritten input is as expected
+    # Check if the response matches the expected verbal response within quotes
     assert (
         response == "I am well, thank you."
     ), f"Expected: 'I am well, thank you.', but got: {response}"

@@ -79,7 +79,6 @@ async def process_cortical(request) -> str:
     messages.append(HumanMessage(content=final_thoughts_input))
 
     # Thoughts output through subconcious function
-    # TODO: Use langchain's chat memory for history
     thoughts_output = await process_subconscious(messages)
 
     # Combine action, thoughts, and speech into one message

@@ -1,15 +1,12 @@
-from aiden import logger
-from aiden.app.brain.cognition import COGNITIVE_API_URL_CHAT
-from aiden.models.brain import BrainConfig
-from aiden.models.chat import ChatMessage, Message, Options
-
-
-import httpx
-
-
-import json
 import os
 import re
+
+from langchain_community.chat_models import ChatOllama
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+from aiden import logger
+from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
+from aiden.models.brain import BrainConfig
 
 
 async def process_broca(sensory_input: str, brain_config: BrainConfig) -> str:
@@ -26,48 +23,33 @@ async def process_broca(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     instruction = "\n".join(brain_config.regions.broca.instruction)
 
-    messages = [
-        Message(role="system", content=instruction),
-        Message(role="user", content=sensory_input),
-    ]
+    messages = [SystemMessage(content=instruction), HumanMessage(content=sensory_input)]
 
-    chat_message = ChatMessage(
+    llm = ChatOllama(
+        base_url=COGNITIVE_API_URL_BASE,
         model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
-        messages=messages,
-        stream=False,
-        options=Options(
-            frequency_penalty=1.2,
-            presence_penalty=0.6,
-            temperature=0.4,
-            top_p=0.85,
-            max_tokens=150,
-        ),
+        timeout=30.0,
+        frequency_penalty=1.2,
+        presence_penalty=0.6,
+        temperature=0.4,
+        top_p=0.85,
+        max_tokens=150,
     )
 
-    logger.info(
-        f"Broca's area chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
-    )
+    logger.info(f"Broca's area chat message: {messages}")
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            COGNITIVE_API_URL_CHAT, json=chat_message.model_dump(), timeout=30.0
-        )
-        if response.status_code == 200:
-            speech_output = (
-                response.json().get("message", {}).get("content", "").strip()
-            )
-            logger.info(f"Broca's raw decision: {speech_output}")
+    response: AIMessage = llm.invoke(messages)
+    try:
+        logger.info(f"Broca's raw decision: {response.content}")
 
-            # Extract the response within double quotes
-            match = re.search(r'"([^"]*)"', speech_output)
-            if match:
-                final_response = match.group(1)
-                logger.info(f"Extracted verbal response: {final_response}")
-                return final_response
-            else:
-                return ""
+        # Extract the response within double quotes
+        match = re.search(r'"([^"]*)"', response.content)
+        if match:
+            final_response = match.group(1)
+            logger.info(f"Extracted verbal response: {final_response}")
+            return final_response
         else:
-            logger.error(
-                f"Failed speech production with status: {response.status_code}"
-            )
             return ""
+    except Exception as exc:
+        logger.error(f"Failed speech production with error: {exc}")
+        return ""

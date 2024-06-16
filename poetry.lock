@@ -1258,6 +1258,21 @@ PyYAML = ">=5.3"
 tenacity = ">=8.1.0,<9.0.0"
 
 [[package]]
+name = "langchain-experimental"
+version = "0.0.61"
+description = "Building applications with LLMs through composability"
+optional = false
+python-versions = "<4.0,>=3.8.1"
+files = [
+    {file = "langchain_experimental-0.0.61-py3-none-any.whl", hash = "sha256:f9c516f528f55919743bd56fe1689a53bf74ae7f8902d64b9d8aebc61249cbe2"},
+    {file = "langchain_experimental-0.0.61.tar.gz", hash = "sha256:e9538efb994be5db3045cc582cddb9787c8299c86ffeee9d3779b7f58eef2226"},
+]
+
+[package.dependencies]
+langchain-community = ">=0.2.5,<0.3.0"
+langchain-core = ">=0.2.7,<0.3.0"
+
+[[package]]
 name = "langchain-text-splitters"
 version = "0.2.1"
 description = "LangChain text splitting utilities"
@@ -3351,4 +3366,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "38f8701b8cb8a4f09aa3bb2d3438e14977b1dc1259c5643512f97b6d84e6e4a5"
+content-hash = "68c3f5a320b526948c721f5d468fb9106ddb021f20ae955469c56a8a17c5b602"

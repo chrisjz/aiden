@@ -34,12 +34,7 @@
     },
     "prefrontal": {
       "instruction": [
-        "Based on the sensory inputs provided, decide the best action.",
-        "- 'move_forward' if the path ahead is clear.",
-        "- 'move_backward' if there's a hazard directly in front.",
-        "- 'turn_left' or 'turn_right' to explore something important.",
-        "- 'none' if staying still is safest.",
-        "What action would you choose?"
+        "Based on the sensory inputs provided, decide which action to take."
       ]
     },
     "thalamus": {

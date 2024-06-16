@@ -6,14 +6,14 @@ a hierarchical API that mirrors the organization of different brain regions,
 enabling AIden to process and integrate sensory data such as auditory, visual,
 olfactory, gustatory, and tactile inputs.
 
-Leveraging most recent machine learning models, AIden incorporates BakLLaVA
-for advanced language and visual understanding, OpenAI's Whisper for accurate
-speech recognition and other swappable models. This allows AIden to interact
-with its environment in nuanced and human-like ways. Key components of the
-system include virtual representations of the hippocampus for memory, the
-neocortex for sensory perception, and the amygdala for emotional responses,
-making AIden capable of learning from, perceiving, and responding to complex
-stimuli in its environment.
+Leveraging most recent machine learning models, AIden incorporates
+Ollama-compatible models for advanced language and visual understanding,
+OpenAI's Whisper for accurate speech recognition and other swappable models.
+This allows AIden to interact with its environment in nuanced and human-like
+ways. Key components of the system include virtual representations of the
+hippocampus for memory, the neocortex for sensory perception, and the amygdala
+for emotional responses, making AIden capable of learning from, perceiving,
+and responding to complex stimuli in its environment.
 
 Our aim is to develop AIden into a highly intelligent and intuitive AI that
 can function dynamically within virtual environments, learning and adapting

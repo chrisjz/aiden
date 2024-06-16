@@ -27,7 +27,7 @@ async def process_broca(sensory_input: str, brain_config: BrainConfig) -> str:
 
     llm = ChatOllama(
         base_url=COGNITIVE_API_URL_BASE,
-        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
+        model=os.environ.get("COGNITIVE_MODEL", "mistral"),
         timeout=30.0,
         frequency_penalty=1.2,
         presence_penalty=0.6,

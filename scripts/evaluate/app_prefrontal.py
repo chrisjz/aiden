@@ -3,6 +3,7 @@ CLI to interact directly with the process_prefrontal function in the Brain modul
 """
 
 import asyncio
+
 from aiden.app.brain.cognition.prefrontal import process_prefrontal
 from aiden.app.utils import load_brain_config
 from aiden.models.brain import Sensory
@@ -14,7 +15,7 @@ async def main():
     # Prompt user for sensory data
     vision_input = (
         input(
-            "Enter vision input (default: 'I see a tree and a car heading towards me.'): "
+            "Enter vision input (default: 'I see a tree and a car heading towards me from the front.'): "
         )
         or "I see a tree and a car."
     )

@@ -11,14 +11,30 @@ from aiden.app.brain.cognition.prefrontal import (
 @pytest.mark.asyncio
 async def test_process_prefrontal_decision(mocker, brain_config):
     # Create a mock response for the ChatOllama
-    mock_response = AIMessage(content="move_forward")
+    mock_response = AIMessage(
+        content="",
+        id="some_id",
+        tool_calls=[
+            {
+                "name": "_map_decision_to_action",
+                "args": {"action": "move_forward"},
+                "id": "some_id",
+            }
+        ],
+    )
 
-    # Mock ChatOllama class to return a predefined response
+    # Mock OllamaFunctions class to return a predefined response
     mock_ollama = mocker.patch(
-        "aiden.app.brain.cognition.prefrontal.ChatOllama", autospec=True
+        "aiden.app.brain.cognition.prefrontal.OllamaFunctions.bind_tools", autospec=True
     )
     instance = mock_ollama.return_value
     instance.invoke.return_value = mock_response
+
+    # Mock response parser
+    mocker.patch(
+        "aiden.app.brain.cognition.prefrontal.parse_response",
+        return_value='{"action": "move_forward"}',
+    )
 
     # Simulate the function call
     response = await process_prefrontal(

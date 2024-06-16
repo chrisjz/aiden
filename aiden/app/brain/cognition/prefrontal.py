@@ -1,7 +1,9 @@
+import json
 import os
+import re
 
-from langchain_community.chat_models import ChatOllama
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_experimental.llms.ollama_functions import OllamaFunctions, parse_response
 
 from aiden import logger
 from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
@@ -40,13 +42,13 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
     decision_prompt = f"{sensory_input}\nYour action decision:"
 
     messages = [
-        SystemMessage(content=instruction),
         HumanMessage(content=decision_prompt),
     ]
 
-    llm = ChatOllama(
+    llm = OllamaFunctions(
         base_url=COGNITIVE_API_URL_BASE,
-        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
+        model=os.environ.get("COGNITIVE_MODEL", "mistral"),
+        format="json",
         timeout=30.0,
         frequency_penalty=1.0,
         presence_penalty=0.6,
@@ -55,13 +57,58 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
         max_tokens=80,
     )
 
+    llm = llm.bind_tools(
+        tools=[
+            {
+                "name": "_map_decision_to_action",
+                "description": instruction,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": [
+                                "move_forward",
+                                "move_backward",
+                                "turn_left",
+                                "turn_right",
+                                "none",
+                            ],
+                        },
+                    },
+                    "required": ["action"],
+                },
+            }
+        ],
+        function_call={"name": "_map_decision_to_action"},
+    )
+
     logger.info(f"Prefrontal chat message: {messages}")
 
-    response: AIMessage = llm.invoke(messages)
     try:
-        logger.info(f"Prefrontal decision: {response.content}")
+        response: AIMessage = llm.invoke(messages)
+        response_parsed = parse_response(response)
+        logger.info(f"Prefrontal parsed response: {response_parsed}")
+        decision = json.loads(response_parsed).get("action", SimpleAction.NONE.value)
+        logger.info(f"Prefrontal decision: {decision}")
+    except ValueError as exc:
+        # Workaround for models that do not fully handle functions e.g. bakllava
+        cleaned_exc_message = str(exc).strip()
+        match = re.search(r'"action":\s*"([^"]*)"', cleaned_exc_message)
+        if match:
+            decision = match.group(1)
+            logger.info(f"Inferred action from failed function call: {decision}")
+        else:
+            logger.info("No action found.")
+            return SimpleAction.NONE.value
+    except Exception as exc:
+        logger.warning(
+            f"Could not infer action from failed function call with error: {exc}"
+        )
+        return SimpleAction.NONE.value
 
-        mapped_action = await _map_decision_to_action(response.content)
+    try:
+        mapped_action = await _map_decision_to_action(decision)
         logger.info(f"Mapped action: {mapped_action}")
         return mapped_action
     except Exception as exc:

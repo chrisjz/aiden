@@ -3,7 +3,7 @@ version: '3.9'
 x-base_service: &base_service
   pull_policy: always
   tty: true
-  restart: always
+  restart: unless-stopped
 
 services:
   auditory-api:

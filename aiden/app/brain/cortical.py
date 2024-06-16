@@ -1,5 +1,6 @@
 import json
-import os
+
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from aiden import logger
 from aiden.app.brain.memory.hippocampus import MemoryManager
@@ -13,7 +14,6 @@ from aiden.app.utils import (
     load_brain_config,
 )
 from aiden.models.brain import SimpleAction
-from aiden.models.chat import ChatMessage, Message, Options
 
 
 async def process_cortical(request) -> str:
@@ -72,30 +72,15 @@ async def process_cortical(request) -> str:
     memory_manager.consolidate_memory(agent_id)
 
     # Prepare the chat message for the Cognitive API
-    messages = [Message(role="system", content=system_input)]
+    messages = [SystemMessage(content=system_input)]
     if history:
         messages.extend(history)
 
-    messages.append(Message(role="user", content=final_thoughts_input))
-
-    chat_message = ChatMessage(
-        model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
-        messages=messages,
-        stream=False,
-        options=Options(
-            frequency_penalty=1.2,
-            penalize_newline=False,
-            presence_penalty=1.7,
-            repeat_last_n=48,
-            repeat_penalty=1.3,
-            temperature=0.9,
-            top_k=16,
-            top_p=0.9,
-        ),
-    )
+    messages.append(HumanMessage(content=final_thoughts_input))
 
     # Thoughts output through subconcious function
-    thoughts_output = await process_subconscious(chat_message)
+    # TODO: Use langchain's chat memory for history
+    thoughts_output = await process_subconscious(messages)
 
     # Combine action, thoughts, and speech into one message
     combined_message_content = ""
@@ -115,9 +100,7 @@ async def process_cortical(request) -> str:
         if action_output != SimpleAction.NONE
         else ""
     )
-    messages.append(
-        Message(role="assistant", content=combined_message_content_formatted)
-    )
+    messages.append(AIMessage(content=combined_message_content_formatted))
 
     # TODO: Stream all of these separately
     async def stream_response():

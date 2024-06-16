@@ -1,38 +1,30 @@
-from aiden.app.brain.cognition.subconscious import process_subconscious
-from aiden.models.chat import ChatMessage, Message, Options
-
-
-import httpx
 import pytest
 
+from langchain_core.messages import AIMessage, HumanMessage
 
-from unittest.mock import AsyncMock
+from aiden.app.brain.cognition.subconscious import process_subconscious
 
 
 @pytest.mark.asyncio
 async def test_process_subconscious_thoughts(mocker):
-    # Mock the chat message
-    chat_message = ChatMessage(
-        model="my model",
-        messages=[Message(role="user", content="What are you thinking?")],
-        stream=False,
-        options=Options(),
+    # Actual input
+    messages = [HumanMessage(content="What are you thinking?")]
+
+    # Create a mock response for the ChatOllama
+    mock_response = AIMessage(content="I am having a wonderful day.")
+
+    # Mock ChatOllama class to return a predefined response
+    mock_ollama = mocker.patch(
+        "aiden.app.brain.cognition.subconscious.ChatOllama", autospec=True
     )
-    # Mock the response from the cognitive API
-    mock_response = {"message": {"content": "I am having a wonderful day."}}
+    instance = mock_ollama.return_value
+    instance.invoke.return_value = mock_response
 
-    with httpx.Client() as client:
-        client.post = AsyncMock(
-            return_value=httpx.Response(status_code=200, json=mock_response)
-        )
+    # Simulate the thalamus function call
+    rewritten_input = await process_subconscious(messages)
 
-        mocker.patch(
-            "httpx.AsyncClient.post",
-            return_value=httpx.Response(status_code=200, json=mock_response),
-        )
+    # Assert the response is as expected
+    assert rewritten_input == "I am having a wonderful day."
 
-        # Simulate the subconscious function call
-        thoughts = await process_subconscious(chat_message)
-
-        # Assert the thoughts are as expected
-        assert thoughts == "I am having a wonderful day."
+    # Check that the invoke method was called correctly
+    instance.invoke.assert_called_once()

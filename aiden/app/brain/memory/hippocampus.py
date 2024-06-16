@@ -1,10 +1,10 @@
-import json
 import os
-from pydantic import TypeAdapter
+
+from langchain_core.load import dumps, loads
+from langchain_core.messages import BaseMessage
 from redis import Redis
 
 from aiden import logger
-from aiden.models.chat import Message
 
 CHROMA_COLLECTION_MEMORY = "memory"
 
@@ -18,20 +18,20 @@ class MemoryManager:
         key = f"agent:{agent_id}:memory"
         return key
 
-    def update_memory(self, agent_id: str, messages: list[Message]):
+    def update_memory(self, agent_id: str, messages: list[BaseMessage]):
         """
         Save chat history representing short-term memory to Redis.
 
         Args:
             agent_id (str): Unique identifier for the AI agent.
-            messages (List[Message]): List of Message models to save.
+            messages (List[BaseMessage]): List of Message models to save.
         """
         key = self._get_memory_key(agent_id)
-        messages_json = json.dumps([message.model_dump() for message in messages])
-        self.redis_client.set(key, messages_json)
+        messages_serialized = dumps(messages)
+        self.redis_client.set(key, messages_serialized)
         self.redis_client.expire(key, 86400)  # Expires in 1 day
 
-    def read_memory(self, agent_id: str) -> list[Message]:
+    def read_memory(self, agent_id: str) -> list[BaseMessage]:
         """
         Retrieve chat history representing short-term memory from Redis.
 
@@ -39,15 +39,12 @@ class MemoryManager:
             agent_id (str): Unique identifier for the AI agent.
 
         Returns:
-            List[Message]: A list of Message models.
+            List[BaseMessage]: A list of Message models.
         """
         key = self._get_memory_key(agent_id)
         history_json = self.redis_client.get(key)
         if history_json:
-            history_data = json.loads(history_json)
-            # return parse_obj_as(list[Message], history_data)
-            type_adapter = TypeAdapter(list[Message])
-            return type_adapter.validate_python(history_data)
+            return loads(history_json)
         else:
             return []
 

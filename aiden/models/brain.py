@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Optional
-from pydantic import BaseModel, Field
 
-from aiden.models.chat import Message
+from langchain_core.messages import BaseMessage
+from pydantic import BaseModel, Field
 
 
 class SimpleAction(Enum):
@@ -70,4 +70,4 @@ class CorticalRequest(BaseModel):
     agent_id: str
     config: str = Field(default="./config/brain/default.json")
     sensory: Sensory
-    history: Optional[list[Message]] = None
+    history: Optional[list[BaseMessage]] = None

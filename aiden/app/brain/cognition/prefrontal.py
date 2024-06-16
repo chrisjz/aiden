@@ -1,14 +1,11 @@
-from aiden import logger
-from aiden.app.brain.cognition import COGNITIVE_API_URL_CHAT
-from aiden.models.brain import BrainConfig, SimpleAction
-from aiden.models.chat import ChatMessage, Message, Options
-
-
-import httpx
-
-
-import json
 import os
+
+from langchain_community.chat_models import ChatOllama
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
+from aiden import logger
+from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
+from aiden.models.brain import BrainConfig, SimpleAction
 
 
 async def _map_decision_to_action(decision: str) -> str:
@@ -41,41 +38,32 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
     """
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
     decision_prompt = f"{sensory_input}\nYour action decision:"
+
     messages = [
-        Message(role="system", content=instruction),
-        Message(role="user", content=decision_prompt),
+        SystemMessage(content=instruction),
+        HumanMessage(content=decision_prompt),
     ]
-    chat_message = ChatMessage(
+
+    llm = ChatOllama(
+        base_url=COGNITIVE_API_URL_BASE,
         model=os.environ.get("COGNITIVE_MODEL", "bakllava"),
-        messages=messages,
-        stream=False,
-        options=Options(
-            frequency_penalty=1.0,
-            presence_penalty=0.6,
-            temperature=0.6,
-            top_p=0.95,
-            max_tokens=80,
-        ),
+        timeout=30.0,
+        frequency_penalty=1.0,
+        presence_penalty=0.6,
+        temperature=0.6,
+        top_p=0.95,
+        max_tokens=80,
     )
 
-    logger.info(
-        f"Prefrontal chat message: {json.dumps(chat_message.model_dump(), indent=2)}"
-    )
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            COGNITIVE_API_URL_CHAT, json=chat_message.model_dump(), timeout=30.0
-        )
-        if response.status_code == 200:
-            decision = (
-                response.json()
-                .get("message", {})
-                .get("content", SimpleAction.NONE.value)
-                .strip()
-            )
-            logger.info(f"Prefrontal decision: {decision}")
-            mapped_action = await _map_decision_to_action(decision)
-            logger.info(f"Mapped action: {mapped_action}")
-            return mapped_action
-        else:
-            logger.error(f"Failed decision-making with status: {response.status_code}")
-            return SimpleAction.NONE.value
+    logger.info(f"Prefrontal chat message: {messages}")
+
+    response: AIMessage = llm.invoke(messages)
+    try:
+        logger.info(f"Prefrontal decision: {response.content}")
+
+        mapped_action = await _map_decision_to_action(response.content)
+        logger.info(f"Mapped action: {mapped_action}")
+        return mapped_action
+    except Exception as exc:
+        logger.error(f"Failed prefrontal decision-making with error: {exc}")
+        return SimpleAction.NONE.value

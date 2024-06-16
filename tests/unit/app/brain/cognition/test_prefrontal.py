@@ -1,39 +1,35 @@
+import pytest
+
+from langchain_core.messages import AIMessage
+
 from aiden.app.brain.cognition.prefrontal import (
     _map_decision_to_action,
     process_prefrontal,
 )
 
 
-import httpx
-import pytest
-
-
-from unittest.mock import AsyncMock
-
-
 @pytest.mark.asyncio
 async def test_process_prefrontal_decision(mocker, brain_config):
-    # Mock the response from the cognitive API
-    mock_response = {"message": {"content": "move_forward"}}
+    # Create a mock response for the ChatOllama
+    mock_response = AIMessage(content="move_forward")
 
-    # Use pytest-mock to create an async mock for the httpx.AsyncClient
-    with httpx.Client() as client:
-        client.post = AsyncMock(
-            return_value=httpx.Response(status_code=200, json=mock_response)
-        )
+    # Mock ChatOllama class to return a predefined response
+    mock_ollama = mocker.patch(
+        "aiden.app.brain.cognition.prefrontal.ChatOllama", autospec=True
+    )
+    instance = mock_ollama.return_value
+    instance.invoke.return_value = mock_response
 
-        mocker.patch(
-            "httpx.AsyncClient.post",
-            return_value=httpx.Response(status_code=200, json=mock_response),
-        )
+    # Simulate the function call
+    response = await process_prefrontal(
+        "Sensory input leads to a clear path", brain_config
+    )
 
-        # Simulate the prefrontal function call
-        decision = await process_prefrontal(
-            "Sensory input leads to a clear path", brain_config
-        )
+    # Check if the response matches the expected action
+    assert response == "move_forward"
 
-        # Assert the decision is as expected
-        assert decision == "move_forward"
+    # Check that the invoke method was called correctly
+    instance.invoke.assert_called_once()
 
 
 @pytest.mark.asyncio

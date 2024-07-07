@@ -23,6 +23,7 @@ def brain_config():
                     "boundaries": [],
                 },
             },
+            "occipital": {"instruction": ["What do you see?"]},
             "prefrontal": {
                 "instruction": [
                     "Decide the next action based on the sensory input.",

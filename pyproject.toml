@@ -16,6 +16,7 @@ chromadb = "^0.5.0"
 langchain-community = "^0.2.5"
 langchain-core = "^0.2.7"
 langchain-experimental = "^0.0.61"
+pillow = "^10.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.2"

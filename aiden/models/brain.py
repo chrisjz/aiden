@@ -46,6 +46,10 @@ class Prefrontal(BaseModel):
     instruction: list[str]
 
 
+class Occipital(BaseModel):
+    instruction: list[str]
+
+
 class Thalamus(BaseModel):
     instruction: list[str]
 
@@ -53,6 +57,7 @@ class Thalamus(BaseModel):
 class Regions(BaseModel):
     broca: Broca
     cortical: Cortical
+    occipital: Occipital
     prefrontal: Prefrontal
     thalamus: Thalamus
 
@@ -71,3 +76,8 @@ class CorticalRequest(BaseModel):
     config: str = Field(default="./config/brain/default.json")
     sensory: Sensory
     history: Optional[list[BaseMessage]] = None
+
+
+class OccipitalRequest(BaseModel):
+    config: str = Field(default="./config/brain/default.json")
+    image: str

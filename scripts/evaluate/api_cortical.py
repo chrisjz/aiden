@@ -1,5 +1,5 @@
 """
-CLI to interact with the Brain API for evaluation purposes,
+CLI to interact with the Brain API's cortical endpoint for evaluation purposes,
 without needing to through the Unity simulation.
 """
 

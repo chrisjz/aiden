@@ -13,10 +13,10 @@ from aiden.app.utils import (
     build_sensory_input_prompt_template,
     load_brain_config,
 )
-from aiden.models.brain import SimpleAction
+from aiden.models.brain import CorticalRequest, SimpleAction
 
 
-async def process_cortical(request) -> str:
+async def process_cortical(request: CorticalRequest) -> str:
     """
     Processes a cortical request to determine the AI's actions and thoughts based on sensory input.
 

@@ -43,10 +43,14 @@ services:
     environment:
       - CHROMA_HOST=chroma
       - COGNITIVE_API_HOST=cognitive-api
-      - COGNITIVE_API_PORT=${COGNITIVE_API_PORT:-11434}
+      - COGNITIVE_API_PORT=11434
       - COGNITIVE_API_PROTOCOL=${COGNITIVE_API_PROTOCOL:-http}
       - COGNITIVE_MODEL=${COGNITIVE_MODEL:-mistral}
       - REDIS_HOST=redis
+      - VISION_API_HOST=vision-api
+      - VISION_API_PORT=11434
+      - VISION_API_PROTOCOL=${VISION_API_PROTOCOL:-http}
+      - VISION_MODEL=${VISION_MODEL:-bakllava}
     depends_on:
       - chroma
       - redis
@@ -115,7 +119,7 @@ services:
     environment:
       - VISION_API_HOST=${VISION_API_HOST:-localhost}
       - VISION_API_PROTOCOL=${VISION_API_PROTOCOL:-http}
-      - VISION_MODEL=${VISION_MODEL:-llava}
+      - VISION_MODEL=${VISION_MODEL:-bakllava}
     entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
 
   vision-api-cpu:
@@ -127,7 +131,7 @@ services:
     ports:
       - "${VISION_API_PORT:-11435}:11434"
     environment:
-      - VISION_MODEL=${VISION_MODEL:-llava}
+      - VISION_MODEL=${VISION_MODEL:-bakllava}
     entrypoint: ["sh", "-c", "ollama start & sleep 5 && ollama run ${VISION_MODEL}"]
 
   vocal-api:

@@ -10,38 +10,25 @@ using CandyCoded.env;
 public class VisionAPIIntegration : MonoBehaviour
 {
     public Camera cameraToCapture;
-    public string inputPrompt = "You are an AI with a virtual humanoid body and you are seeing through your eyes. Respond in first person. What do you see?";
     public TMP_Text responseText;
     public Button sendButton;
     public bool saveInput = false;
 
     private string apiURL;
-    private string modelName;
 
     private void Start()
     {
-        // Set API URL from environment variables
-        if (env.TryParseEnvironmentVariable("VISION_API_PROTOCOL", out string protocol) &&
-            env.TryParseEnvironmentVariable("VISION_API_HOST", out string host) &&
-            env.TryParseEnvironmentVariable("VISION_API_PORT", out string port))
+        // Set API URL from environment variables to point to the occipital endpoint
+        if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
         {
-            apiURL = $"{protocol}://{host}:{port}/api/generate";
-            Debug.Log($"Vision API URL set to: {apiURL}");
+            apiURL = $"{protocol}://{host}:{port}/occipital";
+            Debug.Log($"Brain API URL set to: {apiURL}");
         }
         else
         {
-            Debug.LogError("Missing environment variables for vision API URL.");
-            return;
-        }
-
-        // Set model name from environment variable
-        if (env.TryParseEnvironmentVariable("VISION_MODEL", out modelName))
-        {
-            Debug.Log($"Using vision model: {modelName}");
-        }
-        else
-        {
-            Debug.LogError("Could not find vision model.");
+            Debug.LogError("Missing environment variables for brain API URL.");
             return;
         }
 
@@ -66,50 +53,30 @@ public class VisionAPIIntegration : MonoBehaviour
         }
 
         Debug.Log("Start vision inference.");
-        StartCoroutine(StreamRequest(inputPrompt, base64Image));
+        StartCoroutine(StreamRequest(base64Image));
     }
 
-    private IEnumerator StreamRequest(string prompt, string base64Image)
+    private IEnumerator StreamRequest(string base64Image)
     {
-        var json = $"{{\"model\": \"{modelName}\", \"prompt\": \"{prompt}\", \"images\": [\"{base64Image}\"]}}";
-        var request = new UnityWebRequest(apiURL, "POST");
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
-        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        var json = JsonUtility.ToJson(new VisionRequest { image = base64Image });
+        var request = new UnityWebRequest(apiURL, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SendWebRequest();
 
-        int lastProcessedPosition = 0;
-        string fullResponseText = "";
-        while (!request.isDone)
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
         {
-            if (request.downloadHandler.data != null)
-            {
-                string fullResponse = System.Text.Encoding.UTF8.GetString(request.downloadHandler.data);
-                string newResponse = fullResponse.Substring(lastProcessedPosition);
-                lastProcessedPosition = fullResponse.Length;
-
-                string[] messages = newResponse.Split('\n');
-                foreach (string messageJson in messages)
-                {
-                    if (!string.IsNullOrWhiteSpace(messageJson))
-                    {
-                        var responseObject = JsonUtility.FromJson<VisionResponse>(messageJson);
-                        if (responseObject != null && responseObject.response != null)
-                        {
-                            fullResponseText += responseObject.response;
-                        }
-                    }
-                }
-            }
-            yield return null;
+            string responseString = request.downloadHandler.text;
+            Debug.Log("Response: " + responseString);
+            UpdateResponseText(responseString);
         }
-
-        UpdateResponseText(fullResponseText.Trim());
-
-        if (request.result != UnityWebRequest.Result.Success)
+        else
         {
-            Debug.LogError(request.error);
+            Debug.LogError("Error: " + request.error);
         }
     }
 
@@ -162,10 +129,7 @@ public class VisionAPIIntegration : MonoBehaviour
 
 // Define classes to match the JSON structure of the response
 [Serializable]
-public class VisionResponse
+public class VisionRequest
 {
-    public string model;
-    public string created_at;
-    public string response;
-    public bool done;
+    public string image;
 }

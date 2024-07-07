@@ -11,11 +11,11 @@ Ollama-compatible models for advanced language and visual understanding,
 OpenAI's Whisper for accurate speech recognition and other swappable models.
 This allows AIden to interact with its environment in nuanced and human-like
 ways. Key components of the system include virtual representations of the
-hippocampus for memory, the neocortex for sensory perception, and the amygdala
-for emotional responses, making AIden capable of learning from, perceiving,
-and responding to complex stimuli in its environment.
+hippocampus for memory, the thalamus for sensory perception, the prefrontal cortex
+for decision making, amongst other regions, making AIden capable of learning from,
+perceiving, and responding to complex stimuli in its environment.
 
-Our aim is to develop AIden into a highly intelligent and intuitive AI that
+This project aims to develop AIden into a highly intelligent and intuitive AI that
 can function dynamically within virtual environments, learning and adapting
 in real-time. This project invites contributors who are passionate about
 advancing the frontiers of artificial intelligence and cognitive science to

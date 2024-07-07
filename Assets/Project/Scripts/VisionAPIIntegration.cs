@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class VisionAPIIntegration : MonoBehaviour
     public string inputPrompt = "You are an AI with a virtual humanoid body and you are seeing through your eyes. Respond in first person. What do you see?";
     public TMP_Text responseText;
     public Button sendButton;
+    public bool saveInput = false;
 
     private string apiURL;
     private string modelName;
@@ -56,6 +58,12 @@ public class VisionAPIIntegration : MonoBehaviour
 
         Texture2D capturedImage = CaptureCameraRenderTexture();
         string base64Image = TextureToBase64(capturedImage);
+
+        // Save the captured image to a file
+        if (saveInput)
+        {
+            SaveImageToFile(capturedImage);
+        }
 
         Debug.Log("Start vision inference.");
         StartCoroutine(StreamRequest(inputPrompt, base64Image));
@@ -131,6 +139,24 @@ public class VisionAPIIntegration : MonoBehaviour
     {
         byte[] imageBytes = texture.EncodeToPNG();
         return Convert.ToBase64String(imageBytes);
+    }
+
+    private void SaveImageToFile(Texture2D texture)
+    {
+        byte[] imageBytes = texture.EncodeToPNG();
+        string directoryPath = Path.Combine(Application.dataPath, "../Temp/CapturedSenses/Vision");
+
+        // Ensure directory exists
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        string filePath = Path.Combine(directoryPath, $"capturedImage_{timestamp}.png");
+
+        File.WriteAllBytes(filePath, imageBytes);
+        Debug.Log($"Saved captured image to {filePath}");
     }
 }
 

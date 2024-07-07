@@ -1,4 +1,4 @@
-# AIden (AI Denizen)
+# 🤖 AIden (AI Denizen)
 
 AIden is an advanced virtual AI entity designed to simulate the complex
 structure and functionality of the human brain. This project constructs

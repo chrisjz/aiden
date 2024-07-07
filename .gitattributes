@@ -20,6 +20,8 @@ aiden/* text eol=lf
 
 ## General ##
 
+*.json text eol=lf
+*.renderTexture text eol=lf
 compose/* text eol=lf
 .env.template text eol=lf
 docker-compose.yml text eol=lf

@@ -31,6 +31,14 @@ async def process_occipital(request: OccipitalRequest) -> AsyncGenerator[str, No
         base_url=VISION_API_URL_BASE,
         model=os.environ.get("VISION_MODEL", "bakllava"),
         timeout=30.0,
+        frequency_penalty=0.6,
+        penalize_newline=False,
+        presence_penalty=0.5,
+        repeat_last_n=50,
+        repeat_penalty=1.1,
+        temperature=0.3,
+        top_k=50,
+        top_p=0.9,
     )
 
     logger.info(f"Occipital chat message instruction: {instruction}")

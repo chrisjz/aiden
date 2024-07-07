@@ -454,9 +454,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraToCapture: {fileID: 822717911}
-  promptInputField: {fileID: 628924849}
   responseText: {fileID: 1520247091}
   sendButton: {fileID: 1634835572}
+  saveInput: 0
 --- !u!1 &306086044
 GameObject:
   m_ObjectHideFlags: 0
@@ -3565,6 +3565,10 @@ PrefabInstance:
     - target: {fileID: 357884519752405661, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4496595181621750349, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.138
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -7,6 +7,7 @@ from aiden.models.brain import Sensory
 from aiden.models.scene import (
     Door,
     EntityType,
+    FieldOfView,
     Object,
     SceneConfig,
     Position,
@@ -29,7 +30,11 @@ def capture_output(func, *args, **kwargs):
 
 @pytest.fixture
 def simple_scene():
-    player = Player(position=Position(x=0, y=0), orientation="S", fieldOfView=3)
+    player = Player(
+        position=Position(x=0, y=0),
+        orientation="S",
+        fieldOfView=FieldOfView(angle=45, radius=3),
+    )
     rooms = [
         Room(
             name="Test Room", position=Position(x=0, y=0), size=Size(width=5, height=5)
@@ -41,7 +46,11 @@ def simple_scene():
 
 @pytest.fixture
 def complex_scene():
-    player = Player(position=Position(x=1, y=1), orientation="N", fieldOfView=3)
+    player = Player(
+        position=Position(x=1, y=1),
+        orientation="N",
+        fieldOfView=FieldOfView(angle=45, radius=3),
+    )
     rooms = [
         Room(
             name="Living Room",
@@ -84,7 +93,11 @@ def complex_scene():
 
 @pytest.fixture
 def interactive_scene():
-    player = Player(position=Position(x=2, y=2), orientation="S", fieldOfView=3)
+    player = Player(
+        position=Position(x=2, y=2),
+        orientation="S",
+        fieldOfView=FieldOfView(angle=45, radius=3),
+    )
     sofa = Object(
         name="Sofa",
         position=Position(x=2, y=3),
@@ -195,12 +208,122 @@ def test_object_interaction(complex_scene):
 
 
 def test_view_field_sensing_objects(complex_scene):
+    # given
     complex_scene.player_position = (6, 1)
     complex_scene.player_orientation = "E"  # Look east towards the bedroom
+
+    # when
     visible_objects = complex_scene.get_field_of_view()
-    assert "Bed" in [
-        obj.name for obj in visible_objects
-    ], "Should see the Bed in the bedroom"
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (1, 0), "Bed should be one position ahead"
+
+    # given
+    complex_scene.player_orientation = "S"  # Look south
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 0, "Should not see any objects"
+
+    # given
+    complex_scene.player_position = (7, 1)
+    complex_scene.player_orientation = "N"  # Look north
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (0, 0), "Should be on the bed"
+
+    # given
+    complex_scene.player_position = (5, 1)
+    complex_scene.player_orientation = "E"  # Look east
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (2, 0), "Bed should be two positions ahead"
+
+    # given
+    complex_scene.player_position = (5, 0)
+    complex_scene.player_orientation = "E"  # Look east
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (
+        2,
+        1,
+    ), "Bed should be two positions ahead at 45 degrees"
+
+    # given
+    complex_scene.player_position = (5, 2)
+    complex_scene.player_orientation = "E"  # Look east
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (
+        2,
+        -1,
+    ), "Bed should be two positions ahead at -45 degrees"
+
+    # given
+    complex_scene.player_position = (6, 2)
+    complex_scene.player_orientation = "N"  # Look north
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (
+        1,
+        -1,
+    ), "Bed should be one position ahead at -45 degrees"
+
+    # given
+    player_fov_radius = complex_scene.player.fieldOfView.radius
+    complex_scene.player_position = (7 - player_fov_radius, 1)
+    complex_scene.player_orientation = "E"  # Look east
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (
+        player_fov_radius,
+        0,
+    ), f"Bed should be {player_fov_radius} position ahead"
+
+    # given
+    player_fov_radius = complex_scene.player.fieldOfView.radius
+    complex_scene.player_position = (7 - player_fov_radius - 1, 1)
+    complex_scene.player_orientation = "E"  # Look east
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 0, "Bed should be out of view ahead"
 
 
 def test_no_movement_on_obstruction(complex_scene):
@@ -313,8 +436,8 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
     [
         (
             (1, 1),
-            "A spacious living room with large windows",
-            "A constant low hum from an air conditioner",
+            "A spacious living room with large windows | TV which is switched off",
+            "A constant low hum from an air conditioner | No sound coming from the TV",
             "Freshly brewed coffee",
             "Smooth, cool wooden floors underfoot",
             "",

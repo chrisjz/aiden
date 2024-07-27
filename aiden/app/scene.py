@@ -32,6 +32,7 @@ This tool allows for a text-based simulation of sensory experiences in a virtual
 
 import argparse
 import json
+import math
 import os
 
 from aiden.models.brain import Sensory
@@ -46,7 +47,8 @@ class Scene:
         self.player = self.config.player
         self.player_position = (self.player.position.x, self.player.position.y)
         self.player_orientation = self.player.orientation
-        self.player_view_distance = self.player.fieldOfView
+        self.player_fov_angle = self.player.fieldOfView.angle
+        self.player_fov_radius = self.player.fieldOfView.radius
         self.object_states = {
             obj.name: obj.initialStates for room in config.rooms for obj in room.objects
         }
@@ -251,7 +253,7 @@ class Scene:
             )
 
         # Combine senses from visible objects, considering their current state
-        for obj in visible_objects:
+        for obj, pos in visible_objects:
             if obj != current_object:  # Avoid duplicating the current object's senses
                 self.add_object_senses(
                     obj, self.object_states[obj.name], combined_senses
@@ -336,13 +338,38 @@ class Scene:
         """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
         dx, dy = self.directions.get_offset(self.player_orientation)
         visible_objects = []
-        for i in range(1, self.player_view_distance + 1):
-            nx, ny = self.player_position[0] + i * dx, self.player_position[1] + i * dy
-            if not self.is_position_within_room((nx, ny)):
-                break  # Stop scanning if an obstruction or boundary is reached
-            obj = self.get_entity_by_position((nx, ny), EntityType.OBJECT)
-            if obj:
-                visible_objects.append(obj)
+        checked_positions = set()
+
+        # Define the angle for the field of view
+        fov_angle = self.player_fov_angle  # X degrees to each side
+        fov_radius = self.player_fov_radius
+
+        # Calculate the range of positions within the cone
+        for i in range(1, fov_radius + 1):
+            for angle in range(-fov_angle, fov_angle + 1):
+                radians = math.radians(angle)
+                nx = self.player_position[0] + int(
+                    i * math.cos(radians) * dx - i * math.sin(radians) * dy
+                )
+                ny = self.player_position[1] + int(
+                    i * math.sin(radians) * dx + i * math.cos(radians) * dy
+                )
+
+                if (nx, ny) in checked_positions:
+                    continue  # Skip already checked positions
+
+                if not self.is_position_within_room((nx, ny)):
+                    continue  # Skip positions outside the room
+
+                checked_positions.add((nx, ny))
+                obj = self.get_entity_by_position((nx, ny), EntityType.OBJECT)
+                if obj:
+                    relative_position = (
+                        nx - self.player_position[0],
+                        ny - self.player_position[1],
+                    )
+                    visible_objects.append((obj, relative_position))
+
         return visible_objects
 
     def print_scene(self, pretty: bool):

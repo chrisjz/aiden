@@ -41,6 +41,11 @@ class Direction(BaseModel):
     dy: int
 
 
+class FieldOfView(BaseModel):
+    angle: int
+    radius: int
+
+
 class Compass(BaseModel):
     directions: dict[str, Direction]
 
@@ -93,7 +98,7 @@ class Room(BaseModel):
 class Player(BaseModel):
     position: Position
     orientation: str
-    fieldOfView: int
+    fieldOfView: FieldOfView
 
 
 class SceneConfig(BaseModel):

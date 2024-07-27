@@ -1,6 +1,9 @@
 {
   "player": {
-    "fieldOfView": 5,
+    "fieldOfView": {
+      "angle": 45,
+      "radius": 5
+    },
     "orientation": "E",
     "position": {
       "x": 2,

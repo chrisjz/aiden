@@ -28,5 +28,7 @@ jobs:
     - name: Install dependencies
       run: poetry install
 
-    - name: Run pre-commit
+    - name: Run pre-commit except for dotnet-format
+      env:
+        SKIP: dotnet-format
       run: poetry run pre-commit run --all-files

@@ -12,7 +12,8 @@ uvicorn = "^0.29.0"
 requests = "^2.31.0"
 pydantic = "^2.6.4"
 redis = "^5.0.4"
-chromadb = "^0.5.0"
+# chromadb won't install on at least mac, only needed for docker anyway
+chromadb = [{platform = "linux", version = "^0.5.0"}]
 langchain-community = "^0.2.5"
 langchain-core = "^0.2.7"
 langchain-experimental = "^0.0.61"

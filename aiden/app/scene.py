@@ -42,6 +42,7 @@ from aiden.models.scene import (
     Compass,
     Direction,
     Object,
+    Room,
     SceneConfig,
 )
 from aiden.models.scene import EntityType
@@ -142,7 +143,17 @@ class Scene:
 
     def get_entity_by_position(
         self, position: tuple[int, int], entity_type: EntityType
-    ):
+    ) -> Room | Object | None:
+        """
+        Retrieve an entity by its position and type.
+
+        Args:
+            position (tuple[int, int]): The (x, y) coordinates of the position to check.
+            entity_type (EntityType): The type of entity to look for (ROOM or OBJECT).
+
+        Returns:
+             Room | Object | None: The found entity (Room or Object) or None if no entity is found.
+        """
         for room in self.rooms.values():
             x, y = position
             if (
@@ -157,7 +168,18 @@ class Scene:
                         return obj
         return None
 
-    def find_door_exit_by_entry(self, position: tuple[int, int]):
+    def find_door_exit_by_entry(
+        self, position: tuple[int, int]
+    ) -> tuple[int, int] | None:
+        """
+        Find the exit position of a door given its entry position.
+
+        Args:
+            position (tuple[int, int]): The (x, y) coordinates of the door's entry position.
+
+        Returns:
+            tuple[int, int] | None: The (x, y) coordinates of the door's exit position, or None if no matching door is found.
+        """
         for room in self.config.rooms:
             for door in room.doors:
                 if (door.position.entry.x, door.position.entry.y) == position:

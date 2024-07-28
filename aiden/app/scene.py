@@ -230,6 +230,12 @@ class Scene:
             print("There is nothing here to interact with.")
 
     def update_sensory_data(self) -> Sensory:
+        """
+        Update the sensory data based on the player's current position, room, and visible objects.
+
+        Returns:
+            Sensory: A new Sensory instance filled with the combined sensory data.
+        """
         current_room = self.get_entity_by_position(
             self.player_position, EntityType.ROOM
         )

@@ -148,6 +148,12 @@ def interactive_scene():
                 tactile="Smooth, cool wooden floors underfoot.",
                 gustatory="",
             ),
+            doors=[
+                Door(
+                    to="Bedroom",
+                    position={"entry": Position(x=5, y=3), "exit": Position(x=0, y=0)},
+                )
+            ],
         )
     ]
     config = SceneConfig(rooms=rooms, player=player)
@@ -510,6 +516,22 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
             "A constant low hum from an air conditioner. | No sound coming from the TV.",
             "Freshly brewed coffee.",
             "Smooth, cool wooden floors underfoot.",
+            "",
+        ),
+        (
+            (5, 3),
+            "You are at a door which leads to another room.",
+            "",
+            "",
+            "",
+            "",
+        ),
+        (
+            (5, 5),
+            "There is an impassable barrier in front of you.",
+            "",
+            "",
+            "",
             "",
         ),
     ],

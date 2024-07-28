@@ -298,6 +298,20 @@ class Scene:
                     distance_description,
                 )
 
+        # Add to vision if player is at a door
+        if self.find_door_exit_by_entry(self.player_position):
+            combined_senses["vision"] += (
+                " You are at a door which leads to another room."
+            )
+        # Add to vision if a boundary is in front of the player
+        else:
+            dx, dy = self.directions.get_offset(self.player_orientation)
+            new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
+            if not self.is_position_within_room(new_position):
+                combined_senses["vision"] += (
+                    " There is an impassable barrier in front of you."
+                )
+
         # Return a new Sensory instance filled with the combined sensory data
         return Sensory(
             vision=combined_senses["vision"].strip(),

@@ -117,8 +117,8 @@ def interactive_scene():
                     requiredStates={"isOn": False}, nextStates={"isOn": True}
                 ),
                 senses={
-                    "vision": "TV playing a sports game",
-                    "auditory": "You hear an audience cheer from the TV segment playing",
+                    "vision": "TV playing a sports game.",
+                    "auditory": "You hear an audience cheer from the TV segment playing.",
                 },
             ),
             Interaction(
@@ -128,8 +128,8 @@ def interactive_scene():
                     requiredStates={"isOn": True}, nextStates={"isOn": False}
                 ),
                 senses={
-                    "vision": "TV which is switched off",
-                    "auditory": "No sound coming from the TV",
+                    "vision": "TV which is switched off.",
+                    "auditory": "No sound coming from the TV.",
                 },
             ),
         ],
@@ -142,10 +142,10 @@ def interactive_scene():
             size=Size(width=5, height=5),
             objects=[sofa, tv],
             senses=Sensory(
-                vision="A spacious living room with large windows",
-                auditory="A constant low hum from an air conditioner",
-                olfactory="Freshly brewed coffee",
-                tactile="Smooth, cool wooden floors underfoot",
+                vision="A spacious living room with large windows.",
+                auditory="A constant low hum from an air conditioner.",
+                olfactory="Freshly brewed coffee.",
+                tactile="Smooth, cool wooden floors underfoot.",
                 gustatory="",
             ),
         )
@@ -221,6 +221,7 @@ def test_view_field_sensing_objects(complex_scene):
     assert visible_objects[0][1] == (1, 0), "Bed should be one position ahead"
 
     # given
+    complex_scene.player_position = (6, 1)
     complex_scene.player_orientation = "S"  # Look south
 
     # when
@@ -228,6 +229,42 @@ def test_view_field_sensing_objects(complex_scene):
 
     # then
     assert len(visible_objects) == 0, "Should not see any objects"
+
+    # given
+    complex_scene.player_position = (7, 2)
+    complex_scene.player_orientation = "N"  # Look north
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (1, 0), "Bed should be one position ahead"
+
+    # given
+    complex_scene.player_position = (7, 0)
+    complex_scene.player_orientation = "S"  # Look south
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (1, 0), "Bed should be one position ahead"
+
+    # given
+    complex_scene.player_position = (8, 1)
+    complex_scene.player_orientation = "W"  # Look west
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (1, 0), "Bed should be one position ahead"
 
     # given
     complex_scene.player_position = (7, 1)
@@ -285,6 +322,21 @@ def test_view_field_sensing_objects(complex_scene):
 
     # given
     complex_scene.player_position = (6, 2)
+    complex_scene.player_orientation = "N"  # Look north
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 1, "Should only see a Bed"
+    assert visible_objects[0][0].name == "Bed", "Should see the Bed in the bedroom"
+    assert visible_objects[0][1] == (
+        1,
+        1,
+    ), "Bed should be one position ahead at 45 degrees"
+
+    # given
+    complex_scene.player_position = (8, 2)
     complex_scene.player_orientation = "N"  # Look north
 
     # when
@@ -436,18 +488,18 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
     [
         (
             (1, 1),
-            "A spacious living room with large windows | TV which is switched off",
-            "A constant low hum from an air conditioner | No sound coming from the TV",
-            "Freshly brewed coffee",
-            "Smooth, cool wooden floors underfoot",
+            "A spacious living room with large windows. | TV which is switched off. The TV is 1.4 meters in front-left. The Sofa is 2.2 meters in front-left.",
+            "A constant low hum from an air conditioner. | No sound coming from the TV.",
+            "Freshly brewed coffee.",
+            "Smooth, cool wooden floors underfoot.",
             "",
         ),
         (
             (2, 2),
-            "A spacious living room with large windows | TV which is switched off",
-            "A constant low hum from an air conditioner | No sound coming from the TV",
-            "Freshly brewed coffee",
-            "Smooth, cool wooden floors underfoot",
+            "A spacious living room with large windows. | TV which is switched off. The Sofa is 1.0 meters in front.",
+            "A constant low hum from an air conditioner. | No sound coming from the TV.",
+            "Freshly brewed coffee.",
+            "Smooth, cool wooden floors underfoot.",
             "",
         ),
     ],
@@ -630,23 +682,29 @@ def test_add_object_senses_no_interaction_match(simple_scene):
 
 
 @pytest.mark.parametrize(
-    "orientation, name, relative_position, expected_description",
+    "player_position, player_orientation, object_name, object_relative_position, expected_description",
     [
-        ("N", "Sofa", (1, 1), "The Sofa is 1.4 meters in front-right."),
-        ("E", "Sofa", (1, 1), "The Sofa is 1.4 meters to the left."),
-        ("S", "Sofa", (1, 1), "The Sofa is 1.4 meters back-left."),
-        ("W", "Sofa", (1, 1), "The Sofa is 1.4 meters to the right."),
-        ("N", "Bed", (6, 0), "The Bed is 6.0 meters in front."),
-        ("E", "Bed", (6, 0), "The Bed is 6.0 meters to the left."),
-        ("S", "Bed", (6, 0), "The Bed is 6.0 meters behind."),
-        ("W", "Bed", (6, 0), "The Bed is 6.0 meters to the right."),
+        ((0, 0), "N", "Sofa", (1, 0), "The Sofa is 1.0 meters in front."),
+        ((0, 0), "N", "Sofa", (1, 1), "The Sofa is 1.4 meters in front-right."),
+        ((0, 0), "N", "Sofa", (1, -1), "The Sofa is 1.4 meters in front-left."),
+        ((0, 0), "N", "Sofa", (-1, 0), "The Sofa is 1.0 meters behind."),
+        ((0, 0), "N", "Sofa", (-1, 1), "The Sofa is 1.4 meters back-right."),
+        ((0, 0), "N", "Sofa", (-1, -1), "The Sofa is 1.4 meters back-left."),
+        ((0, 0), "N", "Sofa", (2, 0), "The Sofa is 2.0 meters in front."),
+        ((0, 0), "E", "Sofa", (1, 0), "The Sofa is 1.0 meters in front."),
     ],
 )
 def test_describe_relative_position(
-    complex_scene, orientation, name, relative_position, expected_description
+    complex_scene,
+    player_position,
+    player_orientation,
+    object_name,
+    object_relative_position,
+    expected_description,
 ):
-    complex_scene.player.orientation = orientation
+    complex_scene.player.position = player_position
+    complex_scene.player.orientation = player_orientation
     assert (
-        complex_scene.describe_relative_position(name, relative_position)
+        complex_scene.describe_relative_position(object_name, object_relative_position)
         == expected_description
     )

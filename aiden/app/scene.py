@@ -370,9 +370,14 @@ class Scene:
             for room in self.rooms.values()
         )
 
-    def get_field_of_view(self):
-        """Calculate the grids in Aiden's field of view based on his orientation and view distance."""
-        dx, dy = self.directions.get_offset(self.player_orientation)
+    def get_field_of_view(self) -> list[tuple["Object", tuple[int, int]]]:
+        """
+        Calculate the grids in AIden's field of view based on his orientation and view distance.
+
+        Returns:
+            list[tuple[Object, tuple[int, int]]]: A list of tuples where each tuple contains an object
+                                                and its relative position to the player.
+        """
         visible_objects = []
         checked_positions = set()
 
@@ -384,12 +389,20 @@ class Scene:
         for i in range(1, fov_radius + 1):
             for angle in range(-fov_angle, fov_angle + 1):
                 radians = math.radians(angle)
-                nx = self.player_position[0] + int(
-                    i * math.cos(radians) * dx - i * math.sin(radians) * dy
-                )
-                ny = self.player_position[1] + int(
-                    i * math.sin(radians) * dx + i * math.cos(radians) * dy
-                )
+                if self.player_orientation == "N":
+                    nx = self.player_position[0] - int(i * math.sin(radians))
+                    ny = self.player_position[1] - int(i * math.cos(radians))
+                elif self.player_orientation == "E":
+                    nx = self.player_position[0] + int(i * math.cos(radians))
+                    ny = self.player_position[1] - int(i * math.sin(radians))
+                elif self.player_orientation == "S":
+                    nx = self.player_position[0] - int(i * math.sin(radians))
+                    ny = self.player_position[1] + int(i * math.cos(radians))
+                elif self.player_orientation == "W":
+                    nx = self.player_position[0] - int(i * math.cos(radians))
+                    ny = self.player_position[1] - int(i * math.sin(radians))
+                else:
+                    continue  # Skip invalid orientation
 
                 if (nx, ny) in checked_positions:
                     continue  # Skip already checked positions
@@ -400,10 +413,28 @@ class Scene:
                 checked_positions.add((nx, ny))
                 obj = self.get_entity_by_position((nx, ny), EntityType.OBJECT)
                 if obj:
-                    relative_position = (
-                        nx - self.player_position[0],
-                        ny - self.player_position[1],
-                    )
+                    # Adjust relative position based on orientation
+                    if self.player_orientation == "N":
+                        relative_position = (
+                            self.player_position[1] - ny,
+                            nx - self.player_position[0],
+                        )
+                    elif self.player_orientation == "E":
+                        relative_position = (
+                            nx - self.player_position[0],
+                            ny - self.player_position[1],
+                        )
+                    elif self.player_orientation == "S":
+                        relative_position = (
+                            ny - self.player_position[1],
+                            self.player_position[0] - nx,
+                        )
+                    elif self.player_orientation == "W":
+                        relative_position = (
+                            self.player_position[0] - nx,
+                            self.player_position[1] - ny,
+                        )
+
                     visible_objects.append((obj, relative_position))
 
         return visible_objects
@@ -412,7 +443,7 @@ class Scene:
         self, name: str, relative_position: tuple[int, int]
     ) -> str:
         """
-        Describe the relative position of an object based on its name, relative coordinates, and the AI's orientation.
+        Describe the relative position of an object based on its name and relative coordinates.
 
         Args:
             name (str): The name of the object.
@@ -425,38 +456,23 @@ class Scene:
         distance = math.sqrt(x**2 + y**2)
         angle = math.degrees(math.atan2(y, x))
 
-        # Adjust angle based on the AI's orientation
-        if self.player_orientation == "N":
-            adjusted_angle = angle
-        elif self.player_orientation == "E":
-            adjusted_angle = angle - 90
-        elif self.player_orientation == "S":
-            adjusted_angle = angle - 180
-        elif self.player_orientation == "W":
-            adjusted_angle = angle - 270
-        else:
-            raise ValueError("Invalid orientation")
-
-        # Normalize the angle to the range [-180, 180)
-        adjusted_angle = (adjusted_angle + 180) % 360 - 180
-
         # Determine the direction based on the adjusted angle
-        if -22.5 <= adjusted_angle < 22.5:
-            direction = "to the right"
-        elif 22.5 <= adjusted_angle < 67.5:
-            direction = "in front-right"
-        elif 67.5 <= adjusted_angle < 112.5:
+        if -22.5 <= angle < 22.5:
             direction = "in front"
-        elif 112.5 <= adjusted_angle < 157.5:
-            direction = "in front-left"
-        elif adjusted_angle >= 157.5 or adjusted_angle < -157.5:
-            direction = "to the left"
-        elif -157.5 <= adjusted_angle < -112.5:
-            direction = "back-left"
-        elif -112.5 <= adjusted_angle < -67.5:
-            direction = "behind"
-        elif -67.5 <= adjusted_angle < -22.5:
+        elif 22.5 <= angle < 67.5:
+            direction = "in front-right"
+        elif 67.5 <= angle < 112.5:
+            direction = "to the right"
+        elif 112.5 <= angle < 157.5:
             direction = "back-right"
+        elif angle >= 157.5 or angle < -157.5:
+            direction = "behind"
+        elif -157.5 <= angle < -112.5:
+            direction = "back-left"
+        elif -112.5 <= angle < -67.5:
+            direction = "to the left"
+        elif -67.5 <= angle < -22.5:
+            direction = "in front-left"
 
         return f"The {name} is {distance:.1f} meters {direction}."
 

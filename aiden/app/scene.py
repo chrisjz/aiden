@@ -363,7 +363,16 @@ class Scene:
             (orientation_order.index(self.player_orientation) + 1) % 4
         ]
 
-    def is_position_within_room(self, position):
+    def is_position_within_room(self, position: tuple[int, int]) -> bool:
+        """
+        Check if a given position is within any room in the scene.
+
+        Args:
+            position (tuple[int, int]): The (x, y) coordinates of the position to check.
+
+        Returns:
+            bool: True if the position is within any room, False otherwise.
+        """
         return any(
             room.position.x <= position[0] < room.position.x + room.size.width
             and room.position.y <= position[1] < room.position.y + room.size.height

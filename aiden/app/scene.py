@@ -419,6 +419,11 @@ class Scene:
                 if not self.is_position_within_room((nx, ny)):
                     continue  # Skip positions outside the room
 
+                if self.get_entity_by_position(
+                    self.player_position, EntityType.ROOM
+                ) != self.get_entity_by_position((nx, ny), EntityType.ROOM):
+                    continue  # Skip if object is not in the same room as player
+
                 checked_positions.add((nx, ny))
                 obj = self.get_entity_by_position((nx, ny), EntityType.OBJECT)
                 if obj:

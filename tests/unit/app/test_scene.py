@@ -352,8 +352,8 @@ def test_view_field_sensing_objects(complex_scene):
 
     # given
     player_fov_radius = complex_scene.player.fieldOfView.radius
-    complex_scene.player_position = (7 - player_fov_radius, 1)
-    complex_scene.player_orientation = "E"  # Look east
+    complex_scene.player_position = (7, 1 + player_fov_radius)
+    complex_scene.player_orientation = "N"  # Look north
 
     # when
     visible_objects = complex_scene.get_field_of_view()
@@ -368,14 +368,24 @@ def test_view_field_sensing_objects(complex_scene):
 
     # given
     player_fov_radius = complex_scene.player.fieldOfView.radius
-    complex_scene.player_position = (7 - player_fov_radius - 1, 1)
-    complex_scene.player_orientation = "E"  # Look east
+    complex_scene.player_position = (7, 1 + player_fov_radius + 1)
+    complex_scene.player_orientation = "N"  # Look north
 
     # when
     visible_objects = complex_scene.get_field_of_view()
 
     # then
     assert len(visible_objects) == 0, "Bed should be out of view ahead"
+
+    # given
+    complex_scene.player_position = (4, 1)
+    complex_scene.player_orientation = "E"  # Look east
+
+    # when
+    visible_objects = complex_scene.get_field_of_view()
+
+    # then
+    assert len(visible_objects) == 0, "Should not see the Bed in the other room"
 
 
 def test_no_movement_on_obstruction(complex_scene):

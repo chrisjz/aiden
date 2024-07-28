@@ -372,6 +372,43 @@ class Scene:
 
         return visible_objects
 
+    def describe_relative_position(
+        self, name: str, relative_position: tuple[int, int]
+    ) -> str:
+        """
+        Describe the relative position of an object based on its name and relative coordinates.
+
+        Args:
+            name (str): The name of the object.
+            relative_position (tuple[int, int]): The relative position of the object as (x, y) coordinates.
+
+        Returns:
+            str: A description of the object's relative position to the user.
+        """
+        x, y = relative_position
+        distance = math.sqrt(x**2 + y**2)
+        angle = math.degrees(math.atan2(y, x))
+
+        # Determine the direction based on the angle
+        if -22.5 <= angle < 22.5:
+            direction = "to the right"
+        elif 22.5 <= angle < 67.5:
+            direction = "in front-right"
+        elif 67.5 <= angle < 112.5:
+            direction = "in front"
+        elif 112.5 <= angle < 157.5:
+            direction = "in front-left"
+        elif angle >= 157.5 or angle < -157.5:
+            direction = "to the left"
+        elif -157.5 <= angle < -112.5:
+            direction = "back-left"
+        elif -112.5 <= angle < -67.5:
+            direction = "behind"
+        elif -67.5 <= angle < -22.5:
+            direction = "back-right"
+
+        return f"The {name} is {distance:.1f} meters {direction}."
+
     def print_scene(self, pretty: bool):
         max_x = max(
             (room.position.x + room.size.width for room in self.rooms.values()),

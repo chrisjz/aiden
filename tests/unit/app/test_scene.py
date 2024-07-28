@@ -483,3 +483,29 @@ def test_update_sensory_data(
     assert (
         sensory_data.gustatory == expected_gustatory
     ), f"Taste should match the environment taste input (if any) for position {player_position}"
+
+
+@pytest.mark.parametrize(
+    "name, relative_position, expected_description",
+    [
+        ("TV", (1, -1), "The TV is 1.4 meters back-right."),
+        ("Sofa", (0, 1), "The Sofa is 1.0 meters in front."),
+        ("Lamp", (-1, 0), "The Lamp is 1.0 meters to the left."),
+        ("Table", (0, -1), "The Table is 1.0 meters behind."),
+        ("Chair", (1, 0), "The Chair is 1.0 meters to the right."),
+        ("Desk", (1, 1), "The Desk is 1.4 meters in front-right."),
+        ("Shelf", (-1, 1), "The Shelf is 1.4 meters in front-left."),
+        ("Bed", (-1, -1), "The Bed is 1.4 meters back-left."),
+        ("Plant", (2, 0), "The Plant is 2.0 meters to the right."),
+        ("Clock", (0, 2), "The Clock is 2.0 meters in front."),
+        ("Window", (-2, 0), "The Window is 2.0 meters to the left."),
+        ("Door", (0, -2), "The Door is 2.0 meters behind."),
+    ],
+)
+def test_describe_relative_position(
+    simple_scene, name, relative_position, expected_description
+):
+    assert (
+        simple_scene.describe_relative_position(name, relative_position)
+        == expected_description
+    )

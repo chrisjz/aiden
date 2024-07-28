@@ -630,26 +630,23 @@ def test_add_object_senses_no_interaction_match(simple_scene):
 
 
 @pytest.mark.parametrize(
-    "name, relative_position, expected_description",
+    "orientation, name, relative_position, expected_description",
     [
-        ("TV", (1, -1), "The TV is 1.4 meters back-right."),
-        ("Sofa", (0, 1), "The Sofa is 1.0 meters in front."),
-        ("Lamp", (-1, 0), "The Lamp is 1.0 meters to the left."),
-        ("Table", (0, -1), "The Table is 1.0 meters behind."),
-        ("Chair", (1, 0), "The Chair is 1.0 meters to the right."),
-        ("Desk", (1, 1), "The Desk is 1.4 meters in front-right."),
-        ("Shelf", (-1, 1), "The Shelf is 1.4 meters in front-left."),
-        ("Bed", (-1, -1), "The Bed is 1.4 meters back-left."),
-        ("Plant", (2, 0), "The Plant is 2.0 meters to the right."),
-        ("Clock", (0, 2), "The Clock is 2.0 meters in front."),
-        ("Window", (-2, 0), "The Window is 2.0 meters to the left."),
-        ("Door", (0, -2), "The Door is 2.0 meters behind."),
+        ("N", "Sofa", (1, 1), "The Sofa is 1.4 meters in front-right."),
+        ("E", "Sofa", (1, 1), "The Sofa is 1.4 meters to the left."),
+        ("S", "Sofa", (1, 1), "The Sofa is 1.4 meters back-left."),
+        ("W", "Sofa", (1, 1), "The Sofa is 1.4 meters to the right."),
+        ("N", "Bed", (6, 0), "The Bed is 6.0 meters in front."),
+        ("E", "Bed", (6, 0), "The Bed is 6.0 meters to the left."),
+        ("S", "Bed", (6, 0), "The Bed is 6.0 meters behind."),
+        ("W", "Bed", (6, 0), "The Bed is 6.0 meters to the right."),
     ],
 )
 def test_describe_relative_position(
-    simple_scene, name, relative_position, expected_description
+    complex_scene, orientation, name, relative_position, expected_description
 ):
+    complex_scene.player.orientation = orientation
     assert (
-        simple_scene.describe_relative_position(name, relative_position)
+        complex_scene.describe_relative_position(name, relative_position)
         == expected_description
     )

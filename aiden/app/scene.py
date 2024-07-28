@@ -412,7 +412,7 @@ class Scene:
         self, name: str, relative_position: tuple[int, int]
     ) -> str:
         """
-        Describe the relative position of an object based on its name and relative coordinates.
+        Describe the relative position of an object based on its name, relative coordinates, and the AI's orientation.
 
         Args:
             name (str): The name of the object.
@@ -425,22 +425,37 @@ class Scene:
         distance = math.sqrt(x**2 + y**2)
         angle = math.degrees(math.atan2(y, x))
 
-        # Determine the direction based on the angle
-        if -22.5 <= angle < 22.5:
+        # Adjust angle based on the AI's orientation
+        if self.player_orientation == "N":
+            adjusted_angle = angle
+        elif self.player_orientation == "E":
+            adjusted_angle = angle - 90
+        elif self.player_orientation == "S":
+            adjusted_angle = angle - 180
+        elif self.player_orientation == "W":
+            adjusted_angle = angle - 270
+        else:
+            raise ValueError("Invalid orientation")
+
+        # Normalize the angle to the range [-180, 180)
+        adjusted_angle = (adjusted_angle + 180) % 360 - 180
+
+        # Determine the direction based on the adjusted angle
+        if -22.5 <= adjusted_angle < 22.5:
             direction = "to the right"
-        elif 22.5 <= angle < 67.5:
+        elif 22.5 <= adjusted_angle < 67.5:
             direction = "in front-right"
-        elif 67.5 <= angle < 112.5:
+        elif 67.5 <= adjusted_angle < 112.5:
             direction = "in front"
-        elif 112.5 <= angle < 157.5:
+        elif 112.5 <= adjusted_angle < 157.5:
             direction = "in front-left"
-        elif angle >= 157.5 or angle < -157.5:
+        elif adjusted_angle >= 157.5 or adjusted_angle < -157.5:
             direction = "to the left"
-        elif -157.5 <= angle < -112.5:
+        elif -157.5 <= adjusted_angle < -112.5:
             direction = "back-left"
-        elif -112.5 <= angle < -67.5:
+        elif -112.5 <= adjusted_angle < -67.5:
             direction = "behind"
-        elif -67.5 <= angle < -22.5:
+        elif -67.5 <= adjusted_angle < -22.5:
             direction = "back-right"
 
         return f"The {name} is {distance:.1f} meters {direction}."

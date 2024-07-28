@@ -244,11 +244,11 @@
         "y": 1
       },
       "senses": {
-        "smell": "Freshly brewed coffee",
-        "sound": "A constant low hum from an air conditioner",
-        "tactile": "Smooth, cool wooden floors underfoot",
+        "smell": "Freshly brewed coffee.",
+        "sound": "A constant low hum from an air conditioner.",
+        "tactile": "Smooth, cool wooden floors underfoot.",
         "taste": "",
-        "vision": "A spacious living room with large windows"
+        "vision": "A spacious living room with large windows."
       },
       "size": {
         "height": 4,
@@ -398,11 +398,11 @@
             "y": 1
           },
           "senses": {
-            "smell": "The sweet fragrance of ripe fruits",
+            "smell": "The sweet fragrance of ripe fruits.",
             "sound": "",
-            "tactile": "The soft texture of ripe fruit skin",
-            "taste": "The refreshing taste of mixed fruits",
-            "vision": "A bowl filled with fresh, colorful fruits"
+            "tactile": "The soft texture of ripe fruit skin.",
+            "taste": "The refreshing taste of mixed fruits.",
+            "vision": "A bowl filled with fresh, colorful fruits."
           },
           "symbol": "\ud83c\udf47"
         }
@@ -412,11 +412,11 @@
         "y": 1
       },
       "senses": {
-        "smell": "Garlic and onions cooking",
-        "sound": "The sizzle of something frying on the stove",
-        "tactile": "Warm air filled with steam from boiling water",
+        "smell": "Garlic and onions cooking.",
+        "sound": "The sizzle of something frying on the stove.",
+        "tactile": "Warm air filled with steam from boiling water.",
         "taste": "",
-        "vision": "Modern appliances and a marble countertop"
+        "vision": "Modern appliances and a marble countertop."
       },
       "size": {
         "height": 4,
@@ -563,11 +563,11 @@
         "y": 7
       },
       "senses": {
-        "smell": "A faint scent of lavender",
-        "sound": "Muffled sounds from outside",
-        "tactile": "Carpeted floors providing a soft footing",
+        "smell": "A faint scent of lavender.",
+        "sound": "Muffled sounds from outside.",
+        "tactile": "Carpeted floors providing a soft footing.",
         "taste": "",
-        "vision": "A cozy room with muted lighting"
+        "vision": "A cozy room with muted lighting."
       },
       "size": {
         "height": 3,
@@ -701,11 +701,11 @@
         "y": 7
       },
       "senses": {
-        "smell": "Fresh and sanitized",
-        "sound": "Echoes of movements and water usage",
-        "tactile": "The cool, smooth surface of the tiles",
+        "smell": "Fresh and sanitized.",
+        "sound": "Echoes of movements and water usage.",
+        "tactile": "The cool, smooth surface of the tiles.",
         "taste": "",
-        "vision": "Well-lit with tiled walls"
+        "vision": "Well-lit with tiled walls."
       },
       "size": {
         "height": 3,
@@ -739,11 +739,11 @@
             "y": 2
           },
           "senses": {
-            "smell": "The earthy scent of bark and leaves",
-            "sound": "Leaves rustling in the wind",
-            "tactile": "The rough texture of the tree bark",
+            "smell": "The earthy scent of bark and leaves.",
+            "sound": "Leaves rustling in the wind.",
+            "tactile": "The rough texture of the tree bark.",
             "taste": "",
-            "vision": "A tall oak tree providing shade"
+            "vision": "A tall oak tree providing shade."
           },
           "symbol": "\ud83c\udf33"
         },
@@ -756,11 +756,11 @@
             "y": 5
           },
           "senses": {
-            "smell": "The rich aroma of fresh earth and flowers",
-            "sound": "Bees buzzing gently from flower to flower",
-            "tactile": "The rough texture of leaves and softness of petals",
+            "smell": "The rich aroma of fresh earth and flowers.",
+            "sound": "Bees buzzing gently from flower to flower.",
+            "tactile": "The rough texture of leaves and softness of petals.",
             "taste": "",
-            "vision": "Colorful tulips and daisies"
+            "vision": "Colorful tulips and daisies."
           },
           "symbol": "\ud83c\udf3c"
         }
@@ -770,11 +770,11 @@
         "y": 1
       },
       "senses": {
-        "smell": "Fresh grass and damp soil",
-        "sound": "Birds chirping and water gently rippling in the pond",
-        "tactile": "Grass underfoot, moist and springy",
+        "smell": "Fresh grass and damp soil.",
+        "sound": "Birds chirping and water gently rippling in the pond.",
+        "tactile": "Grass underfoot, moist and springy.",
         "taste": "",
-        "vision": "A lush green garden with a small pond"
+        "vision": "A lush green garden with a small pond."
       },
       "size": {
         "height": 6,

@@ -485,6 +485,141 @@ def test_update_sensory_data(
     ), f"Taste should match the environment taste input (if any) for position {player_position}"
 
 
+def test_add_object_senses_default(simple_scene):
+    obj = Object(
+        name="TestObject",
+        position=Position(x=0, y=0),
+        senses=Sensory(
+            vision="Visible",
+            auditory="Audible",
+            tactile="Tactile",
+            olfactory="Olfactory",
+            gustatory="Gustatory",
+        ),
+        symbol="O",
+        initialStates={"state1": True},
+        interactions=[],
+    )
+    current_states = {}
+    combined_senses = {
+        "vision": "",
+        "auditory": "",
+        "tactile": "",
+        "olfactory": "",
+        "gustatory": "",
+    }
+
+    simple_scene.add_object_senses(obj, current_states, combined_senses)
+
+    assert combined_senses == {
+        "vision": " | Visible",
+        "auditory": " | Audible",
+        "tactile": " | Tactile",
+        "olfactory": " | Olfactory",
+        "gustatory": " | Gustatory",
+    }
+
+
+def test_add_object_senses_interaction(simple_scene):
+    obj = Object(
+        name="TestObject",
+        position=Position(x=0, y=0),
+        senses=Sensory(
+            vision="Visible",
+            auditory="Audible",
+            tactile="Tactile",
+            olfactory="Olfactory",
+            gustatory="Gustatory",
+        ),
+        symbol="O",
+        initialStates={"state1": True},
+        interactions=[
+            Interaction(
+                command="interact",
+                description="Interaction",
+                senses=Sensory(
+                    vision="InteractionVisible",
+                    auditory="InteractionAudible",
+                    tactile="InteractionTactile",
+                    olfactory="InteractionOlfactory",
+                    gustatory="InteractionGustatory",
+                ),
+                states=States(
+                    requiredStates={"state1": True}, nextStates={"state1": True}
+                ),
+            )
+        ],
+    )
+    current_states = {"state1": True}
+    combined_senses = {
+        "vision": "",
+        "auditory": "",
+        "tactile": "",
+        "olfactory": "",
+        "gustatory": "",
+    }
+
+    simple_scene.add_object_senses(obj, current_states, combined_senses)
+
+    assert combined_senses == {
+        "vision": " | InteractionVisible",
+        "auditory": " | InteractionAudible",
+        "tactile": " | InteractionTactile",
+        "olfactory": " | InteractionOlfactory",
+        "gustatory": " | InteractionGustatory",
+    }
+
+
+def test_add_object_senses_no_interaction_match(simple_scene):
+    obj = Object(
+        name="TestObject",
+        position=Position(x=0, y=0),
+        senses=Sensory(
+            vision="Visible",
+            auditory="Audible",
+            tactile="Tactile",
+            olfactory="Olfactory",
+            gustatory="Gustatory",
+        ),
+        symbol="O",
+        initialStates={"state1": False},
+        interactions=[
+            Interaction(
+                command="interact",
+                description="Interaction",
+                senses=Sensory(
+                    vision="InteractionVisible",
+                    auditory="InteractionAudible",
+                    tactile="InteractionTactile",
+                    olfactory="InteractionOlfactory",
+                    gustatory="InteractionGustatory",
+                ),
+                states=States(
+                    requiredStates={"state1": True}, nextStates={"state1": True}
+                ),
+            )
+        ],
+    )
+    current_states = {"state1": False}
+    combined_senses = {
+        "vision": "",
+        "auditory": "",
+        "tactile": "",
+        "olfactory": "",
+        "gustatory": "",
+    }
+
+    simple_scene.add_object_senses(obj, current_states, combined_senses)
+
+    assert combined_senses == {
+        "vision": " | Visible",
+        "auditory": " | Audible",
+        "tactile": " | Tactile",
+        "olfactory": " | Olfactory",
+        "gustatory": " | Gustatory",
+    }
+
+
 @pytest.mark.parametrize(
     "name, relative_position, expected_description",
     [

@@ -490,11 +490,11 @@ def test_add_object_senses_default(simple_scene):
         name="TestObject",
         position=Position(x=0, y=0),
         senses=Sensory(
-            vision="Visible",
-            auditory="Audible",
-            tactile="Tactile",
-            olfactory="Olfactory",
-            gustatory="Gustatory",
+            vision="Visible.",
+            auditory="Audible.",
+            tactile="Tactile.",
+            olfactory="Olfactory.",
+            gustatory="Gustatory.",
         ),
         symbol="O",
         initialStates={"state1": True},
@@ -508,15 +508,18 @@ def test_add_object_senses_default(simple_scene):
         "olfactory": "",
         "gustatory": "",
     }
+    distance_description = "The TestObject is 1 meter to the right."
 
-    simple_scene.add_object_senses(obj, current_states, combined_senses)
+    simple_scene.add_object_senses(
+        obj, current_states, combined_senses, distance_description
+    )
 
     assert combined_senses == {
-        "vision": " | Visible",
-        "auditory": " | Audible",
-        "tactile": " | Tactile",
-        "olfactory": " | Olfactory",
-        "gustatory": " | Gustatory",
+        "vision": " | Visible. The TestObject is 1 meter to the right.",
+        "auditory": " | Audible.",
+        "tactile": " | Tactile.",
+        "olfactory": " | Olfactory.",
+        "gustatory": " | Gustatory.",
     }
 
 
@@ -525,11 +528,11 @@ def test_add_object_senses_interaction(simple_scene):
         name="TestObject",
         position=Position(x=0, y=0),
         senses=Sensory(
-            vision="Visible",
-            auditory="Audible",
-            tactile="Tactile",
-            olfactory="Olfactory",
-            gustatory="Gustatory",
+            vision="Visible.",
+            auditory="Audible.",
+            tactile="Tactile.",
+            olfactory="Olfactory.",
+            gustatory="Gustatory.",
         ),
         symbol="O",
         initialStates={"state1": True},
@@ -538,11 +541,11 @@ def test_add_object_senses_interaction(simple_scene):
                 command="interact",
                 description="Interaction",
                 senses=Sensory(
-                    vision="InteractionVisible",
-                    auditory="InteractionAudible",
-                    tactile="InteractionTactile",
-                    olfactory="InteractionOlfactory",
-                    gustatory="InteractionGustatory",
+                    vision="InteractionVisible.",
+                    auditory="InteractionAudible.",
+                    tactile="InteractionTactile.",
+                    olfactory="InteractionOlfactory.",
+                    gustatory="InteractionGustatory.",
                 ),
                 states=States(
                     requiredStates={"state1": True}, nextStates={"state1": True}
@@ -558,15 +561,18 @@ def test_add_object_senses_interaction(simple_scene):
         "olfactory": "",
         "gustatory": "",
     }
+    distance_description = "The TestObject is 1 meter to the right."
 
-    simple_scene.add_object_senses(obj, current_states, combined_senses)
+    simple_scene.add_object_senses(
+        obj, current_states, combined_senses, distance_description
+    )
 
     assert combined_senses == {
-        "vision": " | InteractionVisible",
-        "auditory": " | InteractionAudible",
-        "tactile": " | InteractionTactile",
-        "olfactory": " | InteractionOlfactory",
-        "gustatory": " | InteractionGustatory",
+        "vision": " | InteractionVisible. The TestObject is 1 meter to the right.",
+        "auditory": " | InteractionAudible.",
+        "tactile": " | InteractionTactile.",
+        "olfactory": " | InteractionOlfactory.",
+        "gustatory": " | InteractionGustatory.",
     }
 
 
@@ -575,11 +581,11 @@ def test_add_object_senses_no_interaction_match(simple_scene):
         name="TestObject",
         position=Position(x=0, y=0),
         senses=Sensory(
-            vision="Visible",
-            auditory="Audible",
-            tactile="Tactile",
-            olfactory="Olfactory",
-            gustatory="Gustatory",
+            vision="Visible.",
+            auditory="Audible.",
+            tactile="Tactile.",
+            olfactory="Olfactory.",
+            gustatory="Gustatory.",
         ),
         symbol="O",
         initialStates={"state1": False},
@@ -588,11 +594,11 @@ def test_add_object_senses_no_interaction_match(simple_scene):
                 command="interact",
                 description="Interaction",
                 senses=Sensory(
-                    vision="InteractionVisible",
-                    auditory="InteractionAudible",
-                    tactile="InteractionTactile",
-                    olfactory="InteractionOlfactory",
-                    gustatory="InteractionGustatory",
+                    vision="InteractionVisible.",
+                    auditory="InteractionAudible.",
+                    tactile="InteractionTactile.",
+                    olfactory="InteractionOlfactory.",
+                    gustatory="InteractionGustatory.",
                 ),
                 states=States(
                     requiredStates={"state1": True}, nextStates={"state1": True}
@@ -608,15 +614,18 @@ def test_add_object_senses_no_interaction_match(simple_scene):
         "olfactory": "",
         "gustatory": "",
     }
+    distance_description = "The TestObject is 1 meter to the right."
 
-    simple_scene.add_object_senses(obj, current_states, combined_senses)
+    simple_scene.add_object_senses(
+        obj, current_states, combined_senses, distance_description
+    )
 
     assert combined_senses == {
-        "vision": " | Visible",
-        "auditory": " | Audible",
-        "tactile": " | Tactile",
-        "olfactory": " | Olfactory",
-        "gustatory": " | Gustatory",
+        "vision": " | Visible. The TestObject is 1 meter to the right.",
+        "auditory": " | Audible.",
+        "tactile": " | Tactile.",
+        "olfactory": " | Olfactory.",
+        "gustatory": " | Gustatory.",
     }
 
 

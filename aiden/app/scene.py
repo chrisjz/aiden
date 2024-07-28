@@ -268,8 +268,12 @@ class Scene:
         # Combine senses from visible objects, considering their current state
         for obj, pos in visible_objects:
             if obj != current_object:  # Avoid duplicating the current object's senses
+                distance_description = self.describe_relative_position(obj.name, pos)
                 self.add_object_senses(
-                    obj, self.object_states[obj.name], combined_senses
+                    obj,
+                    self.object_states[obj.name],
+                    combined_senses,
+                    distance_description,
                 )
 
         # Return a new Sensory instance filled with the combined sensory data
@@ -286,6 +290,7 @@ class Scene:
         obj: Object,
         current_states: dict[str, bool],
         combined_senses: dict[str, str],
+        distance_description: str | None = None,
     ) -> None:
         """
         Update the combined senses based on the object's default senses and its interaction-specific senses.
@@ -294,6 +299,7 @@ class Scene:
             obj (Object): The object whose senses are being considered.
             current_states (dict[str, bool]): The current states of the object.
             combined_senses (dict[str, str]): The dictionary to update with the combined senses.
+            distance_description str | None: The distance description to append to the vision sense.
         """
         matched_senses = obj.senses  # Start with default object senses
 
@@ -313,6 +319,10 @@ class Scene:
             sense_value = getattr(matched_senses, sense_key)
             if sense_value:
                 combined_senses[sense_key] += " | " + sense_value
+
+        # Append distance description to vision if provided
+        if distance_description:
+            combined_senses["vision"] += " " + distance_description
 
     def process_action(self, command: str):
         function_name = self.actions.get_action_function(command)

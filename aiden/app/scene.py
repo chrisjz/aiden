@@ -41,7 +41,10 @@ from aiden.models.scene import (
     ActionList,
     Compass,
     Direction,
+    Door,
+    DoorPosition,
     Object,
+    Position,
     Room,
     SceneConfig,
 )
@@ -264,7 +267,7 @@ class Scene:
         current_object = self.get_entity_by_position(
             self.player_position, EntityType.OBJECT
         )
-        visible_objects = self.get_field_of_view()
+        visible_entities = self.get_field_of_view()
 
         # Initialize default senses
         combined_senses = {
@@ -287,16 +290,23 @@ class Scene:
                 current_object, self.object_states[current_object.name], combined_senses
             )
 
-        # Combine senses from visible objects, considering their current state
-        for obj, pos in visible_objects:
-            if obj != current_object:  # Avoid duplicating the current object's senses
-                distance_description = self.describe_relative_position(obj.name, pos)
+        # Combine senses from visible entities, considering their current state
+        for entity, pos in visible_entities:
+            if (
+                isinstance(entity, Object) and entity != current_object
+            ):  # Avoid duplicating the current object's senses
+                distance_description = self.describe_relative_position(entity.name, pos)
                 self.add_object_senses(
-                    obj,
-                    self.object_states[obj.name],
+                    entity,
+                    self.object_states[entity.name],
                     combined_senses,
                     distance_description,
                 )
+            elif (
+                isinstance(entity, Door) and pos[0] != 0
+            ):  # Doors at player handled lower down in this function
+                distance_description = self.describe_relative_position("Door", pos)
+                combined_senses["vision"] += " " + distance_description
 
         # Add to vision if player is at a door
         if self.find_door_exit_by_entry(self.player_position):
@@ -415,15 +425,51 @@ class Scene:
             for room in self.rooms.values()
         )
 
-    def get_field_of_view(self) -> list[tuple["Object", tuple[int, int]]]:
+    def get_entity_relative_position_by_player_orientation(
+        self, nx: int, ny: int
+    ) -> tuple[int, int]:
+        """
+        Calculate the relative position of an entity based on the player's orientation.
+
+        Args:
+            nx (int): The x-coordinate of the entity.
+            ny (int): The y-coordinate of the entity.
+
+        Returns:
+            tuple[int, int]: The relative position (dx, dy) of the entity from the player's current position.
+        """
+        if self.player_orientation == "N":
+            relative_position = (
+                self.player_position[1] - ny,
+                nx - self.player_position[0],
+            )
+        elif self.player_orientation == "E":
+            relative_position = (
+                nx - self.player_position[0],
+                ny - self.player_position[1],
+            )
+        elif self.player_orientation == "S":
+            relative_position = (
+                ny - self.player_position[1],
+                self.player_position[0] - nx,
+            )
+        elif self.player_orientation == "W":
+            relative_position = (
+                self.player_position[0] - nx,
+                self.player_position[1] - ny,
+            )
+
+        return relative_position
+
+    def get_field_of_view(self) -> list[tuple[Door | Object, tuple[int, int]]]:
         """
         Calculate the grids in AIden's field of view based on his orientation and view distance.
 
         Returns:
-            list[tuple[Object, tuple[int, int]]]: A list of tuples where each tuple contains an object
+            list[tuple[Door | Object, tuple[int, int]]]: A list of tuples where each tuple contains a door or object,
                                                 and its relative position to the player.
         """
-        visible_objects = []
+        visible_entities = []
         checked_positions = set()
 
         # Define the angle for the field of view
@@ -458,36 +504,39 @@ class Scene:
                 if self.get_entity_by_position(
                     self.player_position, EntityType.ROOM
                 ) != self.get_entity_by_position((nx, ny), EntityType.ROOM):
-                    continue  # Skip if object is not in the same room as player
+                    continue  # Skip if entity is not in the same room as player
 
                 checked_positions.add((nx, ny))
                 obj = self.get_entity_by_position((nx, ny), EntityType.OBJECT)
                 if obj:
-                    # Adjust relative position based on orientation
-                    if self.player_orientation == "N":
-                        relative_position = (
-                            self.player_position[1] - ny,
-                            nx - self.player_position[0],
-                        )
-                    elif self.player_orientation == "E":
-                        relative_position = (
-                            nx - self.player_position[0],
-                            ny - self.player_position[1],
-                        )
-                    elif self.player_orientation == "S":
-                        relative_position = (
-                            ny - self.player_position[1],
-                            self.player_position[0] - nx,
-                        )
-                    elif self.player_orientation == "W":
-                        relative_position = (
-                            self.player_position[0] - nx,
-                            self.player_position[1] - ny,
-                        )
+                    relative_position = (
+                        self.get_entity_relative_position_by_player_orientation(nx, ny)
+                    )
+                    visible_entities.append((obj, relative_position))
+                    continue
 
-                    visible_objects.append((obj, relative_position))
+                door_exit_position = self.find_door_exit_by_entry((nx, ny))
+                if door_exit_position:
+                    relative_position = (
+                        self.get_entity_relative_position_by_player_orientation(nx, ny)
+                    )
+                    room = self.get_entity_by_position((nx, ny), EntityType.ROOM)
+                    door = Door(
+                        to=room.name,
+                        position=DoorPosition(
+                            entry=Position(
+                                x=nx,
+                                y=ny,
+                            ),
+                            exit=Position(
+                                x=door_exit_position[0],
+                                y=door_exit_position[1],
+                            ),
+                        ),
+                    )
+                    visible_entities.append((door, relative_position))
 
-        return visible_objects
+        return visible_entities
 
     def describe_relative_position(
         self, name: str, relative_position: tuple[int, int]

@@ -36,7 +36,14 @@ import math
 import os
 
 from aiden.models.brain import Sensory
-from aiden.models.scene import Action, ActionList, Compass, Direction, SceneConfig
+from aiden.models.scene import (
+    Action,
+    ActionList,
+    Compass,
+    Direction,
+    Object,
+    SceneConfig,
+)
 from aiden.models.scene import EntityType
 
 
@@ -268,7 +275,20 @@ class Scene:
             gustatory=combined_senses["gustatory"].strip(),
         )
 
-    def add_object_senses(self, obj, current_states, combined_senses):
+    def add_object_senses(
+        self,
+        obj: Object,
+        current_states: dict[str, bool],
+        combined_senses: dict[str, str],
+    ) -> None:
+        """
+        Update the combined senses based on the object's default senses and its interaction-specific senses.
+
+        Args:
+            obj (Object): The object whose senses are being considered.
+            current_states (dict[str, bool]): The current states of the object.
+            combined_senses (dict[str, str]): The dictionary to update with the combined senses.
+        """
         matched_senses = obj.senses  # Start with default object senses
 
         # Check if any interactions' conditions are met to update senses

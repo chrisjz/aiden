@@ -10,20 +10,23 @@ from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
 from aiden.models.brain import BrainConfig, BaseAction
 
 
-async def _map_decision_to_action(decision: str) -> str:
+async def _map_decision_to_action(
+    decision: str, actions: list[str] = [BaseAction.NONE.value]
+) -> str:
     """
     Maps a textual decision into a defined action based on predefined actions in SimpleAction.
 
     Args:
         decision (str): The decision text to map.
+        actions: List of actions available to decide upon. Defaults to no action.
 
     Returns:
         str: The corresponding action from SimpleAction.
     """
     decision_formatted = decision.lower().replace("_", " ").replace("-", " ")
-    for action in BaseAction:
-        if action.value in decision_formatted or decision_formatted in action.value:
-            return action.value
+    for action in actions:
+        if action in decision_formatted or decision_formatted in action:
+            return action
     return BaseAction.NONE.value
 
 
@@ -107,7 +110,7 @@ async def process_prefrontal(
         return BaseAction.NONE.value
 
     try:
-        mapped_action = await _map_decision_to_action(decision)
+        mapped_action = await _map_decision_to_action(decision, actions)
         logger.info(f"Mapped action: {mapped_action}")
         return mapped_action
     except Exception as exc:

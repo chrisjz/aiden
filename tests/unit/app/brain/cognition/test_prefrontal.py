@@ -6,10 +6,14 @@ from aiden.app.brain.cognition.prefrontal import (
     _map_decision_to_action,
     process_prefrontal,
 )
+from aiden.models.brain import BaseAction
 
 
 @pytest.mark.asyncio
 async def test_process_prefrontal_decision(mocker, brain_config):
+    # Prepare actions available
+    actions = ["enter room"] + [e.value for e in BaseAction]
+
     # Create a mock response for the ChatOllama
     mock_response = AIMessage(
         content="",
@@ -38,7 +42,7 @@ async def test_process_prefrontal_decision(mocker, brain_config):
 
     # Simulate the function call
     response = await process_prefrontal(
-        "Sensory input leads to a clear path", brain_config
+        "Sensory input leads to a clear path", brain_config, actions
     )
 
     # Check if the response matches the expected action
@@ -50,9 +54,11 @@ async def test_process_prefrontal_decision(mocker, brain_config):
 
 @pytest.mark.asyncio
 async def test_map_decision_to_action():
-    assert await _map_decision_to_action("Move forward") == "move forward"
-    assert await _map_decision_to_action("move forward") == "move forward"
-    assert await _map_decision_to_action("turn_left") == "turn left"
-    assert await _map_decision_to_action("Backward") == "move backward"
-    assert await _map_decision_to_action("right") == "turn right"
-    assert await _map_decision_to_action("0199393921") == "none"
+    actions = ["enter room"] + [e.value for e in BaseAction]
+    assert await _map_decision_to_action("Move forward", actions) == "move forward"
+    assert await _map_decision_to_action("move forward", actions) == "move forward"
+    assert await _map_decision_to_action("turn_left", actions) == "turn left"
+    assert await _map_decision_to_action("Backward", actions) == "move backward"
+    assert await _map_decision_to_action("right", actions) == "turn right"
+    assert await _map_decision_to_action("0199393921", actions) == "none"
+    assert await _map_decision_to_action("enter room", actions) == "enter room"

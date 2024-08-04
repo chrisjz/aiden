@@ -194,16 +194,6 @@ def test_turn_left(simple_scene):
     ), "Should turn to East when initially facing South"
 
 
-def test_teleport_to_room_via_door(complex_scene):
-    complex_scene.player_position = (4, 3)  # Position at the door entry
-    complex_scene.process_action("forward")
-    complex_scene.process_action("use")  # Trigger action to move through door
-    assert complex_scene.player_position == (
-        0,
-        0,
-    ), "Should teleport to the bedroom exit position"
-
-
 def test_object_interaction(complex_scene):
     complex_scene.process_action("forward")  # Move north to y=0
     complex_scene.process_action("right")  # Move east to x=2
@@ -471,6 +461,33 @@ def test_available_interactions_based_on_state(interactive_scene, monkeypatch):
 
     assert "turn on" in output, "Turn on command should be available"
     assert "turn off" not in output, "Turn off command should not be available"
+
+
+def test_enter_room_via_door(complex_scene, monkeypatch):
+    complex_scene.player_position = (4, 3)  # Position at the door entry
+    complex_scene.process_action("forward")
+
+    # Prepare the responses for input calls
+    inputs = iter(["enter room", "exit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    # Redirect stdout to capture prints
+    captured_output = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", captured_output)
+
+    # Position player correctly and then simulate interaction
+    complex_scene.process_action("e")  # Trigger interaction which should handle inputs
+
+    # Fetch the captured output and check it
+    output = captured_output.getvalue()
+    assert (
+        "Interacting with Door" in output
+    ), f"Expected 'Interacting with Door' in output, got: {output}"
+
+    assert complex_scene.player_position == (
+        0,
+        0,
+    ), "Should enter the bedroom"
 
 
 def test_interaction_execution_changes_state(interactive_scene, monkeypatch):

@@ -43,10 +43,12 @@ from aiden.models.scene import (
     Direction,
     Door,
     DoorPosition,
+    Interaction,
     Object,
     Position,
     Room,
     SceneConfig,
+    States,
 )
 from aiden.models.scene import EntityType
 
@@ -190,17 +192,35 @@ class Scene:
         return None
 
     def interact_with_object(self):
+        DOOR_OBJECT_NAME = "Door"
         # Check for doors at the current position
         door_exit = self.find_door_exit_by_entry(self.player_position)
         if door_exit:
-            self.player_position = door_exit
-            print(f"You open the door and step through to {door_exit}")
-            return
+            door_initial_state = {"isDoor": True}
+            # Construct a door object
+            object_at_position = Object(
+                name=DOOR_OBJECT_NAME,
+                position=self.player.position,
+                initialStates=door_initial_state,
+                interactions=[
+                    Interaction(
+                        command="enter room",
+                        description="Pass through the door into another room.",
+                        states=States(
+                            nextStates=door_initial_state,
+                            requiredStates=door_initial_state,
+                        ),
+                    )
+                ],
+            )
+            # Set a state for the door
+            self.object_states[DOOR_OBJECT_NAME] = door_initial_state
+        else:
+            # Check for objects at the current position
+            object_at_position = self.get_entity_by_position(
+                self.player_position, EntityType.OBJECT
+            )
 
-        # Check for objects at the current position
-        object_at_position = self.get_entity_by_position(
-            self.player_position, EntityType.OBJECT
-        )
         if object_at_position:
             current_states = self.object_states[object_at_position.name]
             available_interactions = [
@@ -225,7 +245,9 @@ class Scene:
                 interaction_dict[str(index)] = interaction
                 interaction_dict[interaction.command.lower()] = interaction
 
-            print("Type 'exit' to stop interacting or enter the number or command.")
+            print(
+                "Type 'e' or 'exit' to stop interacting or enter the number or command."
+            )
 
             while True:
                 chosen_input = (
@@ -233,7 +255,7 @@ class Scene:
                     .strip()
                     .lower()
                 )
-                if chosen_input == "exit":
+                if chosen_input in ("e", "exit"):
                     print("Exiting interaction mode.")
                     return
 
@@ -248,6 +270,12 @@ class Scene:
                     print(f"Tactile: {senses.tactile}")
                     print(f"Olfactory: {senses.olfactory}")
                     print(f"Gustatory: {senses.gustatory}")
+
+                    # Special handling of traversing doors
+                    if object_at_position.name == DOOR_OBJECT_NAME:
+                        self.player_position = door_exit
+                        print(f"You open the door and step through to {door_exit}")
+
                     return
                 else:
                     print("No such command available or conditions not met.")

@@ -5,7 +5,7 @@ from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, Field
 
 
-class SimpleAction(Enum):
+class BaseAction(Enum):
     MOVE_FORWARD = "move forward"
     MOVE_BACKWARD = "move backward"
     TURN_LEFT = "turn left"

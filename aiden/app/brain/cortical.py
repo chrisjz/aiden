@@ -13,7 +13,7 @@ from aiden.app.utils import (
     build_sensory_input_prompt_template,
     load_brain_config,
 )
-from aiden.models.brain import CorticalRequest, SimpleAction
+from aiden.models.brain import CorticalRequest, BaseAction
 
 
 async def process_cortical(request: CorticalRequest) -> str:
@@ -56,7 +56,7 @@ async def process_cortical(request: CorticalRequest) -> str:
     final_thoughts_input = (
         f"\n{cortical_config.instruction}\nYour sensory data: {sensory_input}"
     )
-    if action_output != SimpleAction.NONE.value:
+    if action_output != BaseAction.NONE.value:
         action_output_formatted = action_output.replace("_", " ")
         final_thoughts_input += (
             f"\nYou decide to perform the action: {action_output_formatted}."
@@ -83,7 +83,7 @@ async def process_cortical(request: CorticalRequest) -> str:
 
     # Combine action, thoughts, and speech into one message
     combined_message_content = ""
-    if action_output != SimpleAction.NONE.value:
+    if action_output != BaseAction.NONE.value:
         combined_message_content += f"<action>{action_output}</action>\n"
     combined_message_content += f"<thoughts>{thoughts_output}</thoughts>\n"
     if speech_output:
@@ -96,7 +96,7 @@ async def process_cortical(request: CorticalRequest) -> str:
     )
     combined_message_content_formatted += (
         f"\nMy actions performed: {action_output}"
-        if action_output != SimpleAction.NONE
+        if action_output != BaseAction.NONE
         else ""
     )
     messages.append(AIMessage(content=combined_message_content_formatted))

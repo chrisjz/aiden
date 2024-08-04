@@ -29,7 +29,7 @@ async def test_process_cortical_request(mocker, brain_config):
         return_value="Processed by thalamus",
     )
     mocker.patch(
-        "aiden.app.brain.cortical.process_prefrontal", return_value="move_forward"
+        "aiden.app.brain.cortical.process_prefrontal", return_value="move forward"
     )
     mocker.patch(
         "aiden.app.brain.cortical.process_broca", return_value="I am doing well."
@@ -54,6 +54,6 @@ async def test_process_cortical_request(mocker, brain_config):
         response_text += chunk.decode("utf-8") if isinstance(chunk, bytes) else chunk
 
     # Check that the action and thoughts are in the response
-    assert "<action>move_forward</action>" in response_text
+    assert "<action>move forward</action>" in response_text
     assert "<speech>I am doing well.</speech>" in response_text
     assert "<thoughts>I wonder where I should go next.</thoughts>" in response_text

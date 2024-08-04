@@ -17,7 +17,7 @@ async def test_process_prefrontal_decision(mocker, brain_config):
         tool_calls=[
             {
                 "name": "_map_decision_to_action",
-                "args": {"action": "move_forward"},
+                "args": {"action": "move forward"},
                 "id": "some_id",
             }
         ],
@@ -33,7 +33,7 @@ async def test_process_prefrontal_decision(mocker, brain_config):
     # Mock response parser
     mocker.patch(
         "aiden.app.brain.cognition.prefrontal.parse_response",
-        return_value='{"action": "move_forward"}',
+        return_value='{"action": "move forward"}',
     )
 
     # Simulate the function call
@@ -42,7 +42,7 @@ async def test_process_prefrontal_decision(mocker, brain_config):
     )
 
     # Check if the response matches the expected action
-    assert response == "move_forward"
+    assert response == "move forward"
 
     # Check that the invoke method was called correctly
     instance.invoke.assert_called_once()
@@ -50,8 +50,9 @@ async def test_process_prefrontal_decision(mocker, brain_config):
 
 @pytest.mark.asyncio
 async def test_map_decision_to_action():
-    assert await _map_decision_to_action("Move forward") == "move_forward"
-    assert await _map_decision_to_action("turn_left") == "turn_left"
-    assert await _map_decision_to_action("Backward") == "move_backward"
-    assert await _map_decision_to_action("right") == "turn_right"
+    assert await _map_decision_to_action("Move forward") == "move forward"
+    assert await _map_decision_to_action("move forward") == "move forward"
+    assert await _map_decision_to_action("turn_left") == "turn left"
+    assert await _map_decision_to_action("Backward") == "move backward"
+    assert await _map_decision_to_action("right") == "turn right"
     assert await _map_decision_to_action("0199393921") == "none"

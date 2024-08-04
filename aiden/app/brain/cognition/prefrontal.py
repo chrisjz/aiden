@@ -20,7 +20,7 @@ async def _map_decision_to_action(decision: str) -> str:
     Returns:
         str: The corresponding action from SimpleAction.
     """
-    decision_formatted = decision.lower().replace(" ", "_").replace("-", "_")
+    decision_formatted = decision.lower().replace("_", " ").replace("-", " ")
     for action in SimpleAction:
         if action.value in decision_formatted or decision_formatted in action.value:
             return action.value
@@ -68,10 +68,10 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
                         "action": {
                             "type": "string",
                             "enum": [
-                                "move_forward",
-                                "move_backward",
-                                "turn_left",
-                                "turn_right",
+                                "move forward",
+                                "move backward",
+                                "turn left",
+                                "turn right",
                                 "none",
                             ],
                         },

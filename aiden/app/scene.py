@@ -79,7 +79,7 @@ class Scene:
                     description="Move player forward",
                 ),
                 Action(
-                    key="move_forward",
+                    key="move forward",
                     function_name="move_forward",
                     description="Move player forward",
                 ),
@@ -94,7 +94,7 @@ class Scene:
                     description="Move player backward",
                 ),
                 Action(
-                    key="move_backward",
+                    key="move backward",
                     function_name="move_backward",
                     description="Move player backward",
                 ),
@@ -107,7 +107,7 @@ class Scene:
                     description="Turn player left",
                 ),
                 Action(
-                    key="turn_left",
+                    key="turn left",
                     function_name="turn_left",
                     description="Turn player left",
                 ),
@@ -120,7 +120,7 @@ class Scene:
                     description="Turn player right",
                 ),
                 Action(
-                    key="turn_right",
+                    key="turn right",
                     function_name="turn_right",
                     description="Turn player right",
                 ),

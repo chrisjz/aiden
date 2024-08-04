@@ -27,10 +27,10 @@ def brain_config():
             "prefrontal": {
                 "instruction": [
                     "Decide the next action based on the sensory input.",
-                    "- move_forward if the path is clear.",
-                    "- move_backward if there's a hazard.",
-                    "- turn_left or turn_right based on other inputs.",
-                    "- none if no action is needed.",
+                    "- 'move forward' if the path is clear.",
+                    "- 'move backward' if there's a hazard.",
+                    "- 'turn left' or 'turn_right' based on other inputs.",
+                    "- 'none' if no action is needed.",
                 ]
             },
             "thalamus": {

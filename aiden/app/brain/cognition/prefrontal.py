@@ -27,6 +27,37 @@ async def _map_decision_to_action(decision: str) -> str:
     return BaseAction.NONE.value
 
 
+async def _extract_interactions(interaction_string: str) -> list[str]:
+    """
+    Extract a list of interactions from the given interaction string.
+
+    Args:
+        interaction_string (str): The interaction string to extract from.
+
+    Returns:
+        List[str]: A list of interaction strings.
+    """
+    static_text = "You can additionally perform the following interactions: "
+    start_index = interaction_string.find(static_text)
+
+    if start_index == -1:
+        return []
+
+    interactions_part = interaction_string[start_index + len(static_text) :]
+    end_index = interactions_part.find(" | ")
+
+    if end_index != -1:
+        interactions_part = interactions_part[:end_index].strip()
+
+    if not interactions_part or not (
+        "'" in interactions_part and "''" not in interactions_part
+    ):
+        return []
+
+    interactions = interactions_part.strip(" '").split("', '")
+    return interactions
+
+
 async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> str:
     """
     Simulates the prefrontal cortex decision-making based on sensory input.

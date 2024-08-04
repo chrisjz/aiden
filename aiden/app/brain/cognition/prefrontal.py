@@ -57,6 +57,7 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
         max_tokens=80,
     )
 
+    actions_available = [e.value for e in BaseAction]
     llm = llm.bind_tools(
         tools=[
             {
@@ -67,13 +68,7 @@ async def process_prefrontal(sensory_input: str, brain_config: BrainConfig) -> s
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": [
-                                "move forward",
-                                "move backward",
-                                "turn left",
-                                "turn right",
-                                "none",
-                            ],
+                            "enum": actions_available,
                         },
                     },
                     "required": ["action"],

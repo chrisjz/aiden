@@ -3,6 +3,7 @@ import json
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from aiden import logger
+from aiden.app.brain.cognition import INTERACTIVE_ACTIONS_PRECURSOR
 from aiden.app.brain.memory.hippocampus import MemoryManager
 from aiden.app.brain.cognition.broca import process_broca
 from aiden.app.brain.cognition.prefrontal import process_prefrontal
@@ -14,6 +15,38 @@ from aiden.app.utils import (
     load_brain_config,
 )
 from aiden.models.brain import CorticalRequest, BaseAction
+
+
+async def _extract_interactions(interaction_string: str) -> list[str]:
+    """
+    Extract a list of interactions from the given interaction string.
+
+    Args:
+        interaction_string (str): The interaction string to extract from.
+
+    Returns:
+        List[str]: A list of interaction strings.
+    """
+    start_index = interaction_string.find(INTERACTIVE_ACTIONS_PRECURSOR)
+
+    if start_index == -1:
+        return []
+
+    interactions_part = interaction_string[
+        start_index + len(INTERACTIVE_ACTIONS_PRECURSOR) :
+    ]
+    end_index = interactions_part.find(" | ")
+
+    if end_index != -1:
+        interactions_part = interactions_part[:end_index].strip()
+
+    if not interactions_part or not (
+        "'" in interactions_part and "''" not in interactions_part
+    ):
+        return []
+
+    interactions = interactions_part.strip(" '").split("', '")
+    return interactions
 
 
 async def process_cortical(request: CorticalRequest) -> str:
@@ -46,8 +79,14 @@ async def process_cortical(request: CorticalRequest) -> str:
     # Sensory integration through thalamus function
     sensory_input = await process_thalamus(raw_sensory_input, brain_config)
 
+    # Prepare lists of actions available from tactile sensory input
+    actions = await _extract_interactions(request.sensory.tactile) + [
+        e.value for e in BaseAction
+    ]
+    logger.info(f"Action commands available: {actions}")
+
     # Decision-making through prefrontal function
-    action_output = await process_prefrontal(sensory_input, brain_config)
+    action_output = await process_prefrontal(sensory_input, brain_config, actions)
 
     # Verbal output through broca function
     speech_output = await process_broca(sensory_input, brain_config)

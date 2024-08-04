@@ -334,12 +334,15 @@ class Scene:
                 isinstance(entity, Door) and pos[0] != 0
             ):  # Doors at player handled lower down in this function
                 distance_description = self.describe_relative_position("Door", pos)
-                combined_senses["vision"] += " " + distance_description
+                combined_senses["vision"] += " | " + distance_description
 
         # Add to vision if player is at a door
         if self.find_door_exit_by_entry(self.player_position):
             combined_senses["vision"] += (
-                " You are at a door which leads to another room."
+                " | You are at a door which leads to another room."
+            )
+            combined_senses["tactile"] += (
+                " | You can additionally perform the following interactions: 'enter room'"
             )
         # Add to vision if a boundary is in front of the player
         else:

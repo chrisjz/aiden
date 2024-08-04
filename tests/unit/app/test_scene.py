@@ -554,7 +554,7 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
         ),
         (
             (4, 2),
-            "A spacious living room with large windows. The Door is 1.0 meters in front.",
+            "A spacious living room with large windows. | The Door is 1.0 meters in front.",
             "A constant low hum from an air conditioner.",
             "Freshly brewed coffee.",
             "Smooth, cool wooden floors underfoot.",
@@ -562,10 +562,10 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
         ),
         (
             (4, 3),
-            "A spacious living room with large windows. You are at a door which leads to another room.",
+            "A spacious living room with large windows. | You are at a door which leads to another room.",
             "A constant low hum from an air conditioner.",
             "Freshly brewed coffee.",
-            "Smooth, cool wooden floors underfoot.",
+            "Smooth, cool wooden floors underfoot. | You can additionally perform the following interactions: 'enter room'",
             "",
         ),
         (

@@ -1,7 +1,9 @@
-from aiden.app.brain.cortical import process_cortical
+from aiden.app.brain.cortical import _extract_interactions, process_cortical
 
 
 import pytest
+
+from aiden.models.brain import Sensory
 
 
 @pytest.mark.asyncio
@@ -10,7 +12,13 @@ async def test_process_cortical_request(mocker, brain_config):
     cortical_request = mocker.Mock()
     cortical_request.config = "path to brain config"
     cortical_request.history = []
-    cortical_request.sensory = {"vision": "Clear path ahead", "auditory": "No sounds"}
+    cortical_request.sensory = Sensory(
+        vision="Clear path ahead",
+        auditory="No sounds",
+        tactile="No tactile input",
+        olfactory="No olfactory input",
+        gustatory="No gustatory input",
+    )
 
     # Mock loading the brain configuration
     mocker.patch(
@@ -21,6 +29,12 @@ async def test_process_cortical_request(mocker, brain_config):
     mocker.patch(
         "aiden.app.brain.cortical.build_sensory_input_prompt_template",
         return_value="Your sensory inputs",
+    )
+
+    # Mock the action extractor
+    mocker.patch(
+        "aiden.app.brain.cortical._extract_interactions",
+        return_value=[],
     )
 
     # Use pytest-mock to mock the various brain region functions
@@ -57,3 +71,36 @@ async def test_process_cortical_request(mocker, brain_config):
     assert "<action>move forward</action>" in response_text
     assert "<speech>I am doing well.</speech>" in response_text
     assert "<thoughts>I wonder where I should go next.</thoughts>" in response_text
+
+
+@pytest.mark.parametrize(
+    "interaction_string, expected_result",
+    [
+        (
+            "You can additionally perform the following interactions: 'enter room', 'turn on tv'",
+            ["enter room", "turn on tv"],
+        ),
+        (
+            "You can additionally perform the following interactions: 'sit down', 'stand up', 'open door'",
+            ["sit down", "stand up", "open door"],
+        ),
+        (
+            "You can additionally perform the following interactions: 'read book'",
+            ["read book"],
+        ),
+        (
+            "You can additionally perform the following interactions: 'read book', 'watch tv' | You feel something warm touching your head.",
+            ["read book", "watch tv"],
+        ),
+        (
+            "A warm wind blows across your body. | You can additionally perform the following interactions: 'sit down', 'stand up' | You feel something warm touching your head.",
+            ["sit down", "stand up"],
+        ),
+        ("You can additionally perform the following interactions: ", []),
+        ("You can additionally perform the following interactions: ''", []),
+        ("You can additionally perform the following interactions: enter room", []),
+    ],
+)
+@pytest.mark.asyncio
+async def test_extract_interactions(interaction_string, expected_result):
+    assert await _extract_interactions(interaction_string) == expected_result

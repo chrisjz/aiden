@@ -3,7 +3,6 @@ import pytest
 from langchain_core.messages import AIMessage
 
 from aiden.app.brain.cognition.prefrontal import (
-    _extract_interactions,
     _map_decision_to_action,
     process_prefrontal,
 )
@@ -57,36 +56,3 @@ async def test_map_decision_to_action():
     assert await _map_decision_to_action("Backward") == "move backward"
     assert await _map_decision_to_action("right") == "turn right"
     assert await _map_decision_to_action("0199393921") == "none"
-
-
-@pytest.mark.parametrize(
-    "interaction_string, expected_result",
-    [
-        (
-            "You can additionally perform the following interactions: 'enter room', 'turn on tv'",
-            ["enter room", "turn on tv"],
-        ),
-        (
-            "You can additionally perform the following interactions: 'sit down', 'stand up', 'open door'",
-            ["sit down", "stand up", "open door"],
-        ),
-        (
-            "You can additionally perform the following interactions: 'read book'",
-            ["read book"],
-        ),
-        (
-            "You can additionally perform the following interactions: 'read book', 'watch tv' | You feel something warm touching your head.",
-            ["read book", "watch tv"],
-        ),
-        (
-            "A warm wind blows across your body. | You can additionally perform the following interactions: 'sit down', 'stand up' | You feel something warm touching your head.",
-            ["sit down", "stand up"],
-        ),
-        ("You can additionally perform the following interactions: ", []),
-        ("You can additionally perform the following interactions: ''", []),
-        ("You can additionally perform the following interactions: enter room", []),
-    ],
-)
-@pytest.mark.asyncio
-async def test_extract_interactions(interaction_string, expected_result):
-    assert await _extract_interactions(interaction_string) == expected_result

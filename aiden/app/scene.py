@@ -34,6 +34,7 @@ import argparse
 import json
 import math
 import os
+from typing import Any
 
 from aiden.models.brain import Sensory
 from aiden.models.scene import (
@@ -193,7 +194,7 @@ class Scene:
                     return (door.position.exit.x, door.position.exit.y)
         return None
 
-    def retrieve_object_at_position(self) -> Object:
+    def find_object_at_position(self) -> Object:
         # Check for doors at the current position
         door_exit = self.find_door_exit_by_entry(self.player_position)
         if door_exit:
@@ -225,18 +226,18 @@ class Scene:
                 self.player_position, EntityType.OBJECT
             )
 
-        return object_at_position
-
-    def interact_with_object(self) -> None:
-        object_at_position = self.retrieve_object_at_position()
-
         if not object_at_position:
             print("There is nothing here to interact with.")
 
-        current_states = self.object_states[object_at_position.name]
+        return object_at_position
+
+    def get_available_object_interactions(
+        self, object: Object
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        current_states = self.object_states[object.name]
         available_interactions = [
             interaction
-            for interaction in object_at_position.interactions
+            for interaction in object.interactions
             if all(
                 current_states.get(key) == value
                 for key, value in interaction.states.requiredStates.items()
@@ -245,16 +246,26 @@ class Scene:
 
         if not available_interactions:
             print(
-                f"There are no available interactions with {object_at_position.name} based on its current state."
+                f"There are no available interactions with {object.name} based on its current state."
             )
             return
 
-        print(f"Interacting with {object_at_position.name}. Available commands:")
-        interaction_dict = {}
+        print(f"Interacting with {object.name}. Available commands:")
+        interaction_command_dict = {}
+        interaction_index_dict = {}
         for index, interaction in enumerate(available_interactions, start=1):
             print(f"{index}. {interaction.command}: {interaction.description}")
-            interaction_dict[str(index)] = interaction
-            interaction_dict[interaction.command.lower()] = interaction
+            interaction_command_dict[interaction.command.lower()] = interaction
+            interaction_index_dict[str(index)] = interaction
+
+        return interaction_command_dict, interaction_index_dict
+
+    def interact_with_object(self) -> None:
+        object_at_position = self.find_object_at_position()
+
+        interaction_command_dict, interaction_index_dict = (
+            self.get_available_object_interactions(object_at_position)
+        )
 
         print("Type 'e' or 'exit' to stop interacting or enter the number or command.")
 
@@ -266,12 +277,16 @@ class Scene:
                 print("Exiting interaction mode.")
                 return
 
-            chosen_interaction = interaction_dict.get(chosen_input, None)
+            # Get interaction if in list of command names or command indexes
+            chosen_interaction = interaction_command_dict.get(
+                chosen_input, interaction_index_dict.get(chosen_input, None)
+            )
 
             if not chosen_interaction:
                 print("No such command available or conditions not met.")
 
             next_states = chosen_interaction.states.nextStates
+            current_states = self.object_states[object_at_position.name]
             current_states.update(next_states)
             senses = chosen_interaction.senses
             print(f"Executed '{chosen_interaction.command}':")
@@ -286,6 +301,8 @@ class Scene:
                 door_exit_position = object_at_position.initialStates["exitPosition"]
                 self.player_position = door_exit_position
                 print(f"You open the door and step through to {door_exit_position}")
+
+            return
 
     def update_sensory_data(self) -> Sensory:
         """

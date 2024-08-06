@@ -52,6 +52,8 @@ from aiden.models.scene import (
 )
 from aiden.models.scene import EntityType
 
+DOOR_OBJECT_NAME = "Door"
+
 
 class Scene:
     def __init__(self, config: SceneConfig):
@@ -191,12 +193,14 @@ class Scene:
                     return (door.position.exit.x, door.position.exit.y)
         return None
 
-    def interact_with_object(self):
-        DOOR_OBJECT_NAME = "Door"
+    def retrieve_object_at_position(self) -> Object:
         # Check for doors at the current position
         door_exit = self.find_door_exit_by_entry(self.player_position)
         if door_exit:
-            door_initial_state = {"isDoor": True}
+            door_initial_state = {
+                "isDoor": True,
+                "exitPosition": door_exit,
+            }
             # Construct a door object
             object_at_position = Object(
                 name=DOOR_OBJECT_NAME,
@@ -220,6 +224,11 @@ class Scene:
             object_at_position = self.get_entity_by_position(
                 self.player_position, EntityType.OBJECT
             )
+
+        return object_at_position
+
+    def interact_with_object(self) -> None:
+        object_at_position = self.retrieve_object_at_position()
 
         if object_at_position:
             current_states = self.object_states[object_at_position.name]
@@ -273,8 +282,13 @@ class Scene:
 
                     # Special handling of traversing doors
                     if object_at_position.name == DOOR_OBJECT_NAME:
-                        self.player_position = door_exit
-                        print(f"You open the door and step through to {door_exit}")
+                        door_exit_position = object_at_position.initialStates[
+                            "exitPosition"
+                        ]
+                        self.player_position = door_exit_position
+                        print(
+                            f"You open the door and step through to {door_exit_position}"
+                        )
 
                     return
                 else:

@@ -230,71 +230,62 @@ class Scene:
     def interact_with_object(self) -> None:
         object_at_position = self.retrieve_object_at_position()
 
-        if object_at_position:
-            current_states = self.object_states[object_at_position.name]
-            available_interactions = [
-                interaction
-                for interaction in object_at_position.interactions
-                if all(
-                    current_states.get(key) == value
-                    for key, value in interaction.states.requiredStates.items()
-                )
-            ]
+        if not object_at_position:
+            print("There is nothing here to interact with.")
 
-            if not available_interactions:
-                print(
-                    f"There are no available interactions with {object_at_position.name} based on its current state."
-                )
+        current_states = self.object_states[object_at_position.name]
+        available_interactions = [
+            interaction
+            for interaction in object_at_position.interactions
+            if all(
+                current_states.get(key) == value
+                for key, value in interaction.states.requiredStates.items()
+            )
+        ]
+
+        if not available_interactions:
+            print(
+                f"There are no available interactions with {object_at_position.name} based on its current state."
+            )
+            return
+
+        print(f"Interacting with {object_at_position.name}. Available commands:")
+        interaction_dict = {}
+        for index, interaction in enumerate(available_interactions, start=1):
+            print(f"{index}. {interaction.command}: {interaction.description}")
+            interaction_dict[str(index)] = interaction
+            interaction_dict[interaction.command.lower()] = interaction
+
+        print("Type 'e' or 'exit' to stop interacting or enter the number or command.")
+
+        while True:
+            chosen_input = (
+                input("Choose a command to execute or type 'exit': ").strip().lower()
+            )
+            if chosen_input in ("e", "exit"):
+                print("Exiting interaction mode.")
                 return
 
-            print(f"Interacting with {object_at_position.name}. Available commands:")
-            interaction_dict = {}
-            for index, interaction in enumerate(available_interactions, start=1):
-                print(f"{index}. {interaction.command}: {interaction.description}")
-                interaction_dict[str(index)] = interaction
-                interaction_dict[interaction.command.lower()] = interaction
+            chosen_interaction = interaction_dict.get(chosen_input, None)
 
-            print(
-                "Type 'e' or 'exit' to stop interacting or enter the number or command."
-            )
+            if not chosen_interaction:
+                print("No such command available or conditions not met.")
 
-            while True:
-                chosen_input = (
-                    input("Choose a command to execute or type 'exit': ")
-                    .strip()
-                    .lower()
-                )
-                if chosen_input in ("e", "exit"):
-                    print("Exiting interaction mode.")
-                    return
+            next_states = chosen_interaction.states.nextStates
+            current_states.update(next_states)
+            senses = chosen_interaction.senses
+            print(f"Executed '{chosen_interaction.command}':")
+            print(f"Vision: {senses.vision}")
+            print(f"Auditory: {senses.auditory}")
+            print(f"Tactile: {senses.tactile}")
+            print(f"Olfactory: {senses.olfactory}")
+            print(f"Gustatory: {senses.gustatory}")
 
-                chosen_interaction = interaction_dict.get(chosen_input, None)
-                if chosen_interaction:
-                    next_states = chosen_interaction.states.nextStates
-                    current_states.update(next_states)
-                    senses = chosen_interaction.senses
-                    print(f"Executed '{chosen_interaction.command}':")
-                    print(f"Vision: {senses.vision}")
-                    print(f"Auditory: {senses.auditory}")
-                    print(f"Tactile: {senses.tactile}")
-                    print(f"Olfactory: {senses.olfactory}")
-                    print(f"Gustatory: {senses.gustatory}")
-
-                    # Special handling of traversing doors
-                    if object_at_position.name == DOOR_OBJECT_NAME:
-                        door_exit_position = object_at_position.initialStates[
-                            "exitPosition"
-                        ]
-                        self.player_position = door_exit_position
-                        print(
-                            f"You open the door and step through to {door_exit_position}"
-                        )
-
-                    return
-                else:
-                    print("No such command available or conditions not met.")
-        else:
-            print("There is nothing here to interact with.")
+            # Special handling of traversing doors
+            if object_at_position.name == DOOR_OBJECT_NAME:
+                door_exit_position = object_at_position.initialStates["exitPosition"]
+                self.player_position = door_exit_position
+                print(f"You open the door and step through to {door_exit_position}")
 
     def update_sensory_data(self) -> Sensory:
         """

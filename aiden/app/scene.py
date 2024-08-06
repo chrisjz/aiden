@@ -129,17 +129,18 @@ class Scene:
                 ),
                 Action(
                     key="e",
-                    function_name="interact_with_object",
+                    function_name="prompt_interact_with_object",
                     description="Interact with object",
                 ),
                 Action(
                     key="use",
-                    function_name="interact_with_object",
+                    function_name="prompt_interact_with_object",
                     description="Interact with object",
                 ),
             ]
         )
         self.actions = self.base_actions
+        self.current_action = None
 
         self.directions = Compass(
             directions={
@@ -260,7 +261,38 @@ class Scene:
 
         return interaction_command_dict, interaction_index_dict
 
-    def interact_with_object(self) -> None:
+    def execute_interaction(
+        self, object_at_position: Object, chosen_interaction: Interaction
+    ) -> None:
+        """
+        Execute the chosen interaction on the object at the given position,
+        updating the object's states and printing sensory feedback.
+
+        Args:
+            object_at_position (Object): The object on which the interaction is performed.
+            chosen_interaction (Interaction): The interaction to be executed.
+
+        Returns:
+            None
+        """
+        next_states = chosen_interaction.states.nextStates
+        current_states = self.object_states[object_at_position.name]
+        current_states.update(next_states)
+        senses = chosen_interaction.senses
+        print(f"Executed '{chosen_interaction.command}':")
+        print(f"Vision: {senses.vision}")
+        print(f"Auditory: {senses.auditory}")
+        print(f"Tactile: {senses.tactile}")
+        print(f"Olfactory: {senses.olfactory}")
+        print(f"Gustatory: {senses.gustatory}")
+
+        # Special handling of traversing doors
+        if object_at_position.name == DOOR_OBJECT_NAME:
+            door_exit_position = object_at_position.initialStates["exitPosition"]
+            self.player_position = door_exit_position
+            print(f"You open the door and step through to {door_exit_position}")
+
+    def prompt_interact_with_object(self) -> None:
         object_at_position = self.find_object_at_position()
 
         if not object_at_position:
@@ -291,24 +323,30 @@ class Scene:
             if not chosen_interaction:
                 print("No such command available or conditions not met.")
 
-            next_states = chosen_interaction.states.nextStates
-            current_states = self.object_states[object_at_position.name]
-            current_states.update(next_states)
-            senses = chosen_interaction.senses
-            print(f"Executed '{chosen_interaction.command}':")
-            print(f"Vision: {senses.vision}")
-            print(f"Auditory: {senses.auditory}")
-            print(f"Tactile: {senses.tactile}")
-            print(f"Olfactory: {senses.olfactory}")
-            print(f"Gustatory: {senses.gustatory}")
-
-            # Special handling of traversing doors
-            if object_at_position.name == DOOR_OBJECT_NAME:
-                door_exit_position = object_at_position.initialStates["exitPosition"]
-                self.player_position = door_exit_position
-                print(f"You open the door and step through to {door_exit_position}")
+            self.execute_interaction(object_at_position, chosen_interaction)
 
             return
+
+    def direct_interact_with_object(self) -> None:
+        object_at_position: Object | None = self.find_object_at_position()
+
+        if not object_at_position:
+            print("ERROR: Could not find object to interact with.")
+            return
+
+        interaction_command_dict, _ = self.get_available_object_interactions(
+            object_at_position, toggle_print_commands=False
+        )
+
+        chosen_interaction = interaction_command_dict.get(self.current_action, None)
+
+        if not chosen_interaction:
+            print(
+                f"ERROR: Could not find interaction `{self.current_action}` for object `{object_at_position.name}`."
+            )
+            return
+
+        self.execute_interaction(object_at_position, chosen_interaction)
 
     def find_available_object_interactions(self) -> dict[str, Any] | None:
         object_at_position = self.find_object_at_position()
@@ -442,6 +480,9 @@ class Scene:
             combined_senses["vision"] += " " + distance_description
 
     def process_action(self, command: str):
+        # Used only for actions related to object interactions
+        self.current_action = command
+
         # Append any available object interactions to base actions
         available_interactions: list[Interaction] = (
             self.find_available_object_interactions()
@@ -452,7 +493,7 @@ class Scene:
                 interaction = available_interactions[available_command]
                 object_action = Action(
                     key=interaction.command,
-                    function_name="TODO",
+                    function_name="direct_interact_with_object",
                     description=interaction.description,
                 )
                 available_actions.actions.append(object_action)

@@ -457,7 +457,7 @@ def test_available_interactions_based_on_state(interactive_scene, monkeypatch):
     interactive_scene.object_states["TV"] = {"isOn": False}
     # Simulate user input for exiting interaction mode immediately
     monkeypatch.setattr("builtins.input", lambda _: "exit")
-    output = capture_output(interactive_scene.interact_with_object)
+    output = capture_output(interactive_scene.prompt_interact_with_object)
 
     assert "turn on" in output, "Turn on command should be available"
     assert "turn off" not in output, "Turn off command should not be available"
@@ -514,7 +514,7 @@ def test_interaction_execution_changes_state(interactive_scene, monkeypatch):
 def test_exit_interaction_command(interactive_scene):
     # Mock input to simulate "exit" command
     with patch("builtins.input", return_value="exit"):
-        output = capture_output(interactive_scene.interact_with_object)
+        output = capture_output(interactive_scene.prompt_interact_with_object)
     assert "Exiting interaction mode." in output
 
 
@@ -523,7 +523,7 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
     interactive_scene.process_action("w")
     # Simulate user input for exiting interaction mode immediately
     monkeypatch.setattr("builtins.input", lambda _: "exit")
-    output = capture_output(interactive_scene.interact_with_object)
+    output = capture_output(interactive_scene.prompt_interact_with_object)
     assert (
         "There are no available interactions with Sofa based on its current state."
         in output

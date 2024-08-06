@@ -69,7 +69,7 @@ class Scene:
             obj.name: obj.initialStates for room in config.rooms for obj in room.objects
         }
 
-        self.actions = ActionList(
+        self.base_actions = ActionList(
             actions=[
                 Action(
                     key="w",
@@ -139,6 +139,7 @@ class Scene:
                 ),
             ]
         )
+        self.actions = self.base_actions
 
         self.directions = Compass(
             directions={
@@ -226,13 +227,10 @@ class Scene:
                 self.player_position, EntityType.OBJECT
             )
 
-        if not object_at_position:
-            print("There is nothing here to interact with.")
-
         return object_at_position
 
     def get_available_object_interactions(
-        self, object: Object
+        self, object: Object, toggle_print_commands: bool = False
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         current_states = self.object_states[object.name]
         available_interactions = [
@@ -248,23 +246,31 @@ class Scene:
             print(
                 f"There are no available interactions with {object.name} based on its current state."
             )
-            return
+            return {}, {}
 
         print(f"Interacting with {object.name}. Available commands:")
         interaction_command_dict = {}
         interaction_index_dict = {}
         for index, interaction in enumerate(available_interactions, start=1):
-            print(f"{index}. {interaction.command}: {interaction.description}")
             interaction_command_dict[interaction.command.lower()] = interaction
             interaction_index_dict[str(index)] = interaction
+
+            if toggle_print_commands:
+                print(f"{index}. {interaction.command}: {interaction.description}")
 
         return interaction_command_dict, interaction_index_dict
 
     def interact_with_object(self) -> None:
         object_at_position = self.find_object_at_position()
 
+        if not object_at_position:
+            print("There is nothing here to interact with.")
+            return
+
         interaction_command_dict, interaction_index_dict = (
-            self.get_available_object_interactions(object_at_position)
+            self.get_available_object_interactions(
+                object_at_position, toggle_print_commands=True
+            )
         )
 
         print("Type 'e' or 'exit' to stop interacting or enter the number or command.")
@@ -303,6 +309,18 @@ class Scene:
                 print(f"You open the door and step through to {door_exit_position}")
 
             return
+
+    def find_available_object_interactions(self) -> dict[str, Any] | None:
+        object_at_position = self.find_object_at_position()
+
+        if not object_at_position:
+            return
+
+        interaction_command_dict, _ = self.get_available_object_interactions(
+            object_at_position, toggle_print_commands=False
+        )
+
+        return interaction_command_dict
 
     def update_sensory_data(self) -> Sensory:
         """
@@ -424,6 +442,24 @@ class Scene:
             combined_senses["vision"] += " " + distance_description
 
     def process_action(self, command: str):
+        # Append any available object interactions to base actions
+        available_interactions: list[Interaction] = (
+            self.find_available_object_interactions()
+        )
+        if available_interactions:
+            available_actions = self.base_actions
+            for available_command in available_interactions:
+                interaction = available_interactions[available_command]
+                object_action = Action(
+                    key=interaction.command,
+                    function_name="TODO",
+                    description=interaction.description,
+                )
+                available_actions.actions.append(object_action)
+            self.actions = available_actions
+        else:
+            self.actions = self.base_actions
+
         function_name = self.actions.get_action_function(command)
         if function_name:
             method = getattr(self, function_name, None)

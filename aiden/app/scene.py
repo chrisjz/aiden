@@ -428,7 +428,7 @@ class Scene:
             new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
             if not self.is_position_within_room(new_position):
                 combined_senses["vision"] += (
-                    " There is an impassable barrier in front of you."
+                    " | There is an impassable barrier in front of you."
                 )
 
         # Return a new Sensory instance filled with the combined sensory data

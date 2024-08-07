@@ -129,13 +129,13 @@ class Scene:
                 ),
                 Action(
                     key="e",
-                    function_name="prompt_interact_with_object",
-                    description="Interact with object",
+                    function_name="print_object_interactions",
+                    description="Check available object interactions",
                 ),
                 Action(
-                    key="use",
-                    function_name="prompt_interact_with_object",
-                    description="Interact with object",
+                    key="inspect",
+                    function_name="print_object_interactions",
+                    description="Check available object interactions",
                 ),
             ]
         )
@@ -150,6 +150,8 @@ class Scene:
                 "W": Direction(name="West", dx=-1, dy=0),
             }
         )
+
+        self.print_additional_commands = {}
 
     def get_entity_by_position(
         self, position: tuple[int, int], entity_type: EntityType
@@ -232,7 +234,7 @@ class Scene:
 
     def get_available_object_interactions(
         self, object: Object, toggle_print_commands: bool = False
-    ) -> tuple[dict[str, Any], dict[str, Any]]:
+    ) -> dict[str, Any]:
         current_states = self.object_states[object.name]
         available_interactions = [
             interaction
@@ -247,19 +249,19 @@ class Scene:
             print(
                 f"There are no available interactions with {object.name} based on its current state."
             )
-            return {}, {}
+            return {}
 
         print(f"Interacting with {object.name}. Available commands:")
-        interaction_command_dict = {}
-        interaction_index_dict = {}
-        for index, interaction in enumerate(available_interactions, start=1):
-            interaction_command_dict[interaction.command.lower()] = interaction
-            interaction_index_dict[str(index)] = interaction
+        interaction_commands = {}
+        for interaction in available_interactions:
+            interaction_commands[interaction.command.lower()] = interaction
 
             if toggle_print_commands:
-                print(f"{index}. {interaction.command}: {interaction.description}")
+                self.print_additional_commands[interaction.command.lower()] = (
+                    interaction.description
+                )
 
-        return interaction_command_dict, interaction_index_dict
+        return interaction_commands
 
     def execute_interaction(
         self, object_at_position: Object, chosen_interaction: Interaction
@@ -292,53 +294,29 @@ class Scene:
             self.player_position = door_exit_position
             print(f"You open the door and step through to {door_exit_position}")
 
-    def prompt_interact_with_object(self) -> None:
+    def print_object_interactions(self) -> None:
         object_at_position = self.find_object_at_position()
 
         if not object_at_position:
             print("There is nothing here to interact with.")
             return
 
-        interaction_command_dict, interaction_index_dict = (
-            self.get_available_object_interactions(
-                object_at_position, toggle_print_commands=True
-            )
+        self.get_available_object_interactions(
+            object_at_position, toggle_print_commands=True
         )
 
-        print("Type 'e' or 'exit' to stop interacting or enter the number or command.")
-
-        while True:
-            chosen_input = (
-                input("Choose a command to execute or type 'exit': ").strip().lower()
-            )
-            if chosen_input in ("e", "exit"):
-                print("Exiting interaction mode.")
-                return
-
-            # Get interaction if in list of command names or command indexes
-            chosen_interaction = interaction_command_dict.get(
-                chosen_input, interaction_index_dict.get(chosen_input, None)
-            )
-
-            if not chosen_interaction:
-                print("No such command available or conditions not met.")
-
-            self.execute_interaction(object_at_position, chosen_interaction)
-
-            return
-
-    def direct_interact_with_object(self) -> None:
+    def interact_with_object(self) -> None:
         object_at_position: Object | None = self.find_object_at_position()
 
         if not object_at_position:
             print("Could not find object to interact with.")
             return
 
-        interaction_command_dict, _ = self.get_available_object_interactions(
+        interaction_commands = self.get_available_object_interactions(
             object_at_position, toggle_print_commands=False
         )
 
-        chosen_interaction = interaction_command_dict.get(self.current_action, None)
+        chosen_interaction = interaction_commands.get(self.current_action, None)
 
         if not chosen_interaction:
             print(
@@ -354,11 +332,11 @@ class Scene:
         if not object_at_position:
             return
 
-        interaction_command_dict, _ = self.get_available_object_interactions(
+        interaction_commands = self.get_available_object_interactions(
             object_at_position, toggle_print_commands=False
         )
 
-        return interaction_command_dict
+        return interaction_commands
 
     def update_sensory_data(self) -> Sensory:
         """
@@ -412,23 +390,27 @@ class Scene:
                 isinstance(entity, Door) and pos[0] != 0
             ):  # Doors at player handled lower down in this function
                 distance_description = self.describe_relative_position("Door", pos)
-                combined_senses["vision"] += " | " + distance_description
+                prefix = " | " if combined_senses["vision"] else ""
+                combined_senses["vision"] += prefix + distance_description
 
         # Add to vision if player is at a door
         if self.find_door_exit_by_entry(self.player_position):
+            prefix = " | " if combined_senses["vision"] else ""
             combined_senses["vision"] += (
-                " | You are at a door which leads to another room."
+                f"{prefix}You are at a door which leads to another room."
             )
+            prefix = " | " if combined_senses["tactile"] else ""
             combined_senses["tactile"] += (
-                " | You can additionally perform the following interactions: 'enter room'"
+                f"{prefix}You can additionally perform the following interactions: 'enter room'"
             )
         # Add to vision if a boundary is in front of the player
         else:
             dx, dy = self.directions.get_offset(self.player_orientation)
             new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
             if not self.is_position_within_room(new_position):
+                prefix = " | " if combined_senses["vision"] else ""
                 combined_senses["vision"] += (
-                    " | There is an impassable barrier in front of you."
+                    f"{prefix}There is an impassable barrier in front of you."
                 )
 
         # Return a new Sensory instance filled with the combined sensory data
@@ -473,11 +455,13 @@ class Scene:
         for sense_key in combined_senses.keys():
             sense_value = getattr(matched_senses, sense_key)
             if sense_value:
-                combined_senses[sense_key] += " | " + sense_value
+                prefix = " | " if combined_senses[sense_key] else ""
+                combined_senses[sense_key] += prefix + sense_value
 
         # Append distance description to vision if provided
         if distance_description:
-            combined_senses["vision"] += " " + distance_description
+            prefix = " | " if combined_senses["vision"] else ""
+            combined_senses["vision"] += prefix + distance_description
 
     def process_action(self, command: str):
         # Used only for actions related to object interactions
@@ -493,7 +477,7 @@ class Scene:
                 interaction = available_interactions[available_command]
                 object_action = Action(
                     key=interaction.command,
-                    function_name="direct_interact_with_object",
+                    function_name="interact_with_object",
                     description=interaction.description,
                 )
                 available_actions.actions.append(object_action)
@@ -507,9 +491,9 @@ class Scene:
             if method:
                 method()
             else:
-                print("No method found for the command.")
+                print(f"No method found for the command: {command}")
         else:
-            print("Invalid command!")
+            print(f"Invalid command: {command}")
 
     def move_forward(self):
         dx, dy = self.directions.get_offset(self.player_orientation)
@@ -810,7 +794,21 @@ def main(args) -> None:
     env.print_scene(args.pretty)
 
     while True:
-        command = input("Enter command (w, a, s, d, e, q to quit): ").strip().lower()
+        additional_commands = ""
+        if env.print_additional_commands:
+            print("Interaction commands available:")
+            for cmd in env.print_additional_commands:
+                print(f"{cmd}: {env.print_additional_commands[cmd]}")
+            print()
+
+            additional_commands = ", ".join(env.print_additional_commands.keys()) + ", "
+            env.print_additional_commands = {}
+
+        command_prompt = (
+            f"Enter command (w, a, s, d, e, {additional_commands}q to quit): "
+        )
+
+        command = input(command_prompt).strip().lower()
         if command == "q":
             break
 

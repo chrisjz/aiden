@@ -455,34 +455,22 @@ def test_sensory_data_interaction(complex_scene):
 def test_available_interactions_based_on_state(interactive_scene, monkeypatch):
     # Ensure the TV is off
     interactive_scene.object_states["TV"] = {"isOn": False}
-    # Simulate user input for exiting interaction mode immediately
-    monkeypatch.setattr("builtins.input", lambda _: "exit")
-    output = capture_output(interactive_scene.prompt_interact_with_object)
 
-    assert "turn on" in output, "Turn on command should be available"
-    assert "turn off" not in output, "Turn off command should not be available"
+    # Check available interactions
+    interactive_scene.process_action("e")
+
+    assert (
+        "turn on" in interactive_scene.print_additional_commands
+    ), "Turn on command should be available"
+    assert (
+        "turn off" not in interactive_scene.print_additional_commands
+    ), "Turn off command should not be available"
 
 
-def test_enter_room_via_door(complex_scene, monkeypatch):
+def test_enter_room_via_door(complex_scene):
     complex_scene.player_position = (4, 3)  # Position at the door entry
     complex_scene.process_action("forward")
-
-    # Prepare the responses for input calls
-    inputs = iter(["enter room", "exit"])
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
-    # Redirect stdout to capture prints
-    captured_output = io.StringIO()
-    monkeypatch.setattr(sys, "stdout", captured_output)
-
-    # Position player correctly and then simulate interaction
-    complex_scene.process_action("e")  # Trigger interaction which should handle inputs
-
-    # Fetch the captured output and check it
-    output = captured_output.getvalue()
-    assert (
-        "Interacting with Door" in output
-    ), f"Expected 'Interacting with Door' in output, got: {output}"
+    complex_scene.process_action("enter room")
 
     assert complex_scene.player_position == (
         0,
@@ -491,39 +479,31 @@ def test_enter_room_via_door(complex_scene, monkeypatch):
 
 
 def test_interaction_execution_changes_state(interactive_scene, monkeypatch):
-    # Prepare the responses for input calls
-    inputs = iter(["turn on", "exit"])
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-
     # Redirect stdout to capture prints
     captured_output = io.StringIO()
     monkeypatch.setattr(sys, "stdout", captured_output)
 
-    # Position player correctly and then simulate interaction
-    interactive_scene.process_action(
-        "e"
-    )  # Trigger interaction which should handle inputs
+    # Turn on TV
+    interactive_scene.process_action("turn on")
 
-    # Fetch the captured output and check it
     output = captured_output.getvalue()
     assert (
         "TV playing a sports game" in output
     ), f"Expected 'TV playing a sports game' in output, got: {output}"
 
 
-def test_exit_interaction_command(interactive_scene):
-    # Mock input to simulate "exit" command
-    with patch("builtins.input", return_value="exit"):
-        output = capture_output(interactive_scene.prompt_interact_with_object)
-    assert "Exiting interaction mode." in output
-
-
 def test_no_interactions_available(interactive_scene, monkeypatch):
     # Move player to sofa location
     interactive_scene.process_action("w")
-    # Simulate user input for exiting interaction mode immediately
-    monkeypatch.setattr("builtins.input", lambda _: "exit")
-    output = capture_output(interactive_scene.prompt_interact_with_object)
+
+    # Redirect stdout to capture prints
+    captured_output = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", captured_output)
+
+    # Check available interactions
+    interactive_scene.process_action("e")
+
+    output = captured_output.getvalue()
     assert (
         "There are no available interactions with Sofa based on its current state."
         in output
@@ -538,7 +518,7 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
     [
         (
             (1, 1),
-            "A spacious living room with large windows. | TV which is switched off. The TV is 1.4 meters in front-left. The Sofa is 2.2 meters in front-left.",
+            "A spacious living room with large windows. | TV which is switched off. | The TV is 1.4 meters in front-left. | The Sofa is 2.2 meters in front-left.",
             "A constant low hum from an air conditioner. | No sound coming from the TV.",
             "Freshly brewed coffee.",
             "Smooth, cool wooden floors underfoot.",
@@ -546,7 +526,7 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
         ),
         (
             (2, 2),
-            "A spacious living room with large windows. | TV which is switched off. The Sofa is 1.0 meters in front.",
+            "A spacious living room with large windows. | TV which is switched off. | The Sofa is 1.0 meters in front.",
             "A constant low hum from an air conditioner. | No sound coming from the TV.",
             "Freshly brewed coffee.",
             "Smooth, cool wooden floors underfoot.",
@@ -641,11 +621,11 @@ def test_add_object_senses_default(simple_scene):
     )
 
     assert combined_senses == {
-        "vision": " | Visible. The TestObject is 1 meter to the right.",
-        "auditory": " | Audible.",
-        "tactile": " | Tactile.",
-        "olfactory": " | Olfactory.",
-        "gustatory": " | Gustatory.",
+        "vision": "Visible. | The TestObject is 1 meter to the right.",
+        "auditory": "Audible.",
+        "tactile": "Tactile.",
+        "olfactory": "Olfactory.",
+        "gustatory": "Gustatory.",
     }
 
 
@@ -694,11 +674,11 @@ def test_add_object_senses_interaction(simple_scene):
     )
 
     assert combined_senses == {
-        "vision": " | InteractionVisible. The TestObject is 1 meter to the right.",
-        "auditory": " | InteractionAudible.",
-        "tactile": " | InteractionTactile.",
-        "olfactory": " | InteractionOlfactory.",
-        "gustatory": " | InteractionGustatory.",
+        "vision": "InteractionVisible. | The TestObject is 1 meter to the right.",
+        "auditory": "InteractionAudible.",
+        "tactile": "InteractionTactile.",
+        "olfactory": "InteractionOlfactory.",
+        "gustatory": "InteractionGustatory.",
     }
 
 
@@ -747,11 +727,11 @@ def test_add_object_senses_no_interaction_match(simple_scene):
     )
 
     assert combined_senses == {
-        "vision": " | Visible. The TestObject is 1 meter to the right.",
-        "auditory": " | Audible.",
-        "tactile": " | Tactile.",
-        "olfactory": " | Olfactory.",
-        "gustatory": " | Gustatory.",
+        "vision": "Visible. | The TestObject is 1 meter to the right.",
+        "auditory": "Audible.",
+        "tactile": "Tactile.",
+        "olfactory": "Olfactory.",
+        "gustatory": "Gustatory.",
     }
 
 

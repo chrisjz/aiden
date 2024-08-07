@@ -331,7 +331,7 @@ class Scene:
         object_at_position: Object | None = self.find_object_at_position()
 
         if not object_at_position:
-            print("ERROR: Could not find object to interact with.")
+            print("Could not find object to interact with.")
             return
 
         interaction_command_dict, _ = self.get_available_object_interactions(
@@ -342,7 +342,7 @@ class Scene:
 
         if not chosen_interaction:
             print(
-                f"ERROR: Could not find interaction `{self.current_action}` for object `{object_at_position.name}`."
+                f"Could not find interaction `{self.current_action}` for object `{object_at_position.name}`."
             )
             return
 

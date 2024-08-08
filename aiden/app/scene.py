@@ -36,6 +36,7 @@ import math
 import os
 from typing import Any
 
+from aiden.app.brain.cognition import INTERACTIVE_ACTIONS_PRECURSOR
 from aiden.models.brain import Sensory
 from aiden.models.scene import (
     Action,
@@ -251,7 +252,6 @@ class Scene:
             )
             return {}
 
-        print(f"Interacting with {object.name}. Available commands:")
         interaction_commands = {}
         for interaction in available_interactions:
             interaction_commands[interaction.command.lower()] = interaction
@@ -400,9 +400,6 @@ class Scene:
                 f"{prefix}You are at a door which leads to another room."
             )
             prefix = " | " if combined_senses["tactile"] else ""
-            combined_senses["tactile"] += (
-                f"{prefix}You can additionally perform the following interactions: 'enter room'"
-            )
         # Add to vision if a boundary is in front of the player
         else:
             dx, dy = self.directions.get_offset(self.player_orientation)
@@ -412,6 +409,16 @@ class Scene:
                 combined_senses["vision"] += (
                     f"{prefix}There is an impassable barrier in front of you."
                 )
+
+        # Add to tactile any available object interactions
+        if interactions := self.find_available_object_interactions():
+            prefix = " | " if combined_senses["tactile"] else ""
+            formatted_interactions = ", ".join(
+                f"'{key}'" for key in interactions.keys()
+            )
+            combined_senses["tactile"] += (
+                prefix + INTERACTIVE_ACTIONS_PRECURSOR + formatted_interactions
+            )
 
         # Return a new Sensory instance filled with the combined sensory data
         return Sensory(

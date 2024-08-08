@@ -529,7 +529,7 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
             "A spacious living room with large windows. | TV which is switched off. | The Sofa is 1.0 meters in front.",
             "A constant low hum from an air conditioner. | No sound coming from the TV.",
             "Freshly brewed coffee.",
-            "Smooth, cool wooden floors underfoot.",
+            "Smooth, cool wooden floors underfoot. | You can additionally perform the following interactions: 'turn on'",
             "",
         ),
         (

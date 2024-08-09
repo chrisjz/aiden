@@ -153,13 +153,13 @@ def process_response(content: str, logger: logging.Logger) -> tuple[str, str, st
         start = content.find("<speech>") + 8
         end = content.find("</speech>")
         speech = content[start:end].strip()
-        logger.info(f"\nSpeech:\n{speech}\n")
+        logger.info(f"Speech:\n{speech}\n")
 
     if "<action>" in content:
         start = content.find("<action>") + 8
         end = content.find("</action>")
         action = content[start:end].strip()
-        logger.info(f"\nAction to perform:\n{action}\n")
+        logger.info(f"Action to perform:\n{action}\n")
 
     # If none of these explicitly found, assume they are thoughts
     if not thoughts and not speech and not action:

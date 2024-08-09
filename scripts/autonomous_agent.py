@@ -204,7 +204,7 @@ async def main():
     parser.add_argument(
         "--terminal-level",
         type=str,
-        default="DEBUG",
+        default="INFO",
         help="Set log level for terminal output.",
     )
     parser.add_argument(

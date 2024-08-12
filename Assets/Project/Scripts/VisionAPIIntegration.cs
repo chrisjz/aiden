@@ -18,6 +18,18 @@ public class VisionAPIIntegration : MonoBehaviour
 
     private void Start()
     {
+        // Check if Vision API is enabled
+        env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isEnabled);
+        if (!isEnabled)
+        {
+            Debug.Log("Vision API is disabled");
+            return;
+        }
+        else
+        {
+            Debug.Log("Vision API is enabled");
+        }
+
         // Set API URL from environment variables to point to the occipital endpoint
         if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
             env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&

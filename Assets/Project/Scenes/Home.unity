@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.45117605, g: 0.5009337, b: 0.57378364, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3408,6 +3407,11 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!4 &1924769227 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8895717588111364959, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+  m_PrefabInstance: {fileID: 2330512957606553434}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1927026708 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 451208, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
@@ -3449,6 +3453,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1271458552283558744, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1271458552283558744, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: playerBody
+      value: 
+      objectReference: {fileID: 1924769227}
     - target: {fileID: 3437186562978733510, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_Enabled
       value: 1

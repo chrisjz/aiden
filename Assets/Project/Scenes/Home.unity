@@ -3461,6 +3461,10 @@ PrefabInstance:
       propertyPath: playerBody
       value: 
       objectReference: {fileID: 1924769227}
+    - target: {fileID: 1271458552283558744, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: mouseSensitivity
+      value: 300
+      objectReference: {fileID: 0}
     - target: {fileID: 3437186562978733510, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -3504,6 +3508,14 @@ PrefabInstance:
     - target: {fileID: 5080499609455479616, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5470656960645164267, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: strafeMovement
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5494790064104398565, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
+      propertyPath: StrafeMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5494790064104398565, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: RotationSmoothTime

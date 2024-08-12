@@ -13,11 +13,28 @@ public class TextToSpeech : MonoBehaviour
 
     private void Start()
     {
+        // Check if Vocal API is enabled
+        env.TryParseEnvironmentVariable("VOCAL_ENABLE", out bool isEnabled);
+        if (!isEnabled)
+        {
+            Debug.Log("Vocal API is disabled");
+            return;
+        }
+        else
+        {
+            Debug.Log("Vocal API is enabled");
+        }
+
         audioSource = gameObject.AddComponent<AudioSource>(); // Initialize the AudioSource component
     }
 
     public void SynthesizeAndPlay()
     {
+        if (!audioSource)
+        {
+            return;
+        }
+
         // Set API URL from environment variables
         if (env.TryParseEnvironmentVariable("VOCAL_API_PROTOCOL", out string protocol) &&
             env.TryParseEnvironmentVariable("VOCAL_API_HOST", out string host) &&

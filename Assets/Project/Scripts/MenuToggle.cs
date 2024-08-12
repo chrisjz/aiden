@@ -8,6 +8,7 @@ public class MenuToggle : MonoBehaviour
     public GameObject firstPersonCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
+    public GameObject buttonSubmitAISpeak;
     public GameObject buttonUserRecordingStart;
     public GameObject buttonUserRecordingStop;
 
@@ -16,6 +17,7 @@ public class MenuToggle : MonoBehaviour
     void Update()
     {
         env.TryParseEnvironmentVariable("AUDITORY_ENABLE", out bool isAuditoryEnabled);
+        env.TryParseEnvironmentVariable("VOCAL_ENABLE", out bool isVocalEnabled);
         if (Input.GetKeyDown(KeyCode.BackQuote)) // KeyCode for the tilde (~) key
         {
             isMenuVisible = !isMenuVisible;
@@ -31,6 +33,7 @@ public class MenuToggle : MonoBehaviour
                 Cursor.visible = true;
 
                 // Toggle button visibilites based on respective APIs availability
+                buttonSubmitAISpeak.SetActive(isVocalEnabled);
                 buttonUserRecordingStart.SetActive(isAuditoryEnabled);
                 buttonUserRecordingStop.SetActive(isAuditoryEnabled);
             }

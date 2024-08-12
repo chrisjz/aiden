@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using CandyCoded.env;
 
 public class MenuToggle : MonoBehaviour
 {
@@ -7,11 +8,14 @@ public class MenuToggle : MonoBehaviour
     public GameObject firstPersonCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
+    public GameObject buttonUserRecordingStart;
+    public GameObject buttonUserRecordingStop;
 
     private bool isMenuVisible = false;
 
     void Update()
     {
+        env.TryParseEnvironmentVariable("AUDITORY_ENABLE", out bool isAuditoryEnabled);
         if (Input.GetKeyDown(KeyCode.BackQuote)) // KeyCode for the tilde (~) key
         {
             isMenuVisible = !isMenuVisible;
@@ -25,6 +29,10 @@ public class MenuToggle : MonoBehaviour
             {
                 Cursor.lockState = CursorLockMode.None; // Unlock the cursor
                 Cursor.visible = true;
+
+                // Toggle button visibilites based on respective APIs availability
+                buttonUserRecordingStart.SetActive(isAuditoryEnabled);
+                buttonUserRecordingStop.SetActive(isAuditoryEnabled);
             }
             else
             {

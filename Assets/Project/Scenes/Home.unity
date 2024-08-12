@@ -2900,6 +2900,8 @@ MonoBehaviour:
   firstPersonCanvas: {fileID: 306086044}
   playerInput: {fileID: 1862328920}
   playerLook: {fileID: 188838642}
+  buttonUserRecordingStart: {fileID: 840386721}
+  buttonUserRecordingStop: {fileID: 524313548}
 --- !u!1 &1463414284
 GameObject:
   m_ObjectHideFlags: 0

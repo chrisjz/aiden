@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.IO;
+using CandyCoded.env;
 
 public class MicrophoneRecorder : MonoBehaviour
 {
@@ -12,6 +13,18 @@ public class MicrophoneRecorder : MonoBehaviour
 
     void Start()
     {
+        // Check if Auditory API is enabled
+        env.TryParseEnvironmentVariable("AUDITORY_ENABLE", out bool isEnabled);
+        if (!isEnabled)
+        {
+            Debug.Log("Auditory API is disabled");
+            return;
+        }
+        else
+        {
+            Debug.Log("Auditory API is enabled");
+        }
+
         // Check if a microphone is available
         if (Microphone.devices.Length > 0)
         {

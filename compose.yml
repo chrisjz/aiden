@@ -21,7 +21,7 @@ services:
     ports:
       - "${AUDITORY_API_PORT:-9000}:9000"
     environment:
-      - ASR_MODEL=${AUDITORY_API_MODEL:-tiny}
+      - ASR_MODEL=${AUDITORY_MODEL:-tiny}
       - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
 
   auditory-api-cpu:
@@ -33,7 +33,7 @@ services:
     ports:
       - "${AUDITORY_API_PORT:-9000}:9000"
     environment:
-      - ASR_MODEL=${AUDITORY_API_MODEL:-tiny}
+      - ASR_MODEL=${AUDITORY_MODEL:-tiny}
       - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
 
   brain-api:
@@ -149,9 +149,9 @@ services:
     ports:
       - "${VOCAL_API_PORT:-5002}:5002"
     entrypoint: ["python3"]
-    command: ["TTS/server/server.py", "--model_name", "${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DDC}", "--use_cuda", "true"]
+    command: ["TTS/server/server.py", "--model_name", "${VOCAL_MODEL:-tts_models/en/ljspeech/tacotron2-DDC}", "--use_cuda", "true"]
     environment:
-      - MODEL=${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DCA}
+      - MODEL=${VOCAL_MODEL:-tts_models/en/ljspeech/tacotron2-DCA}
       - VOCODER=${VOCAL_API_VOCODER:-vocoder_models/en/ljspeech/multiband-melgan}
 
   vocal-api-cpu:
@@ -163,7 +163,7 @@ services:
     ports:
       - "${VOCAL_API_PORT:-5002}:5002"
     entrypoint: ["python3"]
-    command: ["TTS/server/server.py", "--model_name", "${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DDC}"]
+    command: ["TTS/server/server.py", "--model_name", "${VOCAL_MODEL:-tts_models/en/ljspeech/tacotron2-DDC}"]
     environment:
-      - MODEL=${VOCAL_API_MODEL:-tts_models/en/ljspeech/tacotron2-DCA}
+      - MODEL=${VOCAL_MODEL:-tts_models/en/ljspeech/tacotron2-DCA}
       - VOCODER=${VOCAL_API_VOCODER:-vocoder_models/en/ljspeech/multiband-melgan}

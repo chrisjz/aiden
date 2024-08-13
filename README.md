@@ -1,6 +1,9 @@
-# 🤖 AIden (AI Denizen)
+<h1 align="center">
+  <img alt="AIden logo"
+  src="Assets/Project/Textures/Logo/logo-border.png" width="160" />
+</h1>
 
-AIden is an advanced virtual AI entity designed to simulate the complex
+AIden (AI denizen) is an advanced virtual AI entity designed to simulate the complex
 structure and functionality of the human brain. This project constructs
 a hierarchical API that mirrors the organization of different brain regions,
 enabling AIden to process and integrate sensory data such as auditory, visual,

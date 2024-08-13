@@ -4,4 +4,7 @@ MD013:
   tables: false
 MD033:
   allowed_elements:
+    - h1
+    - img
+    - p
     - sup

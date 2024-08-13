@@ -1,2 +1,15 @@
-- name: Unity - Activate
-  uses: game-ci/unity-activate@v2.0.0
+name: Check Unity activation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Unity - Activate
+        uses: game-ci/unity-activate@v2.0.0

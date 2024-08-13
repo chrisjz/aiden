@@ -3,26 +3,42 @@
   src="Assets/Project/Textures/Logo/logo-border.png" width="160" />
 </h1>
 
-AIden (AI denizen) is an advanced virtual AI entity designed to simulate the complex
-structure and functionality of the human brain. This project constructs
-a hierarchical API that mirrors the organization of different brain regions,
-enabling AIden to process and integrate sensory data such as auditory, visual,
-olfactory, gustatory, and tactile inputs.
+AIden is an advanced virtual AI entity designed to simulate the complex
+structure and functionality of the human brain.
 
-Leveraging recent machine learning models, AIden incorporates
-Ollama-compatible models for advanced language and visual understanding,
-OpenAI's Whisper for accurate speech recognition and other swappable models.
-This allows AIden to interact with its environment in nuanced and human-like
-ways. Key components of the system include virtual representations of the
-hippocampus for memory, the thalamus for sensory perception, the prefrontal cortex
-for decision making, amongst other regions, making AIden capable of learning from,
-perceiving, and responding to complex stimuli in its environment.
+- **Core Features**:
+  - **Hierarchical API**: Mirrors the organization of different brain
+  regions, enabling AIden to process and integrate various sensory data
+  types (auditory, visual, olfactory, gustatory, tactile).
+  - **Machine Learning Integration**:
+    - **Ollama-compatible models** for advanced language and visual
+    understanding.
+    - **OpenAI's Whisper** for accurate speech recognition.
+    - **Swappable models** for flexibility in AI capabilities.
+  - **Cognitive Model**: Incorporates virtual representations of key
+  brain regions:
+    - **Hippocampus** for memory.
+    - **Thalamus** for sensory perception.
+    - **Prefrontal Cortex** for decision-making.
 
-We aim to develop AIden into a highly intelligent and intuitive AI that
-can function dynamically within virtual environments, learning and adapting
-in real-time. We invite contributors passionate about advancing the frontiers
-of artificial intelligence and cognitive science to collaborate in refining and
-expanding this interactive virtual entity.
+- **Capabilities**:
+  - AIden interacts with its environment in nuanced and human-like ways,
+  capable of learning from, perceiving, and responding to complex stimuli.
+  - Real-time adaptation and learning within virtual environments.
+
+- **Project Goals**:
+  - To develop AIden into a highly intelligent and intuitive AI capable
+  of dynamic functioning within virtual environments.
+
+- **Additional Points**:
+  - **Virtual Environment Integration**: The project includes a Unity 3D
+  simulation where AIden interacts with a virtual environment. There is also
+  a 2D simulation using a grid-based system which runs in a terminal.
+  - **Advanced Sensory Processing**: AIden uses models like OpenAI's Whisper
+  and LLaVA for sensory data processing and integration.
+  - **Modular Design**: The project leverages a modular architecture, allowing
+  for easy updates and improvements to AIden’s cognitive and sensory processing
+  capabilities.
 
 ## Setup
 
@@ -30,9 +46,9 @@ expanding this interactive virtual entity.
 
 To run the simulation locally, you will need the following:
 
-* Python 3.11
-* Docker
-* Docker Compose
+- Python 3.11
+- Docker
+- Docker Compose
 
 ### Environment variables
 
@@ -55,13 +71,13 @@ and shouldn't be used.
 You can start specific services of the AIden AI using profiles. Profiles allow
 you to choose which services to run and whether to use CPU or GPU resources.
 
-* **Start all default services with GPU support:**
+- **Start all default services with GPU support:**
 
 ```shell
 docker compose --profile auditory-gpu --profile cognitive-gpu --profile vocal-gpu up -d
 ```
 
-* **Start all default services in CPU-only mode:**
+- **Start all default services in CPU-only mode:**
 
 ```shell
 docker compose --profile auditory-cpu --profile cognitive-cpu --profile vocal-cpu up -d
@@ -76,14 +92,14 @@ GitHub documentation to create a token:
 Once you have your token, use it to log in to the GitHub Container
 Registry before building the image:
 
-* **Linux/macOS:**
+- **Linux/macOS:**
 
 ```shell
 export CR_PAT="your_personal_access_token_here"
 echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
 ```
 
-* **Windows (PowerShell):**
+- **Windows (PowerShell):**
 
 ```powershell
 $env:CR_PAT = "your_personal_access_token_here"
@@ -104,13 +120,13 @@ times again when the service is next used.
 To stop services, you need to use the same profiles that were used to start
 them. For example:
 
-* **Stop all default services with GPU support:**
+- **Stop all default services with GPU support:**
 
 ```shell
 docker compose --profile auditory-gpu --profile cognitive-gpu --profile vocal-gpu stop
 ```
 
-* **Stop all default services in CPU-only mode:**
+- **Stop all default services in CPU-only mode:**
 
 ```shell
 docker compose --profile auditory-cpu --profile cognitive-cpu --profile vocal-cpu stop
@@ -118,11 +134,11 @@ docker compose --profile auditory-cpu --profile cognitive-cpu --profile vocal-cp
 
 ### Service Notes
 
-* The services are optional and can be started individually or in combination
+- The services are optional and can be started individually or in combination
 based on your requirements.
-* You can choose between CPU and GPU profiles for the `vision-api` and
+- You can choose between CPU and GPU profiles for the `vision-api` and
 `cognitive-api` services depending on your hardware and performance needs.
-* The `auditory-api` service does not have separate CPU and GPU profiles.
+- The `auditory-api` service does not have separate CPU and GPU profiles.
 
 ### Starting Simulation
 
@@ -130,13 +146,13 @@ Run the Unity simulation to interact with the virtual environment and AIden.
 
 #### Controls
 
-* **Open/Close Menu:** Press the "`" (backtick) key to open and close the
+- **Open/Close Menu:** Press the "`" (backtick) key to open and close the
 prompt panel for interacting with AIden.
-* **Movement:** Use the WASD keys or arrow keys to move in the simulation.
-* **Jump:** Press the spacebar to jump.
-* **Interact:** Press the "E" key or left-click with the mouse to interact
+- **Movement:** Use the WASD keys or arrow keys to move in the simulation.
+- **Jump:** Press the spacebar to jump.
+- **Interact:** Press the "E" key or left-click with the mouse to interact
 with certain objects in the environment.
-* **Look Around:** Use the mouse to control the camera and look around in
+- **Look Around:** Use the mouse to control the camera and look around in
 the simulation.
 
 ## Development

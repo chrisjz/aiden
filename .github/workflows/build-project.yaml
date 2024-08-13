@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   buildForAllSupportedPlatforms:
+    if: false # Disable builds for now
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
     strategy:
@@ -18,8 +19,7 @@ jobs:
           # - Android # Build an Android .apk standalone app.
           - WebGL # WebGL.
     steps:
-      - if: false # Disable builds for now
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true

@@ -19,7 +19,7 @@ jobs:
           - WebGL # WebGL.
     steps:
       - if: false # Disable builds for now
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true

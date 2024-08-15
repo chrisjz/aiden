@@ -10,8 +10,7 @@ public class MenuToggle : MonoBehaviour
     public PlayerLook playerLook;
     public GameObject buttonSubmitAISpeak;
     public GameObject buttonSubmitAIVisual;
-    public GameObject buttonUserRecordingStart;
-    public GameObject buttonUserRecordingStop;
+    public GameObject buttonUserRecording;
 
     private bool isMenuVisible = false;
 
@@ -37,8 +36,7 @@ public class MenuToggle : MonoBehaviour
                 // Toggle button visibilites based on respective APIs availability
                 buttonSubmitAIVisual.SetActive(isVisionEnabled);
                 buttonSubmitAISpeak.SetActive(isVocalEnabled);
-                buttonUserRecordingStart.SetActive(isAuditoryEnabled);
-                buttonUserRecordingStop.SetActive(isAuditoryEnabled);
+                buttonUserRecording.SetActive(isAuditoryEnabled);
             }
             else
             {

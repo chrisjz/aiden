@@ -2,12 +2,27 @@ using UnityEngine;
 using System;
 using System.IO;
 using CandyCoded.env;
+using UnityEngine.UI;
 
 public class MicrophoneRecorder : MonoBehaviour
 {
     public SpeechRecognition speechRecognition;
+
+    public Sprite recordingSprite;
+    public Sprite recordingDisabledSprite;
+    public Sprite recordingHighlightedSprite;
+    public Sprite recordingPressedSprite;
+    public Sprite recordingSelectedSprite;
+
+    public Sprite notRecordingSprite;
+    public Sprite notRecordingDisabledSprite;
+    public Sprite notRecordingHighlightedSprite;
+    public Sprite notRecordingPressedSprite;
+    public Sprite notRecordingSelectedSprite;
+
     private string microphoneName;
     private AudioClip recording;
+    private bool toggleRecording = false;
     private int sampleRate = 44100;
     private int recordingLength = 10; // Length in seconds
 
@@ -36,14 +51,50 @@ public class MicrophoneRecorder : MonoBehaviour
         }
     }
 
-    public void StartRecording()
+    public void ToggleRecording(Button button)
+    {
+        Image buttonImage = button.GetComponent<Image>();
+
+        if (toggleRecording)
+        {
+            StopRecordingAndSave();
+            buttonImage.sprite = notRecordingSprite;
+
+            SpriteState spriteState = new SpriteState
+            {
+                disabledSprite = notRecordingDisabledSprite,
+                highlightedSprite = notRecordingHighlightedSprite,
+                pressedSprite = notRecordingPressedSprite,
+                selectedSprite = notRecordingSelectedSprite,
+            };
+            button.spriteState = spriteState;
+        }
+        else
+        {
+            StartRecording();
+            buttonImage.sprite = recordingSprite;
+
+            SpriteState spriteState = new SpriteState
+            {
+                disabledSprite = recordingDisabledSprite,
+                highlightedSprite = recordingHighlightedSprite,
+                pressedSprite = recordingPressedSprite,
+                selectedSprite = recordingSelectedSprite,
+            };
+            button.spriteState = spriteState;
+        }
+
+        toggleRecording = !toggleRecording;
+    }
+
+    private void StartRecording()
     {
         // Start recording from the microphone
         Debug.Log("Start microphone recording");
         recording = Microphone.Start(microphoneName, false, recordingLength, sampleRate);
     }
 
-    public void StopRecordingAndSave()
+    private void StopRecordingAndSave()
     {
         if (Microphone.IsRecording(microphoneName))
         {

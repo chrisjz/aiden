@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using CandyCoded.env;
+using UnityEngine.UI;
 
 public class TextToSpeech : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class TextToSpeech : MonoBehaviour
         audioSource = gameObject.AddComponent<AudioSource>(); // Initialize the AudioSource component
     }
 
-    public void SynthesizeAndPlay()
+    public void SynthesizeAndPlay(Button button)
     {
         if (!audioSource)
         {
@@ -49,11 +50,13 @@ public class TextToSpeech : MonoBehaviour
             return;
         }
 
+        button.interactable = false;
+
         Debug.Log("Start speech synthesis.");
-        StartCoroutine(SynthesizeSpeech(requestText.text));
+        StartCoroutine(SynthesizeSpeech(requestText.text, button));
     }
 
-    private IEnumerator SynthesizeSpeech(string text)
+    private IEnumerator SynthesizeSpeech(string text, Button button)
     {
         string requestUrl = $"{apiURL}?text={UnityWebRequest.EscapeURL(text)}";
 
@@ -84,5 +87,7 @@ public class TextToSpeech : MonoBehaviour
                 }
             }
         }
+
+        button.interactable = true;
     }
 }

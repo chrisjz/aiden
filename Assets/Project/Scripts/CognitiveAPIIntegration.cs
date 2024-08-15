@@ -49,6 +49,7 @@ public class CognitiveAPIIntegration : MonoBehaviour
     {
         string playerMessage = playerInputField.text;
         responseText.text = "";
+        sendButton.interactable = false;
 
         Debug.Log("Start cognitive inference.");
         StartCoroutine(StreamRequest(playerMessage));
@@ -94,6 +95,8 @@ public class CognitiveAPIIntegration : MonoBehaviour
         {
             Debug.LogError(request.error);
         }
+
+        sendButton.interactable = true;
     }
 
     private void UpdateResponseText(string text)

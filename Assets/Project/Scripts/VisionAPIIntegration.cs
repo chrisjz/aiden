@@ -49,8 +49,11 @@ public class VisionAPIIntegration : MonoBehaviour
 
     private void SendRequestToVisionAPI()
     {
+        sendButton.interactable = false;
+
         if (cameraToCapture == null || cameraToCapture.targetTexture == null)
         {
+            sendButton.interactable = true;
             Debug.LogError("Camera or its target texture is not assigned.");
             return;
         }
@@ -90,6 +93,8 @@ public class VisionAPIIntegration : MonoBehaviour
         {
             Debug.LogError("Error: " + request.error);
         }
+
+        sendButton.interactable = true;
     }
 
 

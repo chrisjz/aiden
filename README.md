@@ -177,3 +177,9 @@ also manually run the hooks on all files with:
 ```shell
 poetry run pre-commit run --all-files
 ```
+
+## Contributing
+
+We welcome contributions from the community!
+Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on
+how to get involved.

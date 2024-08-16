@@ -6,6 +6,8 @@ public class MainMenu : MonoBehaviour
     public GameObject menuCanvas;
     public GameObject agentMenuCanvas;
     public GameObject firstPersonCanvas;
+    public GameObject screenMain;
+    public GameObject screenExit;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
 
@@ -34,6 +36,8 @@ public class MainMenu : MonoBehaviour
             Cursor.visible = true;
 
             agentMenuCanvas.SetActive(false);
+            screenMain.SetActive(true);
+            screenExit.SetActive(false);
         }
         else
         {
@@ -42,7 +46,18 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void Exit()
+    public void Back()
+    {
+        ToggleMenu();
+    }
+
+    public void ExitPrompt()
+    {
+        screenMain.SetActive(false);
+        screenExit.SetActive(true);
+    }
+
+    public void ExitConfirm()
     {
         Application.Quit();
     }

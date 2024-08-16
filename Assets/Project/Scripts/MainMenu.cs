@@ -7,6 +7,7 @@ public class MainMenu : MonoBehaviour
     public GameObject agentMenuCanvas;
     public GameObject firstPersonCanvas;
     public GameObject screenMain;
+    public GameObject screenControls;
     public GameObject screenExit;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
@@ -37,6 +38,7 @@ public class MainMenu : MonoBehaviour
 
             agentMenuCanvas.SetActive(false);
             screenMain.SetActive(true);
+            screenControls.SetActive(false);
             screenExit.SetActive(false);
         }
         else
@@ -51,10 +53,18 @@ public class MainMenu : MonoBehaviour
         ToggleMenu();
     }
 
+    public void Controls()
+    {
+        screenControls.SetActive(true);
+        screenMain.SetActive(false);
+        screenExit.SetActive(false);
+    }
+
     public void ExitPrompt()
     {
-        screenMain.SetActive(false);
         screenExit.SetActive(true);
+        screenMain.SetActive(false);
+        screenControls.SetActive(false);
     }
 
     public void ExitConfirm()

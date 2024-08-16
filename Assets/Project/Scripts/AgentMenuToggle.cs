@@ -2,10 +2,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using CandyCoded.env;
 
-public class MenuToggle : MonoBehaviour
+public class AgentMenuToggle : MonoBehaviour
 {
     public GameObject menuCanvas;
     public GameObject firstPersonCanvas;
+    public GameObject mainMenuCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
     public GameObject buttonSubmitAISpeak;
@@ -37,6 +38,8 @@ public class MenuToggle : MonoBehaviour
                 buttonSubmitAIVisual.SetActive(isVisionEnabled);
                 buttonSubmitAISpeak.SetActive(isVocalEnabled);
                 buttonSubmitUserRecording.SetActive(isAuditoryEnabled);
+
+                mainMenuCanvas.SetActive(false);
             }
             else
             {

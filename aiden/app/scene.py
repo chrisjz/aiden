@@ -36,10 +36,23 @@ import math
 import os
 from typing import Any
 
-from aiden.app.brain.cognition import INTERACTIVE_ACTIONS_PRECURSOR
-from aiden.models.brain import Sensory
-from aiden.models.scene import (
+from aiden.models.brain import (
     Action,
+    AuditoryInput,
+    AuditoryType,
+    GustatoryInput,
+    GustatoryType,
+    OlfactoryInput,
+    OlfactoryType,
+    Sensory,
+    SensoryInput,
+    TactileInput,
+    TactileType,
+    VisionInput,
+    VisionType,
+)
+from aiden.models.scene import (
+    Action as SceneAction,
     ActionList,
     Compass,
     Direction,
@@ -72,68 +85,68 @@ class Scene:
 
         self.base_actions = ActionList(
             actions=[
-                Action(
+                SceneAction(
                     key="w",
                     function_name="move_forward",
                     description="Move player forward",
                 ),
-                Action(
+                SceneAction(
                     key="forward",
                     function_name="move_forward",
                     description="Move player forward",
                 ),
-                Action(
+                SceneAction(
                     key="move forward",
                     function_name="move_forward",
                     description="Move player forward",
                 ),
-                Action(
+                SceneAction(
                     key="s",
                     function_name="move_backward",
                     description="Move player backward",
                 ),
-                Action(
+                SceneAction(
                     key="backward",
                     function_name="move_backward",
                     description="Move player backward",
                 ),
-                Action(
+                SceneAction(
                     key="move backward",
                     function_name="move_backward",
                     description="Move player backward",
                 ),
-                Action(
+                SceneAction(
                     key="a", function_name="turn_left", description="Turn player left"
                 ),
-                Action(
+                SceneAction(
                     key="left",
                     function_name="turn_left",
                     description="Turn player left",
                 ),
-                Action(
+                SceneAction(
                     key="turn left",
                     function_name="turn_left",
                     description="Turn player left",
                 ),
-                Action(
+                SceneAction(
                     key="d", function_name="turn_right", description="Turn player right"
                 ),
-                Action(
+                SceneAction(
                     key="right",
                     function_name="turn_right",
                     description="Turn player right",
                 ),
-                Action(
+                SceneAction(
                     key="turn right",
                     function_name="turn_right",
                     description="Turn player right",
                 ),
-                Action(
+                SceneAction(
                     key="e",
                     function_name="print_object_interactions",
                     description="Check available object interactions",
                 ),
-                Action(
+                SceneAction(
                     key="inspect",
                     function_name="print_object_interactions",
                     description="Check available object interactions",
@@ -153,6 +166,15 @@ class Scene:
         )
 
         self.print_additional_commands = {}
+
+        # Define mapping between brain and scene scensory models
+        self.sensory_mapping = {
+            "vision": (VisionInput, VisionType.GENERAL),
+            "auditory": (AuditoryInput, AuditoryType.AMBIENT),
+            "tactile": (TactileInput, TactileType.GENERAL),
+            "olfactory": (OlfactoryInput, OlfactoryType.GENERAL),
+            "gustatory": (GustatoryInput, GustatoryType.GENERAL),
+        }
 
     def get_entity_by_position(
         self, position: tuple[int, int], entity_type: EntityType
@@ -354,19 +376,17 @@ class Scene:
         visible_entities = self.get_field_of_view()
 
         # Initialize default senses
-        combined_senses = {
-            "vision": "",
-            "auditory": "",
-            "tactile": "",
-            "olfactory": "",
-            "gustatory": "",
-        }
+        combined_senses = Sensory()
 
         # Combine room senses if present
         if current_room:
             room_senses = current_room.senses
-            for key in combined_senses.keys():
-                combined_senses[key] += room_senses.__dict__[key]
+            for field, (input_class, default_type) in self.sensory_mapping.items():
+                sense_value = getattr(room_senses, field)
+                if sense_value:
+                    getattr(combined_senses, field).append(
+                        input_class(type=default_type, content=sense_value)
+                    )
 
         # Handle current object senses
         if current_object:
@@ -390,50 +410,47 @@ class Scene:
                 isinstance(entity, Door) and pos[0] != 0
             ):  # Doors at player handled lower down in this function
                 distance_description = self.describe_relative_position("Door", pos)
-                prefix = " | " if combined_senses["vision"] else ""
-                combined_senses["vision"] += prefix + distance_description
+                combined_senses.vision.append(
+                    VisionInput(type=VisionType.GENERAL, content=distance_description)
+                )
 
         # Add to vision if player is at a door
         if self.find_door_exit_by_entry(self.player_position):
-            prefix = " | " if combined_senses["vision"] else ""
-            combined_senses["vision"] += (
-                f"{prefix}You are at a door which leads to another room."
+            combined_senses.vision.append(
+                VisionInput(
+                    type=VisionType.GENERAL,
+                    content="You are at a door which leads to another room.",
+                )
             )
-            prefix = " | " if combined_senses["tactile"] else ""
         # Add to vision if a boundary is in front of the player
         else:
             dx, dy = self.directions.get_offset(self.player_orientation)
             new_position = (self.player_position[0] + dx, self.player_position[1] + dy)
             if not self.is_position_within_room(new_position):
-                prefix = " | " if combined_senses["vision"] else ""
-                combined_senses["vision"] += (
-                    f"{prefix}There is an impassable barrier in front of you."
+                combined_senses.vision.append(
+                    VisionInput(
+                        type=VisionType.GENERAL,
+                        content="There is an impassable barrier in front of you.",
+                    )
                 )
 
         # Add to tactile any available object interactions
         if interactions := self.find_available_object_interactions():
-            prefix = " | " if combined_senses["tactile"] else ""
-            formatted_interactions = ", ".join(
-                f"'{key}'" for key in interactions.keys()
-            )
-            combined_senses["tactile"] += (
-                prefix + INTERACTIVE_ACTIONS_PRECURSOR + formatted_interactions
-            )
+            for interaction in interactions:
+                combined_senses.tactile.append(
+                    TactileInput(
+                        type=TactileType.ACTION, command=Action(name=interaction)
+                    )
+                )
 
         # Return a new Sensory instance filled with the combined sensory data
-        return Sensory(
-            vision=combined_senses["vision"].strip(),
-            auditory=combined_senses["auditory"].strip(),
-            tactile=combined_senses["tactile"].strip(),
-            olfactory=combined_senses["olfactory"].strip(),
-            gustatory=combined_senses["gustatory"].strip(),
-        )
+        return combined_senses
 
     def add_object_senses(
         self,
         obj: Object,
         current_states: dict[str, bool],
-        combined_senses: dict[str, str],
+        combined_senses: Sensory,
         distance_description: str | None = None,
     ) -> None:
         """
@@ -442,7 +459,7 @@ class Scene:
         Args:
             obj (Object): The object whose senses are being considered.
             current_states (dict[str, bool]): The current states of the object.
-            combined_senses (dict[str, str]): The dictionary to update with the combined senses.
+            combined_senses Sensory: The dictionary to update with the combined senses.
             distance_description str | None: The distance description to append to the vision sense.
         """
         matched_senses = obj.senses  # Start with default object senses
@@ -459,16 +476,18 @@ class Scene:
                 break
 
         # Combining sensory data based on matched senses
-        for sense_key in combined_senses.keys():
-            sense_value = getattr(matched_senses, sense_key)
+        for field, (input_class, default_type) in self.sensory_mapping.items():
+            sense_value = getattr(matched_senses, field)
             if sense_value:
-                prefix = " | " if combined_senses[sense_key] else ""
-                combined_senses[sense_key] += prefix + sense_value
+                getattr(combined_senses, field).append(
+                    input_class(type=default_type, content=sense_value)
+                )
 
         # Append distance description to vision if provided
         if distance_description:
-            prefix = " | " if combined_senses["vision"] else ""
-            combined_senses["vision"] += prefix + distance_description
+            combined_senses.vision.append(
+                VisionInput(type=VisionType.GENERAL, content=distance_description)
+            )
 
     def process_action(self, command: str):
         # Used only for actions related to object interactions
@@ -482,7 +501,7 @@ class Scene:
             available_actions = self.base_actions
             for available_command in available_interactions:
                 interaction = available_interactions[available_command]
-                object_action = Action(
+                object_action = SceneAction(
                     key=interaction.command,
                     function_name="interact_with_object",
                     description=interaction.description,
@@ -696,6 +715,37 @@ class Scene:
 
         return f"The {name} is {distance:.1f} meters {direction}."
 
+    def _convert_sensory_data_to_string(
+        self, sensory_list: list[SensoryInput, TactileInput]
+    ) -> str:
+        """
+        Converts a list of sensory input objects to a single formatted string.
+
+        Args:
+            sensory_list (list[SensoryInput]): A list of sensory input objects (e.g., VisionInput, AuditoryInput, TactileInput).
+
+        Returns:
+            str: A formatted string where each sensory input is represented as '[Type] Content',
+                with multiple inputs separated by ' | '. For TactileInput of type 'action', it uses the command instead of content.
+        """
+        result = []
+        for item in sensory_list:
+            if (
+                isinstance(item, TactileInput)
+                and item.type == TactileType.ACTION
+                and item.command
+            ):
+                description_output = (
+                    f" - {item.command.description}" if item.command.description else ""
+                )
+                result.append(
+                    f"[{item.type.value.capitalize()}] {item.command.name}{description_output}"
+                )
+            else:
+                result.append(f"[{item.type.value.capitalize()}] {item.content}")
+
+        return " | ".join(result)
+
     def print_scene(self, pretty: bool):
         max_x = max(
             (room.position.x + room.size.width for room in self.rooms.values()),
@@ -760,11 +810,17 @@ class Scene:
             self.update_sensory_data()
         )  # Update sensory data after each command
 
-        print(f"Vision: {sensory_data.vision}")
-        print(f"Auditory: {sensory_data.auditory}")
-        print(f"Tactile: {sensory_data.tactile}")
-        print(f"Olfactory: {sensory_data.olfactory}")
-        print(f"Gustatory: {sensory_data.gustatory}")
+        print(f"Vision: {self._convert_sensory_data_to_string(sensory_data.vision)}")
+        print(
+            f"Auditory: {self._convert_sensory_data_to_string(sensory_data.auditory)}"
+        )
+        print(f"Tactile: {self._convert_sensory_data_to_string(sensory_data.tactile)}")
+        print(
+            f"Olfactory: {self._convert_sensory_data_to_string(sensory_data.olfactory)}"
+        )
+        print(
+            f"Gustatory: {self._convert_sensory_data_to_string(sensory_data.gustatory)}"
+        )
         print()
 
 

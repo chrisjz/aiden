@@ -2,8 +2,6 @@ from enum import Enum
 from typing import Optional, Any
 from pydantic import BaseModel, Field
 
-from aiden.models.brain import Sensory
-
 
 class EntityType(Enum):
     OBJECT = "object"
@@ -28,6 +26,14 @@ class ActionList(BaseModel):
 class States(BaseModel):
     requiredStates: dict[str, Any]
     nextStates: dict[str, Any]
+
+
+class Sensory(BaseModel):
+    vision: str = ""
+    auditory: str = ""
+    tactile: str = ""
+    olfactory: str = ""
+    gustatory: str = ""
 
 
 class Position(BaseModel):

@@ -3,7 +3,20 @@ import sys
 from unittest.mock import patch
 import pytest
 from aiden.app.scene import Scene
-from aiden.models.brain import Sensory
+from aiden.models.brain import (
+    AuditoryInput,
+    AuditoryType,
+    GustatoryInput,
+    GustatoryType,
+    OlfactoryInput,
+    OlfactoryType,
+    Sensory,
+    Action,
+    TactileInput,
+    TactileType,
+    VisionInput,
+    VisionType,
+)
 from aiden.models.scene import (
     Door,
     EntityType,
@@ -16,6 +29,7 @@ from aiden.models.scene import (
     Size,
     Interaction,
     States,
+    Sensory as SceneSensory,
 )
 
 
@@ -141,7 +155,7 @@ def interactive_scene():
             position=Position(x=0, y=0),
             size=Size(width=5, height=5),
             objects=[sofa, tv],
-            senses=Sensory(
+            senses=SceneSensory(
                 vision="A spacious living room with large windows.",
                 auditory="A constant low hum from an air conditioner.",
                 olfactory="Freshly brewed coffee.",
@@ -518,43 +532,90 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
     [
         (
             (1, 1),
-            "A spacious living room with large windows. | TV which is switched off. | The TV is 1.4 meters in front-left. | The Sofa is 2.2 meters in front-left.",
-            "A constant low hum from an air conditioner. | No sound coming from the TV.",
-            "Freshly brewed coffee.",
-            "Smooth, cool wooden floors underfoot.",
-            "",
+            [
+                VisionInput(content="A spacious living room with large windows."),
+                VisionInput(content="TV which is switched off."),
+                VisionInput(content="The TV is 1.4 meters in front-left."),
+                VisionInput(content="The Sofa is 2.2 meters in front-left."),
+            ],
+            [
+                AuditoryInput(content="A constant low hum from an air conditioner."),
+                AuditoryInput(content="No sound coming from the TV."),
+            ],
+            [
+                OlfactoryInput(content="Freshly brewed coffee."),
+            ],
+            [
+                TactileInput(content="Smooth, cool wooden floors underfoot."),
+            ],
+            [],
         ),
         (
             (2, 2),
-            "A spacious living room with large windows. | TV which is switched off. | The Sofa is 1.0 meters in front.",
-            "A constant low hum from an air conditioner. | No sound coming from the TV.",
-            "Freshly brewed coffee.",
-            "Smooth, cool wooden floors underfoot. | You can additionally perform the following interactions: 'turn on'",
-            "",
+            [
+                VisionInput(content="A spacious living room with large windows."),
+                VisionInput(content="TV which is switched off."),
+                VisionInput(content="The Sofa is 1.0 meters in front."),
+            ],
+            [
+                AuditoryInput(content="A constant low hum from an air conditioner."),
+                AuditoryInput(content="No sound coming from the TV."),
+            ],
+            [
+                OlfactoryInput(content="Freshly brewed coffee."),
+            ],
+            [
+                TactileInput(content="Smooth, cool wooden floors underfoot."),
+                TactileInput(type=TactileType.ACTION, command=Action(name="turn on")),
+            ],
+            [],
         ),
         (
             (4, 2),
-            "A spacious living room with large windows. | The Door is 1.0 meters in front.",
-            "A constant low hum from an air conditioner.",
-            "Freshly brewed coffee.",
-            "Smooth, cool wooden floors underfoot.",
-            "",
+            [
+                VisionInput(content="A spacious living room with large windows."),
+                VisionInput(content="The Door is 1.0 meters in front."),
+            ],
+            [
+                AuditoryInput(content="A constant low hum from an air conditioner."),
+            ],
+            [
+                OlfactoryInput(content="Freshly brewed coffee."),
+            ],
+            [
+                TactileInput(content="Smooth, cool wooden floors underfoot."),
+            ],
+            [],
         ),
         (
             (4, 3),
-            "A spacious living room with large windows. | You are at a door which leads to another room.",
-            "A constant low hum from an air conditioner.",
-            "Freshly brewed coffee.",
-            "Smooth, cool wooden floors underfoot. | You can additionally perform the following interactions: 'enter room'",
-            "",
+            [
+                VisionInput(content="A spacious living room with large windows."),
+                VisionInput(content="You are at a door which leads to another room."),
+            ],
+            [
+                AuditoryInput(content="A constant low hum from an air conditioner."),
+            ],
+            [
+                OlfactoryInput(content="Freshly brewed coffee."),
+            ],
+            [
+                TactileInput(content="Smooth, cool wooden floors underfoot."),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="enter room")
+                ),
+            ],
+            [],
         ),
         (
             (5, 5),
-            "There is an impassable barrier in front of you.",
-            "",
-            "",
-            "",
-            "",
+            [
+                VisionInput(content="There is an impassable barrier in front of you."),
+            ],
+            [],
+            [],
+            [],
+            [],
         ),
     ],
 )
@@ -595,7 +656,7 @@ def test_add_object_senses_default(simple_scene):
     obj = Object(
         name="TestObject",
         position=Position(x=0, y=0),
-        senses=Sensory(
+        senses=SceneSensory(
             vision="Visible.",
             auditory="Audible.",
             tactile="Tactile.",
@@ -607,33 +668,39 @@ def test_add_object_senses_default(simple_scene):
         interactions=[],
     )
     current_states = {}
-    combined_senses = {
-        "vision": "",
-        "auditory": "",
-        "tactile": "",
-        "olfactory": "",
-        "gustatory": "",
-    }
+    combined_senses = Sensory(
+        vision=[],
+        auditory=[],
+        tactile=[],
+        olfactory=[],
+        gustatory=[],
+    )
     distance_description = "The TestObject is 1 meter to the right."
 
     simple_scene.add_object_senses(
         obj, current_states, combined_senses, distance_description
     )
 
-    assert combined_senses == {
-        "vision": "Visible. | The TestObject is 1 meter to the right.",
-        "auditory": "Audible.",
-        "tactile": "Tactile.",
-        "olfactory": "Olfactory.",
-        "gustatory": "Gustatory.",
-    }
+    assert combined_senses == Sensory(
+        vision=[
+            VisionInput(type=VisionType.GENERAL, content="Visible."),
+            VisionInput(
+                type=VisionType.GENERAL,
+                content="The TestObject is 1 meter to the right.",
+            ),
+        ],
+        auditory=[AuditoryInput(type=AuditoryType.AMBIENT, content="Audible.")],
+        tactile=[TactileInput(type=TactileType.GENERAL, content="Tactile.")],
+        olfactory=[OlfactoryInput(type=OlfactoryType.GENERAL, content="Olfactory.")],
+        gustatory=[GustatoryInput(type=GustatoryType.GENERAL, content="Gustatory.")],
+    )
 
 
 def test_add_object_senses_interaction(simple_scene):
     obj = Object(
         name="TestObject",
         position=Position(x=0, y=0),
-        senses=Sensory(
+        senses=SceneSensory(
             vision="Visible.",
             auditory="Audible.",
             tactile="Tactile.",
@@ -646,7 +713,7 @@ def test_add_object_senses_interaction(simple_scene):
             Interaction(
                 command="interact",
                 description="Interaction",
-                senses=Sensory(
+                senses=SceneSensory(
                     vision="InteractionVisible.",
                     auditory="InteractionAudible.",
                     tactile="InteractionTactile.",
@@ -660,33 +727,45 @@ def test_add_object_senses_interaction(simple_scene):
         ],
     )
     current_states = {"state1": True}
-    combined_senses = {
-        "vision": "",
-        "auditory": "",
-        "tactile": "",
-        "olfactory": "",
-        "gustatory": "",
-    }
+    combined_senses = Sensory(
+        vision=[],
+        auditory=[],
+        tactile=[],
+        olfactory=[],
+        gustatory=[],
+    )
     distance_description = "The TestObject is 1 meter to the right."
 
     simple_scene.add_object_senses(
         obj, current_states, combined_senses, distance_description
     )
 
-    assert combined_senses == {
-        "vision": "InteractionVisible. | The TestObject is 1 meter to the right.",
-        "auditory": "InteractionAudible.",
-        "tactile": "InteractionTactile.",
-        "olfactory": "InteractionOlfactory.",
-        "gustatory": "InteractionGustatory.",
-    }
+    assert combined_senses == Sensory(
+        vision=[
+            VisionInput(type=VisionType.GENERAL, content="InteractionVisible."),
+            VisionInput(
+                type=VisionType.GENERAL,
+                content="The TestObject is 1 meter to the right.",
+            ),
+        ],
+        auditory=[
+            AuditoryInput(type=AuditoryType.AMBIENT, content="InteractionAudible.")
+        ],
+        tactile=[TactileInput(type=TactileType.GENERAL, content="InteractionTactile.")],
+        olfactory=[
+            OlfactoryInput(type=OlfactoryType.GENERAL, content="InteractionOlfactory.")
+        ],
+        gustatory=[
+            GustatoryInput(type=GustatoryType.GENERAL, content="InteractionGustatory.")
+        ],
+    )
 
 
 def test_add_object_senses_no_interaction_match(simple_scene):
     obj = Object(
         name="TestObject",
         position=Position(x=0, y=0),
-        senses=Sensory(
+        senses=SceneSensory(
             vision="Visible.",
             auditory="Audible.",
             tactile="Tactile.",
@@ -699,7 +778,7 @@ def test_add_object_senses_no_interaction_match(simple_scene):
             Interaction(
                 command="interact",
                 description="Interaction",
-                senses=Sensory(
+                senses=SceneSensory(
                     vision="InteractionVisible.",
                     auditory="InteractionAudible.",
                     tactile="InteractionTactile.",
@@ -713,26 +792,32 @@ def test_add_object_senses_no_interaction_match(simple_scene):
         ],
     )
     current_states = {"state1": False}
-    combined_senses = {
-        "vision": "",
-        "auditory": "",
-        "tactile": "",
-        "olfactory": "",
-        "gustatory": "",
-    }
+    combined_senses = Sensory(
+        vision=[],
+        auditory=[],
+        tactile=[],
+        olfactory=[],
+        gustatory=[],
+    )
     distance_description = "The TestObject is 1 meter to the right."
 
     simple_scene.add_object_senses(
         obj, current_states, combined_senses, distance_description
     )
 
-    assert combined_senses == {
-        "vision": "Visible. | The TestObject is 1 meter to the right.",
-        "auditory": "Audible.",
-        "tactile": "Tactile.",
-        "olfactory": "Olfactory.",
-        "gustatory": "Gustatory.",
-    }
+    assert combined_senses == Sensory(
+        vision=[
+            VisionInput(type=VisionType.GENERAL, content="Visible."),
+            VisionInput(
+                type=VisionType.GENERAL,
+                content="The TestObject is 1 meter to the right.",
+            ),
+        ],
+        auditory=[AuditoryInput(type=AuditoryType.AMBIENT, content="Audible.")],
+        tactile=[TactileInput(type=TactileType.GENERAL, content="Tactile.")],
+        olfactory=[OlfactoryInput(type=OlfactoryType.GENERAL, content="Olfactory.")],
+        gustatory=[GustatoryInput(type=GustatoryType.GENERAL, content="Gustatory.")],
+    )
 
 
 @pytest.mark.parametrize(

@@ -27,6 +27,7 @@ async def _extract_interactions(interaction_string: str) -> list[str]:
     Returns:
         List[str]: A list of interaction strings.
     """
+    # TODO: Change this func
     start_index = interaction_string.find(INTERACTIVE_ACTIONS_PRECURSOR)
 
     if start_index == -1:

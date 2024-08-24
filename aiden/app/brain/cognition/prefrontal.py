@@ -7,45 +7,53 @@ from langchain_experimental.llms.ollama_functions import OllamaFunctions, parse_
 
 from aiden import logger
 from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
-from aiden.models.brain import BrainConfig, BaseAction
+from aiden.models.brain import ACTION_NONE, Action, BrainConfig
 
 
-async def _map_decision_to_action(
-    decision: str, actions: list[str] = [BaseAction.NONE.value]
-) -> str:
+async def _map_decision_to_action(decision: str, actions: list[str] = []) -> str:
     """
-    Maps a textual decision into a defined action based on predefined actions in SimpleAction.
+    Maps a textual decision into a defined action based on predefined actions.
 
     Args:
         decision (str): The decision text to map.
         actions: List of actions available to decide upon. Defaults to no action.
 
     Returns:
-        str: The corresponding action from SimpleAction.
+        str: The corresponding action.
     """
     decision_formatted = decision.lower().replace("_", " ").replace("-", " ")
     for action in actions:
         if action in decision_formatted or decision_formatted in action:
             return action
-    return BaseAction.NONE.value
+    return ACTION_NONE
 
 
 async def process_prefrontal(
     sensory_input: str,
     brain_config: BrainConfig,
-    actions: list[str] = [BaseAction.NONE.value],
-) -> str:
+    actions: list[Action] = [],
+) -> str | None:
     """
     Simulates the prefrontal cortex decision-making based on sensory input.
 
     Args:
         sensory_input (str): Processed sensory input.
         brain_config (BrainConfig): Configuration of the brain.
-        actions: List of actions available to decide upon. Defaults to no action.
+        actions (list[Action]): List of actions available to decide upon. Defaults to no actions.
 
     Returns:
-        str: The decision on the next action.
+        str | None: The decision on the next action, or None if no action decided.
     """
+    # Skip decision-making if no actions available
+    if actions == []:
+        return None
+
+    action_names = [action.name for action in actions]
+
+    # Ensure an action to do nothing is available
+    if ACTION_NONE not in action_names:
+        action_names.append(ACTION_NONE)
+
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
     decision_prompt = f"{sensory_input}\nYour action decision:"
 
@@ -75,7 +83,7 @@ async def process_prefrontal(
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": actions,
+                            "enum": action_names,
                         },
                     },
                     "required": ["action"],
@@ -91,7 +99,7 @@ async def process_prefrontal(
         response: AIMessage = llm.invoke(messages)
         response_parsed = parse_response(response)
         logger.info(f"Prefrontal parsed response: {response_parsed}")
-        decision = json.loads(response_parsed).get("action", BaseAction.NONE.value)
+        decision = json.loads(response_parsed).get("action", ACTION_NONE)
         logger.info(f"Prefrontal decision: {decision}")
     except ValueError as exc:
         # Workaround for models that do not fully handle functions e.g. bakllava
@@ -102,17 +110,21 @@ async def process_prefrontal(
             logger.info(f"Inferred action from failed function call: {decision}")
         else:
             logger.info("No action found.")
-            return BaseAction.NONE.value
+            return None
     except Exception as exc:
         logger.warning(
             f"Could not infer action from failed function call with error: {exc}"
         )
-        return BaseAction.NONE.value
+        return None
 
     try:
-        mapped_action = await _map_decision_to_action(decision, actions)
+        mapped_action = await _map_decision_to_action(decision, action_names)
+
+        if mapped_action == ACTION_NONE:
+            mapped_action = None
+
         logger.info(f"Mapped action: {mapped_action}")
         return mapped_action
     except Exception as exc:
         logger.error(f"Failed prefrontal decision-making with error: {exc}")
-        return BaseAction.NONE.value
+        return None

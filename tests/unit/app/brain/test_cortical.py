@@ -1,14 +1,19 @@
-from aiden.app.brain.cortical import _extract_interactions, process_cortical
+from aiden.app.brain.cortical import (
+    _extract_actions_from_tactile_inputs,
+    process_cortical,
+)
 
 
 import pytest
 
 from aiden.models.brain import (
+    Action,
     AuditoryInput,
     GustatoryInput,
     OlfactoryInput,
     Sensory,
     TactileInput,
+    TactileType,
     VisionInput,
 )
 
@@ -40,7 +45,7 @@ async def test_process_cortical_request(mocker, brain_config):
 
     # Mock the action extractor
     mocker.patch(
-        "aiden.app.brain.cortical._extract_interactions",
+        "aiden.app.brain.cortical._extract_actions_from_tactile_inputs",
         return_value=[],
     )
 
@@ -81,33 +86,44 @@ async def test_process_cortical_request(mocker, brain_config):
 
 
 @pytest.mark.parametrize(
-    "interaction_string, expected_result",
+    "tactile_inputs, expected_actions",
     [
+        # Test with multiple actions and a general tactile input
         (
-            "You can additionally perform the following interactions: 'enter room', 'turn on tv'",
-            ["enter room", "turn on tv"],
+            [
+                TactileInput(type=TactileType.GENERAL, content="Smooth surface."),
+                TactileInput(type=TactileType.ACTION, command=Action(name="jump")),
+                TactileInput(type=TactileType.ACTION, command=Action(name="crouch")),
+            ],
+            [
+                Action(name="jump", description=None),
+                Action(name="crouch", description=None),
+            ],
         ),
+        # Test with actions containing descriptions
         (
-            "You can additionally perform the following interactions: 'sit down', 'stand up', 'open door'",
-            ["sit down", "stand up", "open door"],
+            [
+                TactileInput(
+                    type=TactileType.ACTION,
+                    command=Action(name="jump", description="Jump in the air."),
+                ),
+                TactileInput(
+                    type=TactileType.ACTION,
+                    command=Action(name="crouch", description="Crouch to the floor."),
+                ),
+            ],
+            [
+                Action(name="jump", description="Jump in the air."),
+                Action(name="crouch", description="Crouch to the floor."),
+            ],
         ),
-        (
-            "You can additionally perform the following interactions: 'read book'",
-            ["read book"],
-        ),
-        (
-            "You can additionally perform the following interactions: 'read book', 'watch tv' | You feel something warm touching your head.",
-            ["read book", "watch tv"],
-        ),
-        (
-            "A warm wind blows across your body. | You can additionally perform the following interactions: 'sit down', 'stand up' | You feel something warm touching your head.",
-            ["sit down", "stand up"],
-        ),
-        ("You can additionally perform the following interactions: ", []),
-        ("You can additionally perform the following interactions: ''", []),
-        ("You can additionally perform the following interactions: enter room", []),
+        # Test with only general tactile input
+        ([TactileInput(type=TactileType.GENERAL, content="Rough surface.")], []),
+        # Test with no inputs
+        ([], []),
     ],
 )
 @pytest.mark.asyncio
-async def test_extract_interactions(interaction_string, expected_result):
-    assert await _extract_interactions(interaction_string) == expected_result
+async def test_extract_actions_from_tactile_inputs(tactile_inputs, expected_actions):
+    result = await _extract_actions_from_tactile_inputs(tactile_inputs)
+    assert result == expected_actions

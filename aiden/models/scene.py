@@ -3,6 +3,13 @@ from typing import Optional, Any
 from pydantic import BaseModel, Field
 
 
+class BaseAction(Enum):
+    MOVE_FORWARD = "move forward"
+    MOVE_BACKWARD = "move backward"
+    TURN_LEFT = "turn left"
+    TURN_RIGHT = "turn right"
+
+
 class EntityType(Enum):
     OBJECT = "object"
     ROOM = "room"

@@ -546,6 +546,16 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
                 OlfactoryInput(content="Freshly brewed coffee."),
             ],
             [
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move forward")
+                ),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move backward")
+                ),
+                TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="turn right")
+                ),
                 TactileInput(content="Smooth, cool wooden floors underfoot."),
             ],
             [],
@@ -565,6 +575,16 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
                 OlfactoryInput(content="Freshly brewed coffee."),
             ],
             [
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move forward")
+                ),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move backward")
+                ),
+                TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="turn right")
+                ),
                 TactileInput(content="Smooth, cool wooden floors underfoot."),
                 TactileInput(type=TactileType.ACTION, command=Action(name="turn on")),
             ],
@@ -583,6 +603,16 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
                 OlfactoryInput(content="Freshly brewed coffee."),
             ],
             [
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move forward")
+                ),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move backward")
+                ),
+                TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="turn right")
+                ),
                 TactileInput(content="Smooth, cool wooden floors underfoot."),
             ],
             [],
@@ -600,6 +630,16 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
                 OlfactoryInput(content="Freshly brewed coffee."),
             ],
             [
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move forward")
+                ),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move backward")
+                ),
+                TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="turn right")
+                ),
                 TactileInput(content="Smooth, cool wooden floors underfoot."),
                 TactileInput(
                     type=TactileType.ACTION, command=Action(name="enter room")
@@ -614,7 +654,15 @@ def test_no_interactions_available(interactive_scene, monkeypatch):
             ],
             [],
             [],
-            [],
+            [
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="move backward")
+                ),
+                TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+                TactileInput(
+                    type=TactileType.ACTION, command=Action(name="turn right")
+                ),
+            ],
             [],
         ),
     ],

@@ -54,6 +54,7 @@ from aiden.models.brain import (
 from aiden.models.scene import (
     Action as SceneAction,
     ActionList,
+    BaseAction,
     Compass,
     Direction,
     Door,
@@ -378,6 +379,12 @@ class Scene:
         # Initialize default senses
         combined_senses = Sensory()
 
+        # Add default actions
+        combined_senses.tactile = [
+            TactileInput(type=TactileType.ACTION, command=Action(name=action.value))
+            for action in BaseAction
+        ]
+
         # Combine room senses if present
         if current_room:
             room_senses = current_room.senses
@@ -433,6 +440,14 @@ class Scene:
                         content="There is an impassable barrier in front of you.",
                     )
                 )
+
+                # Remove the "move forward" action from tactile inputs
+                combined_senses.tactile = [
+                    tactile_input
+                    for tactile_input in combined_senses.tactile
+                    if tactile_input.command is None
+                    or tactile_input.command.name != BaseAction.MOVE_FORWARD.value
+                ]
 
         # Add to tactile any available object interactions
         if interactions := self.find_available_object_interactions():

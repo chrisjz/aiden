@@ -3,7 +3,6 @@ import json
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from aiden import logger
-from aiden.app.brain.cognition import INTERACTIVE_ACTIONS_PRECURSOR
 from aiden.app.brain.memory.hippocampus import MemoryManager
 from aiden.app.brain.cognition.broca import process_broca
 from aiden.app.brain.cognition.prefrontal import process_prefrontal
@@ -14,40 +13,26 @@ from aiden.app.utils import (
     build_sensory_input_prompt_template,
     load_brain_config,
 )
-from aiden.models.brain import CorticalRequest, BaseAction
+from aiden.models.brain import Action, CorticalRequest, TactileInput, TactileType
 
 
-async def _extract_interactions(interaction_string: str) -> list[str]:
+async def _extract_actions_from_tactile_inputs(
+    tactile_inputs: list[TactileInput],
+) -> list[Action]:
     """
-    Extract a list of interactions from the given interaction string.
+    Filters and extracts actions from a list of tactile inputs, returning a list of Action objects.
 
     Args:
-        interaction_string (str): The interaction string to extract from.
+        tactile_inputs (list[TactileInput]): A list of tactile inputs where some might be of type ACTION.
 
     Returns:
-        List[str]: A list of interaction strings.
+        list[Action]: A list of Action objects filtered from the tactile inputs of type ACTION.
     """
-    # TODO: Change this func
-    start_index = interaction_string.find(INTERACTIVE_ACTIONS_PRECURSOR)
-
-    if start_index == -1:
-        return []
-
-    interactions_part = interaction_string[
-        start_index + len(INTERACTIVE_ACTIONS_PRECURSOR) :
+    return [
+        input.command
+        for input in tactile_inputs
+        if input.type == TactileType.ACTION and input.command is not None
     ]
-    end_index = interactions_part.find(" | ")
-
-    if end_index != -1:
-        interactions_part = interactions_part[:end_index].strip()
-
-    if not interactions_part or not (
-        "'" in interactions_part and "''" not in interactions_part
-    ):
-        return []
-
-    interactions = interactions_part.strip(" '").split("', '")
-    return interactions
 
 
 async def process_cortical(request: CorticalRequest) -> str:
@@ -81,9 +66,7 @@ async def process_cortical(request: CorticalRequest) -> str:
     sensory_input = await process_thalamus(raw_sensory_input, brain_config)
 
     # Prepare lists of actions available from tactile sensory input
-    actions = await _extract_interactions(request.sensory.tactile) + [
-        e.value for e in BaseAction
-    ]
+    actions = await _extract_actions_from_tactile_inputs(request.sensory.tactile)
     logger.info(f"Action commands available: {actions}")
 
     # Decision-making through prefrontal function
@@ -96,7 +79,7 @@ async def process_cortical(request: CorticalRequest) -> str:
     final_thoughts_input = (
         f"\n{cortical_config.instruction}\nYour sensory data: {sensory_input}"
     )
-    if action_output != BaseAction.NONE.value:
+    if action_output:
         action_output_formatted = action_output.replace("_", " ")
         final_thoughts_input += (
             f"\nYou decide to perform the action: {action_output_formatted}."
@@ -123,7 +106,7 @@ async def process_cortical(request: CorticalRequest) -> str:
 
     # Combine action, thoughts, and speech into one message
     combined_message_content = ""
-    if action_output != BaseAction.NONE.value:
+    if action_output:
         combined_message_content += f"<action>{action_output}</action>\n"
     combined_message_content += f"<thoughts>{thoughts_output}</thoughts>\n"
     if speech_output:
@@ -135,9 +118,7 @@ async def process_cortical(request: CorticalRequest) -> str:
         f"\nMy speech:\n{speech_output}" if speech_output else ""
     )
     combined_message_content_formatted += (
-        f"\nMy actions performed: {action_output}"
-        if action_output != BaseAction.NONE
-        else ""
+        f"\nMy actions performed: {action_output}" if action_output else ""
     )
     messages.append(AIMessage(content=combined_message_content_formatted))
 

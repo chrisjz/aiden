@@ -93,6 +93,7 @@ async def autonomous_agent_simulation(
     async with httpx.AsyncClient() as client:
         while True:  # Loop indefinitely to keep processing sensory data and actions
             # User speech input
+            # TODO: Add these to Auditory of language type
             speech_input_formatted = None
             if enable_speech:
                 speech_input = input("Your input: ")
@@ -117,7 +118,7 @@ async def autonomous_agent_simulation(
 
             payload = CorticalRequest(
                 config=brain_config_file, sensory=sensory_data, agent_id=agent_id
-            ).model_dump()
+            ).model_dump(mode="json")
             response = await client.post(
                 api_url, json=payload, timeout=90.0
             )  # Send sensory data to brain API

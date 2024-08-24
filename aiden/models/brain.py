@@ -3,14 +3,7 @@ from enum import Enum
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, Field, root_validator
 
-
-# TODO: Remove or change structure + name
-class BaseAction(Enum):
-    MOVE_FORWARD = "move forward"
-    MOVE_BACKWARD = "move backward"
-    TURN_LEFT = "turn left"
-    TURN_RIGHT = "turn right"
-    NONE = "none"
+ACTION_NONE = "none"
 
 
 class Action(BaseModel):

@@ -6,31 +6,7 @@ from aiden.app.brain.cognition.broca import process_broca
 
 
 @pytest.mark.asyncio
-async def test_process_broca_direct_address(mocker, brain_config):
-    # Create a mock response for the ChatOllama
-    mock_response = AIMessage(content='"I am well, thank you."')
-
-    # Mock ChatOllama class to return a predefined response
-    mock_ollama = mocker.patch(
-        "aiden.app.brain.cognition.broca.ChatOllama", autospec=True
-    )
-    instance = mock_ollama.return_value
-    instance.invoke.return_value = mock_response
-
-    # Simulate the function call
-    response = await process_broca('Someone asks: "How are you today?"', brain_config)
-
-    # Check if the response matches the expected verbal response within quotes
-    assert (
-        response == "I am well, thank you."
-    ), f"Expected: 'I am well, thank you.', but got: {response}"
-
-    # Check that the invoke method was called correctly
-    instance.invoke.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_process_broca_silence_when_unnecessary(mocker, brain_config):
+async def test_process_broca(mocker, brain_config):
     # Create a mock response for the ChatOllama
     mock_response = AIMessage(content="I am well, thank you.")
 
@@ -41,13 +17,16 @@ async def test_process_broca_silence_when_unnecessary(mocker, brain_config):
     instance = mock_ollama.return_value
     instance.invoke.return_value = mock_response
 
-    # Simulate the function call
-    response = await process_broca(
-        "You notice a small bird flying in the distance.", brain_config
-    )
+    # Simulate the function call with both sensory input and language input
+    sensory_input = "You see a friendly face."
+    language_input = "How are you today?"
 
-    # Check if the AI correctly remains silent
-    assert response == "", "Expected silence, but got some verbal output."
+    response = await process_broca(sensory_input, brain_config, language_input)
 
-    # Check that the invoke method was called correctly
+    # Check if the response matches the expected verbal response
+    assert (
+        response == "I am well, thank you."
+    ), f"Expected: 'I am well, thank you.', but got: {response}"
+
+    # Check that the invoke method was called with the correct combined input
     instance.invoke.assert_called_once()

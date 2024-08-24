@@ -2,13 +2,7 @@
   "regions": {
     "broca": {
       "instruction": [
-        "You are a virtual AI with access to simulated sensory data. Based on the provided sensory input, decide if you need to respond verbally.",
-        "Respond only if directly addressed or if there's an important event that needs immediate verbal acknowledgment.",
-        "Encapsulate your response in double quotes if you decide to respond.",
-        "If the situation doesn't require a direct verbal response, remain silent.",
-        "",
-        "Directly state your verbal response in quotes if the situation requires it.",
-        "Avoid narrating your observations or describing the scene unless it directly contributes to an interaction."
+        "Based on the provided sensory and spoken inputs, respond verbally as appropriate."
       ]
     },
     "cortical": {

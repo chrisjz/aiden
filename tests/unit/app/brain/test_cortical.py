@@ -9,6 +9,7 @@ import pytest
 from aiden.models.brain import (
     Action,
     AuditoryInput,
+    AuditoryType,
     GustatoryInput,
     OlfactoryInput,
     Sensory,
@@ -26,7 +27,10 @@ async def test_process_cortical_request(mocker, brain_config):
     cortical_request.history = []
     cortical_request.sensory = Sensory(
         vision=[VisionInput(content="Clear path ahead")],
-        auditory=[AuditoryInput(content="No sounds")],
+        auditory=[
+            AuditoryInput(content="No sounds"),
+            AuditoryInput(type=AuditoryType.LANGUAGE, content="Hello world"),
+        ],
         tactile=[TactileInput(content="No tactile input")],
         olfactory=[OlfactoryInput(content="No olfactory input")],
         gustatory=[GustatoryInput(content="No gustatory input")],

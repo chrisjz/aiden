@@ -13,7 +13,13 @@ from aiden.app.utils import (
     build_sensory_input_prompt_template,
     load_brain_config,
 )
-from aiden.models.brain import Action, CorticalRequest, TactileInput, TactileType
+from aiden.models.brain import (
+    Action,
+    AuditoryType,
+    CorticalRequest,
+    TactileInput,
+    TactileType,
+)
 
 
 async def _extract_actions_from_tactile_inputs(
@@ -72,8 +78,22 @@ async def process_cortical(request: CorticalRequest) -> str:
     # Decision-making through prefrontal function
     action_output = await process_prefrontal(sensory_input, brain_config, actions)
 
-    # Verbal output through broca function
-    speech_output = await process_broca(sensory_input, brain_config)
+    # Check if there is language input in sensory_input
+    language_input = None
+    for auditory_input in request.sensory.auditory:
+        if auditory_input.type == AuditoryType.LANGUAGE and auditory_input.content:
+            language_input = auditory_input.content
+            logger.info(f"Language input: {language_input}")
+            break  # Assuming we only need the first relevant language input
+
+    # Verbal output through broca function, only if language input is present
+    speech_output = None
+    if language_input:
+        speech_output = await process_broca(
+            sensory_input=sensory_input,
+            brain_config=brain_config,
+            language_input=language_input,
+        )
 
     # Format final thoughts prompt
     final_thoughts_input = (

@@ -40,7 +40,7 @@ import httpx
 from aiden.app.brain.memory.hippocampus import MemoryManager
 from aiden.app.clients.redis_client import redis_client
 from aiden.app.scene import Scene, load_scene
-from aiden.models.brain import CorticalRequest
+from aiden.models.brain import AuditoryInput, AuditoryType, CorticalRequest
 
 
 def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
@@ -93,14 +93,8 @@ async def autonomous_agent_simulation(
     async with httpx.AsyncClient() as client:
         while True:  # Loop indefinitely to keep processing sensory data and actions
             # User speech input
-            # TODO: Add these to Auditory of language type
-            speech_input_formatted = None
             if enable_speech:
                 speech_input = input("Your input: ")
-                if speech_input:
-                    speech_input_formatted = (
-                        f'In your earpiece you hear someone nearby say "{speech_input}"'
-                    )
 
             logger.debug("Refreshing scene display...")
             print("\033c", end="")
@@ -109,11 +103,11 @@ async def autonomous_agent_simulation(
             sensory_data = scene.update_sensory_data()
 
             # Append user speech
-            if speech_input_formatted:
-                sensory_data.auditory = ". ".join(
-                    filter(None, [sensory_data.auditory, speech_input_formatted])
+            if speech_input:
+                sensory_data.auditory.append(
+                    AuditoryInput(type=AuditoryType.LANGUAGE, content=speech_input)
                 )
-                logger.info(f"Auditory (amended): {sensory_data.auditory}\n")
+                logger.info(f"Auditory [Language]: {speech_input}\n")
                 await asyncio.sleep(1)
 
             payload = CorticalRequest(

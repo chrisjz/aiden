@@ -74,13 +74,13 @@ you to choose which services to run and whether to use CPU or GPU resources.
 - **Start all default services with GPU support:**
 
 ```shell
-docker compose --profile auditory-language-gpu --profile cognitive-gpu --profile vocal-gpu up -d
+docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --profile cognitive-gpu --profile vocal-gpu up -d
 ```
 
 - **Start all default services in CPU-only mode:**
 
 ```shell
-docker compose --profile auditory-language-cpu --profile cognitive-cpu --profile vocal-cpu up -d
+docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vocal-cpu up -d
 ```
 
 You can also have any combination of CPU and GPU services.
@@ -123,13 +123,13 @@ them. For example:
 - **Stop all default services with GPU support:**
 
 ```shell
-docker compose --profile auditory-language-gpu --profile cognitive-gpu --profile vocal-gpu stop
+docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --profile cognitive-gpu --profile vocal-gpu stop
 ```
 
 - **Stop all default services in CPU-only mode:**
 
 ```shell
-docker compose --profile auditory-language-cpu --profile cognitive-cpu --profile vocal-cpu stop
+docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vocal-cpu stop
 ```
 
 ### Service Notes
@@ -138,8 +138,6 @@ docker compose --profile auditory-language-cpu --profile cognitive-cpu --profile
 based on your requirements.
 - You can choose between CPU and GPU profiles for the `vision-api` and
 `cognitive-api` services depending on your hardware and performance needs.
-- The `auditory-language-api` and `auditory-ambient-api` services do not have
-separate CPU and GPU profiles.
 
 ### Starting Simulation
 

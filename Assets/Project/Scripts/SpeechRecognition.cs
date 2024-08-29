@@ -13,16 +13,16 @@ public class SpeechRecognition : MonoBehaviour
     public void StartTranscription(string audioFilePath)
     {
         // Set API URL from environment variables
-        if (env.TryParseEnvironmentVariable("AUDITORY_API_PROTOCOL", out string protocol) &&
-            env.TryParseEnvironmentVariable("AUDITORY_API_HOST", out string host) &&
-            env.TryParseEnvironmentVariable("AUDITORY_API_PORT", out string port))
+        if (env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_API_PORT", out string port))
         {
             apiURL = $"{protocol}://{host}:{port}/asr";
-            Debug.Log($"Auditory API URL set to: {apiURL}");
+            Debug.Log($"Auditory Language API URL set to: {apiURL}");
         }
         else
         {
-            Debug.LogError("Missing environment variables for auditory API URL.");
+            Debug.LogError("Missing environment variables for auditory language API URL.");
             return;
         }
 

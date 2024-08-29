@@ -6,10 +6,10 @@ x-base_service: &base_service
   restart: unless-stopped
 
 services:
-  auditory-api:
+  auditory-language-api:
     <<: *base_service
-    profiles: ["auditory-gpu"]
-    container_name: auditory-api
+    profiles: ["auditory-language-gpu"]
+    container_name: auditory-language-api
     deploy:
       resources:
         reservations:
@@ -19,22 +19,22 @@ services:
               capabilities: [gpu]
     image: onerahmet/openai-whisper-asr-webservice:latest-gpu
     ports:
-      - "${AUDITORY_API_PORT:-9000}:9000"
+      - "${AUDITORY_LANGUAGE_API_PORT:-9000}:9000"
     environment:
-      - ASR_MODEL=${AUDITORY_MODEL:-tiny}
-      - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
+      - ASR_MODEL=${AUDITORY_LANGUAGE_MODEL:-tiny}
+      - ASR_ENGINE=${AUDITORY_LANGUAGE_API_ENGINE:-faster_whisper}
 
-  auditory-api-cpu:
+  auditory-language-api-cpu:
     <<: *base_service
-    profiles: ["auditory-cpu"]
-    container_name: auditory-api
+    profiles: ["auditory-language-cpu"]
+    container_name: auditory-language-api
     deploy: {}
     image: onerahmet/openai-whisper-asr-webservice:latest
     ports:
-      - "${AUDITORY_API_PORT:-9000}:9000"
+      - "${AUDITORY_LANGUAGE_API_PORT:-9000}:9000"
     environment:
-      - ASR_MODEL=${AUDITORY_MODEL:-tiny}
-      - ASR_ENGINE=${AUDITORY_API_ENGINE:-faster_whisper}
+      - ASR_MODEL=${AUDITORY_LANGUAGE_MODEL:-tiny}
+      - ASR_ENGINE=${AUDITORY_LANGUAGE_API_ENGINE:-faster_whisper}
 
   brain-api:
     build: .

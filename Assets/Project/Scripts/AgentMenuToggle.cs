@@ -17,7 +17,7 @@ public class AgentMenuToggle : MonoBehaviour
 
     void Update()
     {
-        env.TryParseEnvironmentVariable("AUDITORY_ENABLE", out bool isAuditoryEnabled);
+        env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_ENABLE", out bool isAuditoryLanguageEnabled);
         env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isVisionEnabled);
         env.TryParseEnvironmentVariable("VOCAL_ENABLE", out bool isVocalEnabled);
         if (Input.GetKeyDown(KeyCode.BackQuote)) // KeyCode for the tilde (~) key
@@ -37,7 +37,7 @@ public class AgentMenuToggle : MonoBehaviour
                 // Toggle button visibilites based on respective APIs availability
                 buttonSubmitAIVisual.SetActive(isVisionEnabled);
                 buttonSubmitAISpeak.SetActive(isVocalEnabled);
-                buttonSubmitUserRecording.SetActive(isAuditoryEnabled);
+                buttonSubmitUserRecording.SetActive(isAuditoryLanguageEnabled);
 
                 mainMenuCanvas.SetActive(false);
             }

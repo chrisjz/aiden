@@ -28,16 +28,16 @@ public class MicrophoneRecorder : MonoBehaviour
 
     void Start()
     {
-        // Check if Auditory API is enabled
-        env.TryParseEnvironmentVariable("AUDITORY_ENABLE", out bool isEnabled);
+        // Check if Auditory Language API is enabled
+        env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_ENABLE", out bool isEnabled);
         if (!isEnabled)
         {
-            Debug.Log("Auditory API is disabled");
+            Debug.Log("Auditory Language API is disabled");
             return;
         }
         else
         {
-            Debug.Log("Auditory API is enabled");
+            Debug.Log("Auditory Language API is enabled");
         }
 
         // Check if a microphone is available

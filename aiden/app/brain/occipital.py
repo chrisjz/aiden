@@ -13,7 +13,7 @@ from aiden.models.brain import OccipitalRequest
 
 async def process_occipital(request: OccipitalRequest) -> AsyncGenerator[str, None]:
     """
-    Processes visual inputs to generate a textual description using an asynchronous generator.
+    Simulates the occipital lobe by processing visual inputs to generate a textual description.
 
     Args:
         request (OccipitalRequest): The request containing the image and configuration.

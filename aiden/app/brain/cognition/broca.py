@@ -12,8 +12,8 @@ async def process_broca(
     sensory_input: str, brain_config: BrainConfig, language_input: str
 ) -> str:
     """
-    Process the integrated sensory input and auditory language input to produce
-    a directly spoken response from the AI.
+    Simulates broca's area by processing the integrated sensory input and auditory
+    language input to produce a directly spoken response from the AI.
 
     Args:
         sensory_input (str): Processed sensory input that includes all sensory data.

@@ -43,7 +43,8 @@ async def _extract_actions_from_tactile_inputs(
 
 async def process_cortical(request: CorticalRequest) -> str:
     """
-    Processes a cortical request to determine the AI's actions and thoughts based on sensory input.
+    Simulates the cortical region (cerebral cortex) by processing sensory inputs to determine
+    the AI's actions and thoughts.
 
     Args:
         request (CorticalRequest): The request containing sensory data and configuration.

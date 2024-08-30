@@ -68,6 +68,9 @@ services:
     ports:
       - "${BRAIN_API_PORT:-8000}:8000"
     environment:
+      - AUDITORY_AMBIENT_API_HOST=auditory-ambient-api
+      - AUDITORY_AMBIENT_API_PORT=8000
+      - AUDITORY_AMBIENT_API_PROTOCOL=${VISION_API_PROTOCOL:-http}
       - CHROMA_HOST=chroma
       - COGNITIVE_API_HOST=cognitive-api
       - COGNITIVE_API_PORT=11434

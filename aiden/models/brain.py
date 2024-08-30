@@ -137,6 +137,20 @@ class BrainConfig(BaseModel):
     settings: BrainSettings
 
 
+class AuditoryRequest(BaseModel):
+    config: str = Field(default="./config/brain/default.json")
+    audio: str  # Base64-encoded string representing the audio file data (e.g., .wav or .mp3 file)
+
+
+class AuditoryResult(BaseModel):
+    class_name: str
+    score: float
+
+
+class AuditoryResponse(BaseModel):
+    results: list[AuditoryResult]
+
+
 class CorticalRequest(BaseModel):
     agent_id: str
     config: str = Field(default="./config/brain/default.json")

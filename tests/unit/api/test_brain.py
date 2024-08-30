@@ -15,6 +15,31 @@ base64_image = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD..."
 
 
 @pytest.mark.asyncio
+async def test_auditory_endpoint(mocker):
+    # Create a mock response object to simulate the response from the auditory classification service
+    mock_response = Response(
+        status_code=200,
+        json=[
+            {"class": "Bird", "score": 0.478},
+            {"class": "Animal", "score": 0.4669},
+            {"class": "Wild animals", "score": 0.4655},
+        ],
+    )
+
+    # Mock the post method of AsyncClient to return the mock response
+    mocker.patch.object(AsyncClient, "post", return_value=mock_response)
+
+    # Test the Brain API's auditory endpoint asynchronously
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post(
+            "/auditory/", json={"audio": "base64_encoded_audio_data"}
+        )
+        assert response.status_code == 200
+        assert '"class": "Bird"' in response.text
+        assert '"class": "Animal"' in response.text
+
+
+@pytest.mark.asyncio
 async def test_cortical_endpoint(mocker):
     # Create a mock response object
     mock_response = Response(

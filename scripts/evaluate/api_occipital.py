@@ -36,7 +36,9 @@ def load_image_as_base64(path: str) -> str:
 
 def main():
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/occipital/'
-    default_image_path = "./data/samples/visual/capturedImage_202407080106042090.png"
+    default_image_path = (
+        "./data/sensory/visual/samples/capturedImage_202407080106042090.png"
+    )
 
     print(f"Image path for vision recognition: {default_image_path}")
 

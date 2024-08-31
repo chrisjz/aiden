@@ -1225,6 +1225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   responseText: {fileID: 1520247091}
   sendButton: {fileID: 1000891912}
+  audioCapture: {fileID: 8746824087884854114}
 --- !u!1 &168231372
 GameObject:
   m_ObjectHideFlags: 0
@@ -11813,6 +11814,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+--- !u!114 &8746824087884854114 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8331408595883702860, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+  m_PrefabInstance: {fileID: 8746824087884854113}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaaae9947ee20e541989621f09ca33e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

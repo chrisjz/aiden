@@ -144,7 +144,7 @@ public class VisionAPIIntegration : MonoBehaviour
     }
 }
 
-// Define classes to match the JSON structure of the response
+// Define classes to match the JSON structure of the request
 [Serializable]
 public class VisionRequest
 {

@@ -1225,6 +1225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   responseText: {fileID: 1520247091}
   sendButton: {fileID: 1000891912}
+  saveCapturedAudio: 0
   audioCapture: {fileID: 8746824087884854114}
 --- !u!1 &168231372
 GameObject:
@@ -6872,7 +6873,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -11803,6 +11804,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 357884519752405661, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4278656331205167743, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: Mute
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4496595181621750349, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}

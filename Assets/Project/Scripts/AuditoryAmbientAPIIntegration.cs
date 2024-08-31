@@ -11,6 +11,7 @@ public class AuditoryAmbientAPIIntegration : MonoBehaviour
 {
     public TMP_Text responseText;
     public Button sendButton;
+    public bool saveCapturedAudio = false;
 
     private string apiURL;
 
@@ -60,6 +61,12 @@ public class AuditoryAmbientAPIIntegration : MonoBehaviour
 
         // Convert downsampled audio data to WAV format
         byte[] wavData = ConvertToWav(downsampledData, 16000);
+
+        // Save the audio data if toggled on
+        if (saveCapturedAudio)
+        {
+            SaveAudioToFile(wavData);
+        }
 
         // Convert the byte array to Base64
         string base64audio = Convert.ToBase64String(wavData);
@@ -125,6 +132,23 @@ public class AuditoryAmbientAPIIntegration : MonoBehaviour
         writer.Close();
 
         return memoryStream.ToArray();
+    }
+
+    private void SaveAudioToFile(byte[] audioData)
+    {
+        string directoryPath = Path.Combine(Application.dataPath, "../Temp/CapturedSenses/Auditory");
+
+        // Ensure directory exists
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        string filePath = Path.Combine(directoryPath, $"capturedAudio_{timestamp}.wav");
+
+        File.WriteAllBytes(filePath, audioData);
+        Debug.Log($"Saved captured audio to {filePath}");
     }
 
     private IEnumerator StreamRequest(string base64audio)

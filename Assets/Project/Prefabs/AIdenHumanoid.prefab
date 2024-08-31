@@ -1910,6 +1910,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7266205941858149839}
+  - component: {fileID: 6617251148274067687}
   - component: {fileID: 8331408595883702860}
   m_Layer: 8
   m_Name: Ear
@@ -1933,6 +1934,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4196812129619626161}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &6617251148274067687
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6754988822778209254}
+  m_Enabled: 0
 --- !u!114 &8331408595883702860
 MonoBehaviour:
   m_ObjectHideFlags: 0

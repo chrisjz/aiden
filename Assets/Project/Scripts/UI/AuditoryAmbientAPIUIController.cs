@@ -16,30 +16,11 @@ public class AuditoryAmbientAPIUIController : MonoBehaviour
 
     private void Start()
     {
-        // Check if Auditory Ambient API is enabled
-        env.TryParseEnvironmentVariable("AUDITORY_AMBIENT_ENABLE", out bool isEnabled);
-        if (!isEnabled)
-        {
-            Debug.Log("Auditory Ambient API is disabled");
-            return;
-        }
-        else
-        {
-            Debug.Log("Auditory Ambient API is enabled");
-        }
+        auditoryApiClient = new AuditoryAPIClient();
 
-        // Set API URL from environment variables to point to the auditory endpoint
-        if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
-            env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
-            env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
+        if (!auditoryApiClient.IsAPIEnabled())
         {
-            string apiUrl = $"{protocol}://{host}:{port}/auditory";
-            auditoryApiClient = new AuditoryAPIClient(apiUrl);
-            Debug.Log($"Brain API URL set to: {apiUrl}");
-        }
-        else
-        {
-            Debug.LogError("Missing environment variables for brain API URL.");
+            Debug.Log("Auditory Ambient API is disabled or not configured.");
             return;
         }
 

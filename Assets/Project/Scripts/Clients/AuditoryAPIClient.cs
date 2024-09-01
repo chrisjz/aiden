@@ -3,14 +3,39 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
+using CandyCoded.env;
 
 public class AuditoryAPIClient
 {
     private string apiURL;
 
-    public AuditoryAPIClient(string apiUrl)
+    public AuditoryAPIClient()
     {
-        apiURL = apiUrl;
+        // Check if Auditory Ambient API is enabled
+        env.TryParseEnvironmentVariable("AUDITORY_AMBIENT_ENABLE", out bool isEnabled);
+        if (!isEnabled)
+        {
+            Debug.Log("Auditory Ambient API is disabled");
+            return;
+        }
+
+        // Set API URL from environment variables to point to the auditory endpoint
+        if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
+        {
+            apiURL = $"{protocol}://{host}:{port}/auditory";
+            Debug.Log($"Brain API URL set to: {apiURL}");
+        }
+        else
+        {
+            Debug.LogError("Missing environment variables for brain API URL.");
+        }
+    }
+
+    public bool IsAPIEnabled()
+    {
+        return !string.IsNullOrEmpty(apiURL);
     }
 
     public float[] DownsampleAudio(float[] source, int sourceSampleRate, int targetSampleRate)

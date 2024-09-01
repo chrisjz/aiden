@@ -10,7 +10,7 @@ from aiden.models.brain import BrainConfig
 
 async def process_broca(
     sensory_input: str, brain_config: BrainConfig, language_input: str
-) -> str:
+) -> str | None:
     """
     Simulates broca's area by processing the integrated sensory input and auditory
     language input to produce a directly spoken response from the AI.
@@ -21,7 +21,7 @@ async def process_broca(
         language_input (str): The spoken language input that the AI needs to respond to.
 
     Returns:
-        str: The AI's spoken response.
+        str: The AI's spoken response, or None if empty response.
     """
     instruction = "\n".join(brain_config.regions.broca.instruction)
 
@@ -47,5 +47,6 @@ async def process_broca(
     logger.info(f"Broca's area chat message: {messages}")
 
     response: AIMessage = llm.invoke(messages)
-    logger.info(f"Broca's decision: {response.content}")
-    return response.content
+    content = response.content.strip()
+    logger.info(f"Broca's decision: {content}")
+    return content if content != "" else None

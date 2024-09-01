@@ -1,4 +1,4 @@
-import json
+from typing import AsyncGenerator
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
@@ -17,6 +17,7 @@ from aiden.models.brain import (
     Action,
     AuditoryType,
     CorticalRequest,
+    CorticalResponse,
     TactileInput,
     TactileType,
 )
@@ -41,7 +42,7 @@ async def _extract_actions_from_tactile_inputs(
     ]
 
 
-async def process_cortical(request: CorticalRequest) -> str:
+async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
     """
     Simulates the cortical region (cerebral cortex) by processing sensory inputs to determine
     the AI's actions and thoughts.
@@ -143,10 +144,19 @@ async def process_cortical(request: CorticalRequest) -> str:
     )
     messages.append(AIMessage(content=combined_message_content_formatted))
 
+    # Prepare response
+    response = CorticalResponse(
+        action=action_output,
+        speech=speech_output,
+        thoughts=thoughts_output,
+    )
+
+    logger.info(f"Cortical response: {response}")
+
     # TODO: Stream all of these separately
     async def stream_response():
         # Stream the combined message
-        yield json.dumps({"message": {"content": combined_message_content}}) + "\n"
+        yield response.model_dump_json()
 
         # Store the updated history in Redis
         memory_manager.update_memory(agent_id, messages)

@@ -158,6 +158,12 @@ class CorticalRequest(BaseModel):
     history: list[BaseMessage] | None = None
 
 
+class CorticalResponse(BaseModel):
+    action: str | None = None
+    thoughts: str | None = None
+    speech: str | None = None
+
+
 class OccipitalRequest(BaseModel):
     config: str = Field(default="./config/brain/default.json")
     image: str  # Base64-encoded string representing the image file data (e.g., .jpg or .png file)

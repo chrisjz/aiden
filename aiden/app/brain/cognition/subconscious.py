@@ -7,7 +7,7 @@ from aiden import logger
 from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
 
 
-async def process_subconscious(messages: list[BaseMessage]) -> str:
+async def process_subconscious(messages: list[BaseMessage]) -> str | None:
     """
     Process the thoughts from the subconscious areas of the AI model and return them as a string.
 
@@ -15,7 +15,7 @@ async def process_subconscious(messages: list[BaseMessage]) -> str:
         chat_message (list[BaseMessage]): The message to be processed.
 
     Returns:
-        str: The processed thoughts as a string. If processing fails, returns an empty string.
+        str: The processed thoughts as a string. If processing fails, returns None.
     """
     llm = ChatOllama(
         base_url=COGNITIVE_API_URL_BASE,
@@ -35,8 +35,9 @@ async def process_subconscious(messages: list[BaseMessage]) -> str:
 
     response: AIMessage = llm.invoke(messages)
     try:
-        logger.info(f"Thoughts: {response.content}")
-        return response.content
+        content = response.content.strip()
+        logger.info(f"Thoughts: {content}")
+        return content
     except Exception as exc:
         logger.error(f"Failed thoughts processing with error: {exc}")
-        return ""
+        return None

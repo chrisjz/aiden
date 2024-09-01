@@ -32,7 +32,6 @@ timestamped to facilitate easy tracking and review of past activities.
 import argparse
 import asyncio
 import datetime
-import json
 import logging
 import os
 
@@ -40,7 +39,12 @@ import httpx
 from aiden.app.brain.memory.hippocampus import MemoryManager
 from aiden.app.clients.redis_client import redis_client
 from aiden.app.scene import Scene, load_scene
-from aiden.models.brain import AuditoryInput, AuditoryType, CorticalRequest
+from aiden.models.brain import (
+    AuditoryInput,
+    AuditoryType,
+    CorticalRequest,
+    CorticalResponse,
+)
 
 
 def setup_logging(log_to_file: bool, terminal_level: str, file_level: str):
@@ -120,47 +124,32 @@ async def autonomous_agent_simulation(
             if response.status_code == 200:
                 async for line in response.aiter_lines():
                     if line:
-                        json_line = json.loads(line)
-                        content += json_line.get("message", {}).get("content", "")
-                logger.debug(f"Response: {content}")
-                _, _, action = process_response(content, logger)
-                if action:
-                    scene.process_action(action)
+                        content = CorticalResponse().model_validate_json(line)
+                output_response(content, logger)
+                if content.action:
+                    scene.process_action(content.action)
             else:
                 logger.error(f"Error: {response.status_code}")
 
             await asyncio.sleep(1)  # Sleep to simulate time passing between actions
 
 
-def process_response(content: str, logger: logging.Logger) -> tuple[str, str, str]:
-    """Process the response from AI and extract thoughts, speech, and actions."""
-    thoughts = False
-    speech = False
-    action = False
+def output_response(
+    content: CorticalResponse, logger: logging.Logger
+) -> tuple[str, str, str]:
+    """Output the response from AI including thoughts, speech, and actions."""
+    thoughts = content.thoughts
+    speech = content.speech
+    action = content.action
 
-    if "<thoughts>" in content:
-        start = content.find("<thoughts>") + 10
-        end = content.find("</thoughts>")
-        thoughts = content[start:end].strip()
+    if thoughts:
         logger.info(f"Thoughts:\n{thoughts}\n")
 
-    if "<speech>" in content:
-        start = content.find("<speech>") + 8
-        end = content.find("</speech>")
-        speech = content[start:end].strip()
+    if speech:
         logger.info(f"Speech:\n{speech}\n")
 
-    if "<action>" in content:
-        start = content.find("<action>") + 8
-        end = content.find("</action>")
-        action = content[start:end].strip()
+    if action:
         logger.info(f"Action to perform:\n{action}\n")
-
-    # If none of these explicitly found, assume they are thoughts
-    if not thoughts and not speech and not action:
-        logger.warning("No valid response obtained from Brain API.")
-
-    return thoughts, speech, action
 
 
 async def main():

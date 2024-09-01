@@ -10,6 +10,7 @@ from aiden.models.brain import (
     Action,
     AuditoryInput,
     AuditoryType,
+    CorticalResponse,
     GustatoryInput,
     OlfactoryInput,
     Sensory,
@@ -79,14 +80,16 @@ async def test_process_cortical_request(mocker, brain_config):
     response_stream = await process_cortical(cortical_request)
 
     # Collect the response from the stream
-    response_text = ""
+    response_json = ""
     async for chunk in response_stream:
-        response_text += chunk.decode("utf-8") if isinstance(chunk, bytes) else chunk
+        response_json += chunk.decode("utf-8") if isinstance(chunk, bytes) else chunk
 
-    # Check that the action and thoughts are in the response
-    assert "<action>move forward</action>" in response_text
-    assert "<speech>I am doing well.</speech>" in response_text
-    assert "<thoughts>I wonder where I should go next.</thoughts>" in response_text
+    content = CorticalResponse().model_validate_json(response_json)
+
+    # Check that the action, speech and thoughts are in the response
+    assert content.action == "move forward"
+    assert content.speech == "I am doing well."
+    assert content.thoughts == "I wonder where I should go next."
 
 
 @pytest.mark.parametrize(

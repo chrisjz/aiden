@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using CandyCoded.env;
 
-public class CognitiveAPIIntegration : MonoBehaviour
+public class CognitiveAPIUIController : MonoBehaviour
 {
     public TMP_InputField playerInputField;
     public TMP_Text responseText;

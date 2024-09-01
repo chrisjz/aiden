@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using CandyCoded.env;
 
 public class VisionAPIUIController : MonoBehaviour
 {
@@ -15,30 +14,11 @@ public class VisionAPIUIController : MonoBehaviour
 
     private void Start()
     {
-        // Check if Vision API is enabled
-        env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isEnabled);
-        if (!isEnabled)
-        {
-            Debug.Log("Vision API is disabled");
-            return;
-        }
-        else
-        {
-            Debug.Log("Vision API is enabled");
-        }
+        visionApiClient = new VisionAPIClient();
 
-        // Set API URL from environment variables to point to the occipital endpoint
-        if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
-            env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
-            env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
+        if (!visionApiClient.IsAPIEnabled())
         {
-            string apiUrl = $"{protocol}://{host}:{port}/occipital";
-            visionApiClient = new VisionAPIClient(apiUrl);
-            Debug.Log($"Brain API URL set to: {apiUrl}");
-        }
-        else
-        {
-            Debug.LogError("Missing environment variables for brain API URL.");
+            Debug.Log("Vision API is disabled or not configured.");
             return;
         }
 

@@ -3,14 +3,39 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
+using CandyCoded.env;
 
 public class VisionAPIClient
 {
     private string apiURL;
 
-    public VisionAPIClient(string apiUrl)
+    public VisionAPIClient()
     {
-        apiURL = apiUrl;
+        // Check if Vision API is enabled
+        env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isEnabled);
+        if (!isEnabled)
+        {
+            Debug.Log("Vision API is disabled");
+            return;
+        }
+
+        // Set API URL from environment variables to point to the occipital endpoint
+        if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
+            env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
+            env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
+        {
+            apiURL = $"{protocol}://{host}:{port}/occipital";
+            Debug.Log($"Occipital endpoint URL set to: {apiURL}");
+        }
+        else
+        {
+            Debug.LogError("Missing environment variables for brain API URL.");
+        }
+    }
+
+    public bool IsAPIEnabled()
+    {
+        return !string.IsNullOrEmpty(apiURL);
     }
 
     public Texture2D CaptureCameraRenderTexture(Camera cameraToCapture)

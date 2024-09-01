@@ -15,7 +15,7 @@ public class AuditoryAmbientAPIUIController : MonoBehaviour
 
     private void Start()
     {
-        auditoryApiClient = new AuditoryAPIClient();
+        auditoryApiClient = new AuditoryAPIClient(audioCapture);
 
         if (!auditoryApiClient.IsAPIEnabled())
         {
@@ -30,23 +30,11 @@ public class AuditoryAmbientAPIUIController : MonoBehaviour
     {
         sendButton.interactable = false;
 
-        // Get the last second of audio data from the audio capture component
-        float[] lastSecondAudioData = audioCapture.GetLastSecondAudio();
-
-        // Downsample to 16,000 Hz
-        float[] downsampledData = auditoryApiClient.DownsampleAudio(lastSecondAudioData, AudioSettings.outputSampleRate, 16000);
-
-        // Convert downsampled audio data to WAV format
-        byte[] wavData = auditoryApiClient.ConvertToWav(downsampledData, 16000);
-
-        // Save the audio data if toggled on
-        auditoryApiClient.SaveAudioToFile(wavData, saveCapturedAudio);
-
-        // Convert the byte array to Base64
-        string base64audio = Convert.ToBase64String(wavData);
-
         Debug.Log("Start auditory ambient inference.");
-        StartCoroutine(auditoryApiClient.SendRequestToAuditoryAPI(base64audio, UpdateResponseText));
+        StartCoroutine(auditoryApiClient.GetAuditoryDataCoroutine(
+                auditoryData => UpdateResponseText(auditoryData),
+                error => Debug.LogError(error)
+            ));
     }
 
     private void UpdateResponseText(string text)
@@ -54,11 +42,4 @@ public class AuditoryAmbientAPIUIController : MonoBehaviour
         responseText.text = text;
         sendButton.interactable = true;
     }
-}
-
-// Define classes to match the JSON structure of the request
-[Serializable]
-public class AuditoryRequest
-{
-    public string audio;
 }

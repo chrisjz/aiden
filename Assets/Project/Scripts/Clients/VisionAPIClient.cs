@@ -8,8 +8,10 @@ using CandyCoded.env;
 public class VisionAPIClient
 {
     private string apiURL;
+    private Camera cameraCapture;
+    private bool saveCapturedImage;
 
-    public VisionAPIClient()
+    public VisionAPIClient(Camera camera, bool saveInput = false)
     {
         // Check if Vision API is enabled
         env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isEnabled);
@@ -31,6 +33,17 @@ public class VisionAPIClient
         {
             Debug.LogError("Missing environment variables for brain API URL.");
         }
+
+        // Assign the camera
+        cameraCapture = camera;
+        if (cameraCapture == null)
+        {
+            Debug.LogError("No camera was passed to VisionAPIClient.");
+            return;
+        }
+
+        // Toggle saving captured image
+        saveCapturedImage = saveInput;
     }
 
     public bool IsAPIEnabled()
@@ -38,21 +51,57 @@ public class VisionAPIClient
         return !string.IsNullOrEmpty(apiURL);
     }
 
-    public Texture2D CaptureCameraRenderTexture(Camera cameraToCapture)
+    public IEnumerator GetVisionDataCoroutine(System.Action<string> onSuccess, System.Action<string> onError)
     {
-        if (cameraToCapture == null || cameraToCapture.targetTexture == null)
+        if (string.IsNullOrEmpty(apiURL))
+        {
+            onError?.Invoke("Vision API URL is not set.");
+            yield break;
+        }
+
+        Texture2D capturedImage = CaptureCameraRenderTexture(cameraCapture);
+        string base64Image = TextureToBase64(capturedImage);
+
+        // Save the captured image to a file
+        SaveImageToFile(capturedImage, saveCapturedImage);
+
+        var json = JsonUtility.ToJson(new VisionRequest { image = base64Image });
+        var request = new UnityWebRequest(apiURL, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            string response = request.downloadHandler.text;
+            Debug.Log($"Vision API response: {response}");
+            onSuccess?.Invoke(response);
+        }
+        else
+        {
+            onError?.Invoke("Vision API request failed: " + request.error);
+        }
+    }
+
+    public Texture2D CaptureCameraRenderTexture(Camera cameraCapture)
+    {
+        if (cameraCapture == null || cameraCapture.targetTexture == null)
         {
             Debug.LogError("Camera or its target texture is not assigned.");
             return null;
         }
 
         RenderTexture currentRT = RenderTexture.active;
-        RenderTexture.active = cameraToCapture.targetTexture;
+        RenderTexture.active = cameraCapture.targetTexture;
 
-        cameraToCapture.Render();
+        cameraCapture.Render();
 
-        Texture2D image = new Texture2D(cameraToCapture.targetTexture.width, cameraToCapture.targetTexture.height);
-        image.ReadPixels(new Rect(0, 0, cameraToCapture.targetTexture.width, cameraToCapture.targetTexture.height), 0, 0);
+        Texture2D image = new Texture2D(cameraCapture.targetTexture.width, cameraCapture.targetTexture.height);
+        image.ReadPixels(new Rect(0, 0, cameraCapture.targetTexture.width, cameraCapture.targetTexture.height), 0, 0);
         image.Apply();
 
         RenderTexture.active = currentRT;

@@ -56,10 +56,11 @@ Make a copy of `.env.template` called `.env` and update any required values.
 
 Explanation of the more ambiguous environment variables:
 
-| Name       | Details                                                                                                                                                                 | Default       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| AGENT_ID   | Identifier of the default AI agent. Determines which Agent is active, if not overriden elsewhere. Brain-related interactions map to this agent, such as memory storage. | 1<sup>1</sup> |
-| AGENT_NAME | Name of the default AI agent.                                                                                                                                           | AIden         |
+| Name             | Details                                                                                                                                                                  | Default       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+| AGENT_ID         | Identifier of the default AI agent. Determines which Agent is active, if not overridden elsewhere. Brain-related interactions map to this agent, such as memory storage. | 1<sup>1</sup> |
+| AGENT_NAME       | Name of the default AI agent.                                                                                                                                            | AIden         |
+| AGENT_CYCLE_TIME | Time interval in seconds between each cycle where sensory data is collected and processed.                                                                               | 1 second      |
 
 > <sup>1</sup> The ID "0" is treated as a catch-all in this system,
 and shouldn't be used.

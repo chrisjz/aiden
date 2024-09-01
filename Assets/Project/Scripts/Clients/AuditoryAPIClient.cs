@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using CandyCoded.env;
@@ -8,8 +10,10 @@ using CandyCoded.env;
 public class AuditoryAPIClient
 {
     private string apiURL;
+    private AIAudioCapture audioCapture; // Reference to the AIAudioCapture script
+    private bool saveCapturedAudio;
 
-    public AuditoryAPIClient()
+    public AuditoryAPIClient(AIAudioCapture AIAudioCapture, bool saveInput = false)
     {
         // Check if Auditory Ambient API is enabled
         env.TryParseEnvironmentVariable("AUDITORY_AMBIENT_ENABLE", out bool isEnabled);
@@ -31,11 +35,94 @@ public class AuditoryAPIClient
         {
             Debug.LogError("Missing environment variables for brain API URL.");
         }
+
+        // Assign the AI audio capture
+        audioCapture = AIAudioCapture;
+        if (audioCapture == null)
+        {
+            Debug.LogError("No audio source was passed to AuditoryAPIClient.");
+            return;
+        }
+
+        // Toggle saving captured image
+        saveCapturedAudio = saveInput;
     }
 
     public bool IsAPIEnabled()
     {
         return !string.IsNullOrEmpty(apiURL);
+    }
+
+    public IEnumerator GetAuditoryDataCoroutine(System.Action<string> onSuccess, System.Action<string> onError)
+    {
+        if (string.IsNullOrEmpty(apiURL))
+        {
+            onError?.Invoke("Auditory API URL is not set.");
+            yield break;
+        }
+
+        // Get the last second of audio data from the audio capture component
+        float[] lastSecondAudioData = audioCapture.GetLastSecondAudio();
+
+        // Downsample to 16,000 Hz
+        float[] downsampledData = DownsampleAudio(lastSecondAudioData, AudioSettings.outputSampleRate, 16000);
+
+        // Convert downsampled audio data to WAV format
+        byte[] wavData = ConvertToWav(downsampledData, 16000);
+
+        // Save the audio data if toggled on
+        SaveAudioToFile(wavData, saveCapturedAudio);
+
+        // Convert the byte array to Base64
+        string base64audio = Convert.ToBase64String(wavData);
+
+        var json = JsonUtility.ToJson(new AuditoryRequest { audio = base64audio });
+        var request = new UnityWebRequest(apiURL, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                // Deserialize the JSON response into AuditoryResponse object
+                AuditoryResponse response = JsonUtility.FromJson<AuditoryResponse>(request.downloadHandler.text);
+
+                // Format the response into a readable string
+                string responseString = "Auditory API response:\n";
+                foreach (var result in response.results)
+                {
+                    responseString += $"Class: {result.class_name}, Score: {result.score}\n";
+                }
+
+                // Print the formatted response string
+                Debug.Log(responseString);
+
+                // Extract class names from the results
+                var classNames = response.results
+                    .Select(result => result.class_name)
+                    .ToList();
+
+                // Join class names into a comma-separated string
+                string classNamesString = string.Join(", ", classNames);
+
+                // Return the class names string
+                onSuccess?.Invoke(classNamesString);
+            }
+            catch (Exception ex)
+            {
+                onError?.Invoke("Error parsing auditory API response: " + ex.Message);
+            }
+        }
+        else
+        {
+            onError?.Invoke("Auditory API request failed: " + request.error);
+        }
     }
 
     public float[] DownsampleAudio(float[] source, int sourceSampleRate, int targetSampleRate)
@@ -139,4 +226,25 @@ public class AuditoryAPIClient
             onResponse?.Invoke(null);
         }
     }
+}
+
+// Define classes to match the JSON structure of the request
+[Serializable]
+public class AuditoryRequest
+{
+    public string audio;
+}
+
+// Define classes to match the JSON structure of the response
+[Serializable]
+public class AuditoryResult
+{
+    public string class_name;
+    public float score;
+}
+
+[Serializable]
+public class AuditoryResponse
+{
+    public AuditoryResult[] results;
 }

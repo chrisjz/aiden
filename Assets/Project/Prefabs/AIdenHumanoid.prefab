@@ -1367,8 +1367,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4196812129619626161}
+  - component: {fileID: 6143208804042763792}
   m_Layer: 8
-  m_Name: Sensors
+  m_Name: Nervous
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1391,6 +1392,22 @@ Transform:
   - {fileID: 7266205941858149839}
   m_Father: {fileID: 357884519752405661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6143208804042763792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4501277118224159290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3218d163aebaf49a55d9cec50ac519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentId: 1
+  agentName: AIden
+  configPath: ./config/brain/default.json
+  cycleTime: 1
 --- !u!1 &4729145606797175835
 GameObject:
   m_ObjectHideFlags: 0

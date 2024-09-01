@@ -14,7 +14,7 @@ public class VisionAPIUIController : MonoBehaviour
 
     private void Start()
     {
-        visionApiClient = new VisionAPIClient();
+        visionApiClient = new VisionAPIClient(cameraToCapture, saveInput);
 
         if (!visionApiClient.IsAPIEnabled())
         {
@@ -29,14 +29,11 @@ public class VisionAPIUIController : MonoBehaviour
     {
         sendButton.interactable = false;
 
-        Texture2D capturedImage = visionApiClient.CaptureCameraRenderTexture(cameraToCapture);
-        string base64Image = visionApiClient.TextureToBase64(capturedImage);
-
-        // Save the captured image to a file
-        visionApiClient.SaveImageToFile(capturedImage, saveInput);
-
         Debug.Log("Start vision inference.");
-        StartCoroutine(visionApiClient.SendRequestToVisionAPI(base64Image, UpdateResponseText));
+        StartCoroutine(visionApiClient.GetVisionDataCoroutine(
+                occipitalData => UpdateResponseText(occipitalData),
+                error => Debug.LogError(error)
+            ));
     }
 
     private void UpdateResponseText(string text)

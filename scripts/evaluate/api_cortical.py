@@ -52,7 +52,7 @@ def main():
     payload = CorticalRequest(
         config="./config/brain/default.json",
         sensory=sensory_data,
-        agent_id=os.environ.get("AGENT_ID", "0"),
+        agent_id="0",
     ).model_dump()
 
     # Send a POST request to the Cortical endpoint

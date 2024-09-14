@@ -86,7 +86,7 @@ async def autonomous_agent_simulation(
 ):
     api_url = f'{os.environ.get("BRAIN_PROTOCOL", "http")}://{os.environ.get("BRAIN_API_HOST", "localhost")}:{os.environ.get("BRAIN_API_PORT", "8000")}/cortical/'
 
-    agent_id = os.environ.get("AGENT_ID", "0")
+    agent_id = "0"
 
     # Wipe agent's short-term memory
     if neuralyzer:

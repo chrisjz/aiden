@@ -135,7 +135,6 @@ namespace AIden
 
         private void Start()
         {
-            Debug.Log("Start ThirdPersonController");
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
             _hasAnimator = TryGetComponent(out _animator);

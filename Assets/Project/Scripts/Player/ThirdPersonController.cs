@@ -15,6 +15,8 @@ namespace AIden
     public class ThirdPersonController : MonoBehaviour
     {
         [Header("Player")]
+        [Tooltip("Main camera of the character")]
+        public GameObject PlayerCamera;
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
 
@@ -104,7 +106,6 @@ namespace AIden
         private Animator _animator;
         private CharacterController _controller;
         private PlayerInputs _input;
-        private GameObject _mainCamera;
 
         private const float _threshold = 0.01f;
 
@@ -126,14 +127,15 @@ namespace AIden
         private void Awake()
         {
             // get a reference to our main camera
-            if (_mainCamera == null)
+            if (PlayerCamera == null)
             {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+                PlayerCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
         }
 
         private void Start()
         {
+            Debug.Log("Start ThirdPersonController");
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
             _hasAnimator = TryGetComponent(out _animator);
@@ -254,7 +256,7 @@ namespace AIden
             if (_input.strafeMovement)
             {
                 // calculate the movement direction relative to the camera
-                Vector3 moveDirection = _mainCamera.transform.right * _input.move.x + _mainCamera.transform.forward * _input.move.y;
+                Vector3 moveDirection = PlayerCamera.transform.right * _input.move.x + PlayerCamera.transform.forward * _input.move.y;
                 moveDirection.y = 0.0f;  // Keep movement on the horizontal plane
                 moveDirection.Normalize();
 
@@ -279,7 +281,7 @@ namespace AIden
                 if (_input.move != Vector2.zero)
                 {
                     _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                    _mainCamera.transform.eulerAngles.y;
+                                    PlayerCamera.transform.eulerAngles.y;
                     float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                         RotationSmoothTime);
 

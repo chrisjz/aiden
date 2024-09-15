@@ -94,7 +94,7 @@ namespace AIden
         {
             Sensory sensoryInput = new Sensory();
 
-            // Step 1: Fetch Occipital Data (Vision) if enabled
+            // Fetch Occipital Data (Vision) if enabled
             if (_isVisionApiEnabled)
             {
                 yield return StartCoroutine(_visionApiClient.GetVisionDataCoroutine(
@@ -103,7 +103,7 @@ namespace AIden
                 ));
             }
 
-            // Step 2: Fetch Auditory Data (Ambient Noise) if enabled
+            // Fetch Auditory Data (Ambient Noise) if enabled
             if (_isAuditoryApiEnabled)
             {
                 yield return StartCoroutine(_auditoryApiClient.GetAuditoryDataCoroutine(
@@ -119,7 +119,7 @@ namespace AIden
                 yield break;
             }
 
-            // Step 3: Send to Cortical API
+            // Send to Cortical API
             CorticalRequest corticalRequestData = new CorticalRequest
             {
                 agent_id = agentId,
@@ -142,7 +142,7 @@ namespace AIden
                 yield break;
             }
 
-            // Step 4: Process Cortical Response
+            // Process Cortical Response
             string corticalResponse = corticalRequest.downloadHandler.text;
             Debug.Log("Cortical Response: " + corticalResponse);
         }

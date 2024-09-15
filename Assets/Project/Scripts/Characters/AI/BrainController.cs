@@ -155,6 +155,9 @@ public class Sensory
 {
     public List<VisionInput> vision = new List<VisionInput>();
     public List<AuditoryInput> auditory = new List<AuditoryInput>();
+    public List<TactileInput> tactile = new List<TactileInput>();
+    public List<OlfactoryInput> olfactory = new List<OlfactoryInput>();
+    public List<GustatoryInput> gustatory = new List<GustatoryInput>();
 }
 
 [Serializable]
@@ -168,6 +171,28 @@ public class VisionInput
 public class AuditoryInput
 {
     public AuditoryType type = AuditoryType.AMBIENT;
+    public string content;
+}
+
+[Serializable]
+public class TactileInput
+{
+    public TactileType type = TactileType.GENERAL;
+    public string content; // Required if type is GENERAL
+    public Action command; // Required if type is ACTION
+}
+
+[Serializable]
+public class OlfactoryInput
+{
+    public OlfactoryType type = OlfactoryType.GENERAL;
+    public string content;
+}
+
+[Serializable]
+public class GustatoryInput
+{
+    public GustatoryType type = GustatoryType.GENERAL;
     public string content;
 }
 
@@ -189,4 +214,23 @@ public enum AuditoryType
 {
     LANGUAGE,
     AMBIENT
+}
+
+[Serializable]
+public enum TactileType
+{
+    GENERAL,
+    ACTION
+}
+
+[Serializable]
+public enum OlfactoryType
+{
+    GENERAL
+}
+
+[Serializable]
+public enum GustatoryType
+{
+    GENERAL
 }

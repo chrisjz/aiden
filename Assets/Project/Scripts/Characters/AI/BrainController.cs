@@ -98,7 +98,7 @@ namespace AIden
             if (_isVisionApiEnabled)
             {
                 yield return StartCoroutine(_visionApiClient.GetVisionDataCoroutine(
-                    occipitalData => sensoryInput.vision.Add(new VisionInput { type = "general", content = occipitalData }),
+                    occipitalData => sensoryInput.vision.Add(new VisionInput { type = VisionType.GENERAL, content = occipitalData }),
                     error => Debug.LogError(error)
                 ));
             }
@@ -107,7 +107,7 @@ namespace AIden
             if (_isAuditoryApiEnabled)
             {
                 yield return StartCoroutine(_auditoryApiClient.GetAuditoryDataCoroutine(
-                    auditoryData => sensoryInput.auditory.Add(new AuditoryInput { type = "ambient", content = auditoryData }),
+                    auditoryData => sensoryInput.auditory.Add(new AuditoryInput { type = AuditoryType.AMBIENT, content = auditoryData }),
                     error => Debug.LogError(error)
                 ));
             }
@@ -160,14 +160,14 @@ public class Sensory
 [Serializable]
 public class VisionInput
 {
-    public string type;
+    public VisionType type = VisionType.GENERAL;
     public string content;
 }
 
 [Serializable]
 public class AuditoryInput
 {
-    public string type;
+    public AuditoryType type = AuditoryType.AMBIENT;
     public string content;
 }
 
@@ -177,4 +177,16 @@ public class CorticalRequest
     public string agent_id;
     public string config;
     public Sensory sensory;
+}
+
+// Enums for sensory types
+public enum VisionType
+{
+    GENERAL
+}
+
+public enum AuditoryType
+{
+    LANGUAGE,
+    AMBIENT
 }

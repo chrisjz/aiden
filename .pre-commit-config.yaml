@@ -7,11 +7,15 @@ repos:
       - id: debug-statements
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: '^(Assets/ThirdParty)'
+        exclude: |
+          ^Assets/ThirdParty|
+          ^ProjectSettings/Packages/com\.unity\.testtools\.codecoverage/Settings\.json$
       - id: pretty-format-json
         args:
           - "--autofix"
-        exclude: '^(Assets/ThirdParty)'
+        exclude: |
+          ^Assets/ThirdParty|
+          ^ProjectSettings/Packages/com\.unity\.testtools\.codecoverage/Settings\.json$
       - id: trailing-whitespace
         exclude: '^(Assets/|ProjectSettings/)'
   - repo: https://github.com/charliermarsh/ruff-pre-commit

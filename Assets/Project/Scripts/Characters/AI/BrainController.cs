@@ -18,7 +18,6 @@ namespace AIden
         [Header("Configuration")]
         [Tooltip("File path to brain configuration")]
         public string configPath = "./config/brain/default.json";
-        public PlayerInputs aiInputs;
 
         [Header("Cycle Settings")]
         [Tooltip("Frequency in seconds of feeding external sensory to brain for responses. Set to 0 to disable.")]
@@ -28,11 +27,16 @@ namespace AIden
         private VisionAPIClient _visionApiClient;
         private string _corticalApiUrl;
 
+        private AIActionManager _actionManager;
+
         private bool _isAuditoryApiEnabled = false;
         private bool _isVisionApiEnabled = false;
 
         private void Start()
         {
+            // Initialize the action manager
+            _actionManager = GetComponentInChildren<AIActionManager>();
+
             // Find the AI audio capture (ear sensor) in child GameObjects
             AIAudioCapture audioCapture = GetComponentInChildren<AIAudioCapture>();
 
@@ -70,13 +74,6 @@ namespace AIden
             // Start the sensory data processing loop
             StartCoroutine(ProcessSensoryDataLoop());
         }
-
-        // private void Update()
-        // {
-        //     // Example: Make AI move forward continuously
-        //     Vector2 moveDirection = new Vector2(0, 1);  // Move forward
-        //     aiInputs.MoveInput(moveDirection);
-        // }
 
         private IEnumerator ProcessSensoryDataLoop()
         {
@@ -142,9 +139,12 @@ namespace AIden
                 yield break;
             }
 
-            // Process Cortical Response
+            // Process Cortical Response and map actions
             string corticalResponse = corticalRequest.downloadHandler.text;
             Debug.Log("Cortical Response: " + corticalResponse);
+
+            // Parse the response and execute action
+            _actionManager.ExecuteAction(AIActionManager.ActionType.MoveForward);  // Example of executing an action
         }
     }
 }

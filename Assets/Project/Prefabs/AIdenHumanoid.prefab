@@ -383,6 +383,7 @@ GameObject:
   m_Component:
   - component: {fileID: 365894926599048359}
   - component: {fileID: 7006753688704023201}
+  - component: {fileID: 6003587672831212709}
   m_Layer: 8
   m_Name: Nervous
   m_TagString: Untagged
@@ -422,8 +423,20 @@ MonoBehaviour:
   agentId: 1
   agentName: AIden
   configPath: ./config/brain/default.json
-  aiInputs: {fileID: 2142778239000292322}
   cycleTime: 1
+--- !u!114 &6003587672831212709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240359554060839316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7d2b8064a5b4443aa597392f29eee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aiInputs: {fileID: 2142778239000292322}
 --- !u!1 &1577065553472601671
 GameObject:
   m_ObjectHideFlags: 0

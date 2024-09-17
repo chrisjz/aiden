@@ -26,7 +26,7 @@ public class VisionAPIClient
             env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
             env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
         {
-            apiURL = $"{protocol}://{host}:{port}/occipital";
+            apiURL = $"{protocol}://{host}:{port}/occipital/";
             Debug.Log($"Occipital endpoint URL set to: {apiURL}");
         }
         else

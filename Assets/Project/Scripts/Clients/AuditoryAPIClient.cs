@@ -28,7 +28,7 @@ public class AuditoryAPIClient
             env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
             env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
         {
-            apiURL = $"{protocol}://{host}:{port}/auditory";
+            apiURL = $"{protocol}://{host}:{port}/auditory/";
             Debug.Log($"Auditory endpoint URL set to: {apiURL}");
         }
         else

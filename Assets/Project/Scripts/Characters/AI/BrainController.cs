@@ -62,7 +62,7 @@ namespace AIden
                 env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
                 env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
             {
-                _corticalApiUrl = $"{protocol}://{host}:{port}/cortical";
+                _corticalApiUrl = $"{protocol}://{host}:{port}/cortical/";
                 Debug.Log($"Cortical API URL set to: {_corticalApiUrl}");
             }
             else

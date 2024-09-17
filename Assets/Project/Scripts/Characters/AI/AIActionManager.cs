@@ -15,17 +15,17 @@ namespace AIden
             TurnRight
         }
 
-        public Dictionary<ActionType, Action> ActionMap = new Dictionary<ActionType, Action>();
+        public Dictionary<ActionType, AIAction> ActionMap = new Dictionary<ActionType, AIAction>();
 
         public PlayerInputs aiInputs;
 
         private void Start()
         {
-            // Initialize action mappings
-            ActionMap[ActionType.MoveForward] = MoveForward;
-            ActionMap[ActionType.MoveBackward] = MoveBackward;
-            ActionMap[ActionType.TurnLeft] = TurnLeft;
-            ActionMap[ActionType.TurnRight] = TurnRight;
+            // Initialize action mappings with name and description
+            ActionMap[ActionType.MoveForward] = new AIAction("Move Forward", "Move forward");
+            ActionMap[ActionType.MoveBackward] = new AIAction("Move Backward", "Move backward");
+            ActionMap[ActionType.TurnLeft] = new AIAction("Turn Left", "Turn left");
+            ActionMap[ActionType.TurnRight] = new AIAction("Turn Right", "Turn right");
         }
 
         // Call an action based on the input
@@ -33,7 +33,22 @@ namespace AIden
         {
             if (ActionMap.ContainsKey(action))
             {
-                ActionMap[action].Invoke();
+                // Map the AIAction to the actual movement logic
+                switch (action)
+                {
+                    case ActionType.MoveForward:
+                        MoveForward();
+                        break;
+                    case ActionType.MoveBackward:
+                        MoveBackward();
+                        break;
+                    case ActionType.TurnLeft:
+                        TurnLeft();
+                        break;
+                    case ActionType.TurnRight:
+                        TurnRight();
+                        break;
+                }
             }
             else
             {

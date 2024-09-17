@@ -19,6 +19,13 @@ namespace AIden
         [Tooltip("File path to brain configuration")]
         public string configPath = "./config/brain/default.json";
 
+
+        [Header("Toggle Sensors")]
+        [Tooltip("Toggle sensory inputs")]
+        public bool toggleAuditoryAmbient = true;
+        public bool toggleTactileAction = true;
+        public bool toggleVision = true;
+
         [Header("Cycle Settings")]
         [Tooltip("Frequency in seconds of feeding external sensory to brain for responses. Set to 0 to disable.")]
         public float cycleTime = 1.0f;
@@ -29,8 +36,9 @@ namespace AIden
 
         private AIActionManager _actionManager;
 
-        private bool _isAuditoryApiEnabled = false;
-        private bool _isVisionApiEnabled = false;
+        private bool _isAuditoryAmbientSensorEnabled = false;
+        private bool _isTactileActionSensorEnabled = false;
+        private bool _isVisionSensorEnabled = false;
 
         private void Start()
         {
@@ -47,11 +55,12 @@ namespace AIden
             _auditoryApiClient = new AuditoryAPIClient(audioCapture);
             _visionApiClient = new VisionAPIClient(cameraCapture);
 
-            // Check if APIs are enabled
-            _isAuditoryApiEnabled = _auditoryApiClient.IsAPIEnabled();
-            _isVisionApiEnabled = _visionApiClient.IsAPIEnabled();
+            // Check if sensors and related APIs are enabled
+            _isAuditoryAmbientSensorEnabled = toggleAuditoryAmbient && _auditoryApiClient.IsAPIEnabled();
+            _isVisionSensorEnabled = toggleVision && _visionApiClient.IsAPIEnabled();
+            _isTactileActionSensorEnabled = toggleTactileAction;
 
-            if (!_isAuditoryApiEnabled && !_isVisionApiEnabled)
+            if (!_isAuditoryAmbientSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
             {
                 Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
                 return;
@@ -92,25 +101,38 @@ namespace AIden
             Sensory sensoryInput = new Sensory();
 
             // Fetch Occipital Data (Vision) if enabled
-            if (_isVisionApiEnabled)
+            if (_isVisionSensorEnabled)
             {
                 yield return StartCoroutine(_visionApiClient.GetVisionDataCoroutine(
-                    occipitalData => sensoryInput.vision.Add(new VisionInput { type = VisionType.GENERAL, content = occipitalData }),
+                    occipitalData => sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData)),
                     error => Debug.LogError(error)
                 ));
             }
 
             // Fetch Auditory Data (Ambient Noise) if enabled
-            if (_isAuditoryApiEnabled)
+            if (_isAuditoryAmbientSensorEnabled)
             {
                 yield return StartCoroutine(_auditoryApiClient.GetAuditoryDataCoroutine(
-                    auditoryData => sensoryInput.auditory.Add(new AuditoryInput { type = AuditoryType.AMBIENT, content = auditoryData }),
+                    auditoryData => sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData)),
                     error => Debug.LogError(error)
                 ));
             }
 
+            // Fetch Tactile Data (Actions) if enabled
+            if (_isTactileActionSensorEnabled)
+            {
+                foreach (var actionEntry in _actionManager.ActionMap)
+                {
+                    var inputActionType = actionEntry.Key;
+                    var inputAction = actionEntry.Value;
+
+                    AIAction actionCommand = new AIAction(inputActionType.ToString().ToLower(), inputAction.description);
+                    sensoryInput.tactile.Add(new TactileInput(TactileType.ACTION, command: actionCommand));
+                }
+            }
+
             // Ensure at least one sensory input is available
-            if (sensoryInput.vision.Count == 0 && sensoryInput.auditory.Count == 0)
+            if (sensoryInput.vision.Count == 0 && sensoryInput.auditory.Count == 0 && sensoryInput.auditory.Count == 0)
             {
                 Debug.LogError("No sensory data available for cortical processing.");
                 yield break;
@@ -125,6 +147,7 @@ namespace AIden
             };
 
             string corticalRequestJson = JsonUtility.ToJson(corticalRequestData);
+            Debug.Log("Cortical request JSON: " + corticalRequestJson);
             UnityWebRequest corticalRequest = new UnityWebRequest(_corticalApiUrl, "POST")
             {
                 uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(corticalRequestJson)),
@@ -139,12 +162,32 @@ namespace AIden
                 yield break;
             }
 
-            // Process Cortical Response and map actions
-            string corticalResponse = corticalRequest.downloadHandler.text;
-            Debug.Log("Cortical Response: " + corticalResponse);
+            // Process Cortical Response
+            string corticalResponseJson = corticalRequest.downloadHandler.text;
+            Debug.Log("Cortical Response: " + corticalResponseJson);
 
-            // Parse the response and execute action
-            _actionManager.ExecuteAction(AIActionManager.ActionType.MoveForward);  // Example of executing an action
+            // Deserialize the response
+            CorticalResponse corticalResponse = JsonUtility.FromJson<CorticalResponse>(corticalResponseJson);
+
+            // Check if action is null
+            if (string.IsNullOrEmpty(corticalResponse.action))
+            {
+                // Do nothing if the action is null or empty
+                Debug.Log("No action returned from cortical response.");
+            }
+            else
+            {
+                // Map the action from the response
+                AIActionManager.ActionType outputActionType;
+                if (Enum.TryParse(corticalResponse.action, true, out outputActionType))  // Case-insensitive comparison
+                {
+                    _actionManager.ExecuteAction(outputActionType);
+                }
+                else
+                {
+                    Debug.LogError($"Unrecognized action: {corticalResponse.action}");
+                }
+            }
         }
     }
 }
@@ -161,26 +204,74 @@ public class Sensory
 }
 
 [Serializable]
+public class AIAction
+{
+    public string name;
+    public string description;  // Optional
+
+    public AIAction(string name, string description = null)
+    {
+        this.name = name;
+        this.description = description;
+    }
+}
+
+[Serializable]
 public class VisionInput
 {
-    public VisionType type = VisionType.GENERAL;
+    public string type;
     public string content;
+
+    public VisionInput(VisionType visionType, string content)
+    {
+        this.type = visionType.ToString().ToLower();
+        this.content = content;
+    }
 }
 
 [Serializable]
 public class AuditoryInput
 {
-    public AuditoryType type = AuditoryType.AMBIENT;
+    public string type;
     public string content;
+
+    public AuditoryInput(AuditoryType auditoryType, string content)
+    {
+        this.type = auditoryType.ToString().ToLower();
+        this.content = content;
+    }
 }
 
 [Serializable]
 public class TactileInput
 {
-    public TactileType type = TactileType.GENERAL;
-    public string content; // Required if type is GENERAL
-    public Action command; // Required if type is ACTION
+    public string type;
+    public string content;  // Optional, required if type is GENERAL
+    public AIAction command;  // Optional, required if type is ACTION
+
+    public TactileInput(TactileType tactileType, string content = null, AIAction command = null)
+    {
+        this.type = tactileType.ToString().ToLower();
+
+        if (tactileType == TactileType.GENERAL)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                throw new ArgumentException("`content` is required for GENERAL tactile type.");
+            }
+            this.content = content;
+        }
+        else if (tactileType == TactileType.ACTION)
+        {
+            if (command == null)
+            {
+                throw new ArgumentException("`command` is required for ACTION tactile type.");
+            }
+            this.command = command;
+        }
+    }
 }
+
 
 [Serializable]
 public class OlfactoryInput
@@ -202,6 +293,14 @@ public class CorticalRequest
     public string agent_id;
     public string config;
     public Sensory sensory;
+}
+
+[Serializable]
+public class CorticalResponse
+{
+    public string action;
+    public string thoughts;
+    public string speech;
 }
 
 // Enums for sensory types

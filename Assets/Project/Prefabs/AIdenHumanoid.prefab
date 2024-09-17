@@ -423,6 +423,9 @@ MonoBehaviour:
   agentId: 1
   agentName: AIden
   configPath: ./config/brain/default.json
+  toggleAuditoryAmbient: 1
+  toggleTactileAction: 1
+  toggleVision: 1
   cycleTime: 1
 --- !u!114 &6003587672831212709
 MonoBehaviour:
@@ -437,6 +440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aiInputs: {fileID: 2142778239000292322}
+  aiThirdPersonController: {fileID: 6375257134824011793}
 --- !u!1 &1577065553472601671
 GameObject:
   m_ObjectHideFlags: 0

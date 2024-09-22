@@ -12382,12 +12382,92 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: cycleTime
+      propertyPath: enableSimulationMode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: toggleAuditoryAmbient
+      propertyPath: simulatedSensoryInputs.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].vision.Array.size
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].vision.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].tactile.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].tactile.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].auditory.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].auditory.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].vision.Array.data[0].type
+      value: general
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].vision.Array.data[0].type
+      value: general
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].tactile.Array.data[0].type
+      value: action
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].tactile.Array.data[0].type
+      value: action
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].auditory.Array.data[0].type
+      value: ambient
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].auditory.Array.data[0].type
+      value: ambient
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].vision.Array.data[0].content
+      value: A room with someone in the distance.
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].vision.Array.data[0].content
+      value: A room with someone in front of me
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].auditory.Array.data[0].content
+      value: Loud chirping.
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].auditory.Array.data[0].content
+      value: Quiet chirping.
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].tactile.Array.data[0].command.name
+      value: moveforward
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].tactile.Array.data[0].command.name
+      value: movebackward
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[0].tactile.Array.data[0].command.description
+      value: Move forward
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: simulatedSensoryInputs.Array.data[1].tactile.Array.data[0].command.description
+      value: Move backward
       objectReference: {fileID: 0}
     - target: {fileID: 8046052496767806457, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: m_Enabled

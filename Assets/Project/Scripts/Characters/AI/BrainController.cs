@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using CandyCoded.env;
@@ -19,7 +20,6 @@ namespace AIden
         [Tooltip("File path to brain configuration")]
         public string configPath = "./config/brain/default.json";
 
-
         [Header("Toggle Sensors")]
         [Tooltip("Toggle sensory inputs")]
         public bool toggleAuditoryAmbient = true;
@@ -29,6 +29,13 @@ namespace AIden
         [Header("Cycle Settings")]
         [Tooltip("Frequency in seconds of feeding external sensory to brain for responses. Set to 0 to disable.")]
         public float cycleTime = 1.0f;
+
+        [Header("Simulation Settings")]
+        [Tooltip("Enable simulated inputs/responses instead of using real APIs.")]
+        public bool enableSimulationMode = false;
+        public List<Sensory> simulatedSensoryInputs = new List<Sensory>();  // User-defined sensory inputs
+
+        private int _simulationIndex = 0;  // To track the current index in the simulation list
 
         private AuditoryAPIClient _auditoryApiClient;
         private VisionAPIClient _visionApiClient;
@@ -45,39 +52,38 @@ namespace AIden
             // Initialize the action manager
             _actionManager = GetComponentInChildren<AIActionManager>();
 
-            // Find the AI audio capture (ear sensor) in child GameObjects
-            AIAudioCapture audioCapture = GetComponentInChildren<AIAudioCapture>();
-
-            // Find the camera (eye sensor) in child GameObjects
-            Camera cameraCapture = GetComponentInChildren<Camera>();
-
-            // Initialize API clients
-            _auditoryApiClient = new AuditoryAPIClient(audioCapture);
-            _visionApiClient = new VisionAPIClient(cameraCapture);
-
-            // Check if sensors and related APIs are enabled
-            _isAuditoryAmbientSensorEnabled = toggleAuditoryAmbient && _auditoryApiClient.IsAPIEnabled();
-            _isVisionSensorEnabled = toggleVision && _visionApiClient.IsAPIEnabled();
-            _isTactileActionSensorEnabled = toggleTactileAction;
-
-            if (!_isAuditoryAmbientSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
+            // Initialize API clients if not in simulation mode
+            if (!enableSimulationMode)
             {
-                Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
-                return;
-            }
+                AIAudioCapture audioCapture = GetComponentInChildren<AIAudioCapture>();
+                Camera cameraCapture = GetComponentInChildren<Camera>();
 
-            // Set the Cortical API URL
-            if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
-                env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
-                env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
-            {
-                _corticalApiUrl = $"{protocol}://{host}:{port}/cortical/";
-                Debug.Log($"Cortical API URL set to: {_corticalApiUrl}");
-            }
-            else
-            {
-                Debug.LogError("Missing environment variables for cortical API URL.");
-                return;
+                _auditoryApiClient = new AuditoryAPIClient(audioCapture);
+                _visionApiClient = new VisionAPIClient(cameraCapture);
+
+                _isAuditoryAmbientSensorEnabled = toggleAuditoryAmbient && _auditoryApiClient.IsAPIEnabled();
+                _isVisionSensorEnabled = toggleVision && _visionApiClient.IsAPIEnabled();
+                _isTactileActionSensorEnabled = toggleTactileAction;
+
+                if (!_isAuditoryAmbientSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
+                {
+                    Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
+                    return;
+                }
+
+                // Set the Cortical API URL
+                if (env.TryParseEnvironmentVariable("BRAIN_API_PROTOCOL", out string protocol) &&
+                    env.TryParseEnvironmentVariable("BRAIN_API_HOST", out string host) &&
+                    env.TryParseEnvironmentVariable("BRAIN_API_PORT", out string port))
+                {
+                    _corticalApiUrl = $"{protocol}://{host}:{port}/cortical/";
+                    Debug.Log($"Cortical API URL set to: {_corticalApiUrl}");
+                }
+                else
+                {
+                    Debug.LogError("Missing environment variables for cortical API URL.");
+                    return;
+                }
             }
 
             // Start the sensory data processing loop
@@ -88,8 +94,16 @@ namespace AIden
         {
             while (cycleTime > 0.0f)
             {
-                // Process sensory data asynchronously
-                yield return StartCoroutine(ProcessSensoryData());
+                if (enableSimulationMode)
+                {
+                    // Process fake/simulated sensory data
+                    yield return StartCoroutine(ProcessSimulatedSensoryData());
+                }
+                else
+                {
+                    // Process real sensory data
+                    yield return StartCoroutine(ProcessSensoryData());
+                }
 
                 // Wait for the defined cycle time before starting the next cycle
                 yield return new WaitForSeconds(cycleTime);
@@ -188,6 +202,57 @@ namespace AIden
                     Debug.LogError($"Unrecognized action: {corticalResponse.action}");
                 }
             }
+        }
+
+        private IEnumerator ProcessSimulatedSensoryData()
+        {
+            // If no simulation inputs are defined, use a default sensory input
+            if (simulatedSensoryInputs.Count == 0)
+            {
+                simulatedSensoryInputs.Add(new Sensory
+                {
+                    vision = new List<VisionInput> { new VisionInput(VisionType.GENERAL, "A room.") },
+                    auditory = new List<AuditoryInput> { new AuditoryInput(AuditoryType.AMBIENT, "Birds chirping.") },
+                    tactile = new List<TactileInput> { new TactileInput(TactileType.ACTION, null, new AIAction("moveforward")) }
+                });
+            }
+
+            // Cycle through the simulation list
+            var simulatedInput = simulatedSensoryInputs[_simulationIndex];
+            _simulationIndex = (_simulationIndex + 1) % simulatedSensoryInputs.Count;  // Loop through the list
+
+            // Simulate cortical response by echoing the sensory inputs
+            string action = null;
+            string speech = null;
+            string thoughts = $"I see... {string.Join(", ", simulatedInput.vision.Select(v => v.content))}, " +
+                  $"I hear... {string.Join(", ", simulatedInput.auditory.Select(a => a.content))}";
+
+            // Execute action based on the tactile input (if any)
+            foreach (var tactileInput in simulatedInput.tactile)
+            {
+                if (tactileInput.type == "action" && tactileInput.command != null)
+                {
+                    AIActionManager.ActionType outputActionType;
+                    if (Enum.TryParse(tactileInput.command.name, true, out outputActionType))  // Case-insensitive comparison
+                    {
+                        _actionManager.ExecuteAction(outputActionType);
+                        action = outputActionType.ToString();
+                        break;  // Only one action is supported for now.
+                    }
+                }
+            }
+
+            CorticalResponse response = new CorticalResponse
+            {
+                action = action,
+                speech = speech,
+                thoughts = thoughts
+            };
+
+            // Output simulated cortical response
+            Debug.Log("Simulated Cortical Response: " + response);
+
+            yield return null;
         }
     }
 }
@@ -301,6 +366,11 @@ public class CorticalResponse
     public string action;
     public string thoughts;
     public string speech;
+
+    public override string ToString()
+    {
+        return $"Action: {action ?? "None"}, Thoughts: {thoughts ?? "None"}, Speech: {speech ?? "None"}";
+    }
 }
 
 // Enums for sensory types

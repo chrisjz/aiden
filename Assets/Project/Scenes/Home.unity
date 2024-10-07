@@ -9030,6 +9030,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuCanvas: {fileID: 635099533}
+  agentAutoScrollManager: {fileID: 1318801325}
   firstPersonCanvas: {fileID: 306086044}
   mainMenuCanvas: {fileID: 125241291}
   playerInput: {fileID: 1862328920}

@@ -5,6 +5,7 @@ using CandyCoded.env;
 public class AgentMenuToggle : MonoBehaviour
 {
     public GameObject menuCanvas;
+    public AutoScrollManager agentAutoScrollManager;
     public GameObject firstPersonCanvas;
     public GameObject mainMenuCanvas;
     public PlayerInput playerInput;
@@ -39,12 +40,16 @@ public class AgentMenuToggle : MonoBehaviour
                 buttonSubmitAISpeak.SetActive(isVocalEnabled);
                 buttonSubmitUserRecording.SetActive(isAuditoryLanguageEnabled);
 
+                // Disable agent output auto scrolling
+                agentAutoScrollManager.autoScrollEnabled = false;
+
                 mainMenuCanvas.SetActive(false);
             }
             else
             {
                 Cursor.lockState = CursorLockMode.Locked; // Lock the cursor
                 Cursor.visible = false;
+                agentAutoScrollManager.autoScrollEnabled = true;
             }
         }
     }

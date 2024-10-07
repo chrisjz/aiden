@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using CandyCoded.env;
 using UnityEngine.UI;
+using TMPro;
 
 public class MicrophoneRecorder : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class MicrophoneRecorder : MonoBehaviour
     public Sprite notRecordingHighlightedSprite;
     public Sprite notRecordingPressedSprite;
     public Sprite notRecordingSelectedSprite;
+    public TMP_Text logOutput;
 
     private string microphoneName;
     private AudioClip recording;
@@ -33,11 +35,13 @@ public class MicrophoneRecorder : MonoBehaviour
         if (!isEnabled)
         {
             Debug.Log("Auditory Language API is disabled");
+            if (logOutput != null) logOutput.text += $"<color=#FF9999>Auditory Language API is disabled</color>\n";
             return;
         }
         else
         {
             Debug.Log("Auditory Language API is enabled");
+            if (logOutput != null) logOutput.text += $"<color=#99FF99>Auditory Language API is enabled</color>\n";
         }
 
         // Check if a microphone is available
@@ -48,6 +52,7 @@ public class MicrophoneRecorder : MonoBehaviour
         else
         {
             Debug.LogError("No microphone found");
+            if (logOutput != null) logOutput.text += $"<color=#FF9999>No microphone found</color>\n";
         }
     }
 

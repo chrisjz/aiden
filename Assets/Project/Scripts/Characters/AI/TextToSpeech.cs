@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class TextToSpeech : MonoBehaviour
 {
     public TMP_Text requestText;
+    public TMP_Text logOutput;
+
 
     private string apiURL;
     private AudioSource audioSource;
@@ -19,11 +21,13 @@ public class TextToSpeech : MonoBehaviour
         if (!isEnabled)
         {
             Debug.Log("Vocal API is disabled");
+            if (logOutput != null) logOutput.text += $"<color=#FF9999>Vocal API is disabled</color>\n";
             return;
         }
         else
         {
             Debug.Log("Vocal API is enabled");
+            if (logOutput != null) logOutput.text += $"<color=#99FF99>Vocal API is enabled</color>\n";
         }
 
         audioSource = gameObject.AddComponent<AudioSource>(); // Initialize the AudioSource component

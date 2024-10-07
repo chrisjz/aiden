@@ -1,4 +1,5 @@
 using StarterAssets;
+using TMPro;
 using UnityEngine;
 
 public class PerspectiveSwitcher : MonoBehaviour
@@ -9,6 +10,7 @@ public class PerspectiveSwitcher : MonoBehaviour
     public AudioListener aiAudioListener;  // Assign the AI's audio listener
     public GameObject playerController;  // The player's controller or movement script
     public RenderTexture aiRenderTexture; // The RenderTexture assigned to the AI camera
+    public TMP_Text logOutput;
 
     private CharacterController characterController;
     private PlayerLook playerLook;
@@ -65,6 +67,8 @@ public class PerspectiveSwitcher : MonoBehaviour
 
         isPlayerPerspective = true;
         Debug.Log("Switched to Player Perspective");
+
+        if (logOutput != null) logOutput.text += $"<color=#C0C0C0>Switched to Player Perspective</color>\n";
     }
 
     void SwitchToAIPerspective()
@@ -90,6 +94,12 @@ public class PerspectiveSwitcher : MonoBehaviour
         aiCamera.targetTexture = null;
 
         isPlayerPerspective = false;
-        Debug.Log("Switched to AI Perspective");
+        string logOutputText = "Switched to AI Perspective";
+        Debug.Log(logOutputText);
+
+        if (logOutput != null)
+        {
+            logOutput.text += $"<color=#C0C0C0>{logOutputText}</color>\n";
+        }
     }
 }

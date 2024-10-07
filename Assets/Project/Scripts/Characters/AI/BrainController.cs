@@ -21,8 +21,8 @@ namespace AIden
         [Tooltip("File path to brain configuration")]
         public string configPath = "./config/brain/default.json";
         [Header("Output")]
-        [Tooltip("Text object to display AI output")]
-        public TMP_Text outputText;
+        [Tooltip("Log output to display AI output")]
+        public TMP_Text logOutput;
 
         [Header("Toggle Sensors")]
         [Tooltip("Toggle sensory inputs")]
@@ -72,6 +72,7 @@ namespace AIden
                 if (!_isAuditoryAmbientSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
                 {
                     Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
+                    if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensor APIs are enabled. At least one sensor is required for cortical processing.</color>\n";
                     return;
                 }
 
@@ -82,10 +83,12 @@ namespace AIden
                 {
                     _corticalApiUrl = $"{protocol}://{host}:{port}/cortical/";
                     Debug.Log($"Cortical API URL set to: {_corticalApiUrl}");
+                    if (logOutput != null) logOutput.text += $"<color=#99FF99>Cortical API URL set to: {_corticalApiUrl}</color>\n";
                 }
                 else
                 {
                     Debug.LogError("Missing environment variables for cortical API URL.");
+                    if (logOutput != null) logOutput.text += $"<color=#FF9999>Missing environment variables for cortical API URL.</color>\n";
                     return;
                 }
             }
@@ -153,6 +156,7 @@ namespace AIden
             if (sensoryInput.vision.Count == 0 && sensoryInput.auditory.Count == 0 && sensoryInput.auditory.Count == 0)
             {
                 Debug.LogError("No sensory data available for cortical processing.");
+                if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensory data available for cortical processing.</color>\n";
                 yield break;
             }
 
@@ -177,6 +181,7 @@ namespace AIden
             if (corticalRequest.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError("Cortical API call failed: " + corticalRequest.error);
+                if (logOutput != null) logOutput.text += $"<color=#FF9999>Cortical API call failed: {corticalRequest.error}</color>\n";
                 yield break;
             }
 
@@ -204,6 +209,7 @@ namespace AIden
                 else
                 {
                     Debug.LogError($"Unrecognized action: {corticalResponse.action}");
+                    if (logOutput != null) logOutput.text += $"<color=#FF9999>Unrecognized action: {corticalResponse.action}</color>\n";
                 }
             }
         }
@@ -257,7 +263,7 @@ namespace AIden
             Debug.Log("Simulated Cortical Response: " + response);
 
             // Output to text object if set
-            if (outputText != null)
+            if (logOutput != null)
             {
                 string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
                 string output = $"{agentDisplayName}\n";
@@ -278,7 +284,7 @@ namespace AIden
                 }
 
                 // Set the output text
-                outputText.text += output;
+                logOutput.text += output;
             }
 
             yield return null;

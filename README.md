@@ -49,6 +49,7 @@ To run the simulation locally, you will need the following:
 - Python 3.11
 - Docker
 - Docker Compose
+- Unity 2022
 
 ### Environment variables
 

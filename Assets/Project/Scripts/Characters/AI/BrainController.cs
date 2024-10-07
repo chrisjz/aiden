@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using CandyCoded.env;
+using TMPro;
 
 namespace AIden
 {
@@ -19,6 +20,9 @@ namespace AIden
         [Header("Configuration")]
         [Tooltip("File path to brain configuration")]
         public string configPath = "./config/brain/default.json";
+        [Header("Output")]
+        [Tooltip("Text object to display AI output")]
+        public TMP_Text outputText;
 
         [Header("Toggle Sensors")]
         [Tooltip("Toggle sensory inputs")]
@@ -251,6 +255,34 @@ namespace AIden
 
             // Output simulated cortical response
             Debug.Log("Simulated Cortical Response: " + response);
+
+            // Output to text object if set
+            if (outputText != null)
+            {
+                // Build the output string based on speech, thoughts, and action
+                string output = "";
+
+                // Add the AI's name in bold at the start
+                output += $"<b>{agentName}:</b>\n";
+
+                if (!string.IsNullOrEmpty(response.speech))
+                {
+                    output += $"Speech: {response.speech}\n";
+                }
+
+                if (!string.IsNullOrEmpty(response.thoughts))
+                {
+                    output += $"Thoughts: {response.thoughts}\n";
+                }
+
+                if (!string.IsNullOrEmpty(response.action))
+                {
+                    output += $"Action: {response.action}\n";
+                }
+
+                // Set the output text
+                outputText.text += output;
+            }
 
             yield return null;
         }

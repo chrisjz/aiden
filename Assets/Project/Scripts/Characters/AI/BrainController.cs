@@ -259,25 +259,22 @@ namespace AIden
             // Output to text object if set
             if (outputText != null)
             {
-                // Build the output string based on speech, thoughts, and action
-                string output = "";
-
-                // Add the AI's name in bold at the start
-                output += $"<b>{agentName}:</b>\n";
+                string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
+                string output = $"{agentDisplayName}\n";
 
                 if (!string.IsNullOrEmpty(response.speech))
                 {
-                    output += $"Speech: {response.speech}\n";
+                    output += $"<b>Speech</b>: {response.speech}\n";
                 }
 
                 if (!string.IsNullOrEmpty(response.thoughts))
                 {
-                    output += $"Thoughts: {response.thoughts}\n";
+                    output += $"<b>Thoughts</b>: {response.thoughts}\n";
                 }
 
                 if (!string.IsNullOrEmpty(response.action))
                 {
-                    output += $"Action: {response.action}\n";
+                    output += $"<b>Action</b>: {response.action}\n";
                 }
 
                 // Set the output text

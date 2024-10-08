@@ -3,6 +3,9 @@
   src="Assets/Project/Textures/Logo/logo-border.png" width="160" />
 </h1>
 
+<img alt="AIden logo"
+  src="docs/images/banner.png" width="1420" />
+
 AIden is an advanced virtual AI entity designed to simulate the complex
 structure and functionality of the human brain.
 

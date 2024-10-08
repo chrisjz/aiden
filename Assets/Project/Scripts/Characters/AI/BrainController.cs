@@ -83,7 +83,7 @@ namespace AIden
                 {
                     _corticalApiUrl = $"{protocol}://{host}:{port}/cortical/";
                     Debug.Log($"Cortical API URL set to: {_corticalApiUrl}");
-                    if (logOutput != null) logOutput.text += $"<color=#99FF99>Cortical API URL set to: {_corticalApiUrl}</color>\n";
+                    if (logOutput != null) logOutput.text += $"<color=#C0C0C0>Cortical API URL set to: {_corticalApiUrl}</color>\n";
                 }
                 else
                 {
@@ -191,6 +191,31 @@ namespace AIden
 
             // Deserialize the response
             CorticalResponse corticalResponse = JsonUtility.FromJson<CorticalResponse>(corticalResponseJson);
+
+            // Output to text object if set
+            if (logOutput != null)
+            {
+                string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
+                string output = $"{agentDisplayName}\n";
+
+                if (!string.IsNullOrEmpty(corticalResponse.speech))
+                {
+                    output += $"<b>Speech</b>: {corticalResponse.speech}\n";
+                }
+
+                if (!string.IsNullOrEmpty(corticalResponse.thoughts))
+                {
+                    output += $"<b>Thoughts</b>: {corticalResponse.thoughts}\n";
+                }
+
+                if (!string.IsNullOrEmpty(corticalResponse.action))
+                {
+                    output += $"<b>Action</b>: {corticalResponse.action}\n";
+                }
+
+                // Set the output text
+                logOutput.text += output;
+            }
 
             // Check if action is null
             if (string.IsNullOrEmpty(corticalResponse.action))

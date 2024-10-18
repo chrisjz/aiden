@@ -21,8 +21,9 @@ async def _map_decision_to_action(decision: str, actions: list[str] = []) -> str
     Returns:
         str: The corresponding action.
     """
+    decision_formatted = decision.lower().replace("_", " ").replace("-", " ")
     for action in actions:
-        if action in decision or decision in action:
+        if action in decision_formatted or decision_formatted in action:
             return action
     return ACTION_NONE
 

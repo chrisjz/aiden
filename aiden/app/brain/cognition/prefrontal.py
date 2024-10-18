@@ -3,29 +3,11 @@ import os
 import re
 
 from langchain_core.messages import AIMessage, HumanMessage
-from langchain_experimental.llms.ollama_functions import OllamaFunctions, parse_response
+from langchain_ollama import ChatOllama
 
 from aiden import logger
 from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
 from aiden.models.brain import ACTION_NONE, Action, BrainConfig
-
-
-async def _map_decision_to_action(decision: str, actions: list[str] = []) -> str:
-    """
-    Maps a textual decision into a defined action based on predefined actions.
-
-    Args:
-        decision (str): The decision text to map.
-        actions: List of actions available to decide upon. Defaults to no action.
-
-    Returns:
-        str: The corresponding action.
-    """
-    decision_formatted = decision.lower().replace("_", " ").replace("-", " ")
-    for action in actions:
-        if action in decision_formatted or decision_formatted in action:
-            return action
-    return ACTION_NONE
 
 
 async def process_prefrontal(
@@ -61,7 +43,23 @@ async def process_prefrontal(
         HumanMessage(content=decision_prompt),
     ]
 
-    llm = OllamaFunctions(
+    def map_decision_to_action(action: str) -> dict[str, str]:
+        """
+        Custom function for mapping decision to action.
+        """
+        if action in action_names:
+            return {"action": action}
+        return {"action": ACTION_NONE}
+
+    # # Create a Tool for this function
+    # decision_tool = Tool.from_function(
+    #     name="_map_decision_to_action",
+    #     func=map_decision_to_action,
+    #     description=instruction,
+    #     return_direct=True
+    # )
+
+    llm = ChatOllama(
         base_url=COGNITIVE_API_URL_BASE,
         model=os.environ.get("COGNITIVE_MODEL", "mistral"),
         format="json",
@@ -71,35 +69,14 @@ async def process_prefrontal(
         temperature=0.6,
         top_p=0.95,
         max_tokens=80,
-    )
-
-    llm = llm.bind_tools(
-        tools=[
-            {
-                "name": "_map_decision_to_action",
-                "description": instruction,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": action_names,
-                        },
-                    },
-                    "required": ["action"],
-                },
-            }
-        ],
-        function_call={"name": "_map_decision_to_action"},
-    )
+    ).bind_tools([map_decision_to_action])
 
     logger.info(f"Prefrontal chat message: {messages}")
 
     try:
         response: AIMessage = llm.invoke(messages)
-        response_parsed = parse_response(response)
-        logger.info(f"Prefrontal parsed response: {response_parsed}")
-        decision = json.loads(response_parsed).get("action", ACTION_NONE)
+        logger.info(f"Prefrontal response: {response.content}")
+        decision = json.loads(response.content).get("action", ACTION_NONE)
         logger.info(f"Prefrontal decision: {decision}")
     except ValueError as exc:
         # Workaround for models that do not fully handle functions e.g. bakllava
@@ -118,13 +95,11 @@ async def process_prefrontal(
         return None
 
     try:
-        mapped_action = await _map_decision_to_action(decision, action_names)
+        if decision == ACTION_NONE:
+            decision = None
 
-        if mapped_action == ACTION_NONE:
-            mapped_action = None
-
-        logger.info(f"Mapped action: {mapped_action}")
-        return mapped_action
+        logger.info(f"Mapped action: {decision}")
+        return decision
     except Exception as exc:
         logger.error(f"Failed prefrontal decision-making with error: {exc}")
         return None

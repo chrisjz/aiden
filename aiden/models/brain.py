@@ -1,7 +1,7 @@
 from enum import Enum
 
 from langchain_core.messages import BaseMessage
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 ACTION_NONE = "none"
 
@@ -64,7 +64,7 @@ class TactileInput(SensoryInput):
     content: str | None = None
     command: Action | None = None
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def check_required_fields(cls, values):
         type_ = values.get("type")
         content = values.get("content")

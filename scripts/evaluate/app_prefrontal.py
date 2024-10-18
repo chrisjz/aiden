@@ -6,7 +6,15 @@ import asyncio
 
 from aiden.app.brain.cognition.prefrontal import process_prefrontal
 from aiden.app.utils import load_brain_config
-from aiden.models.brain import Sensory
+from aiden.models.brain import (
+    Action,
+    Sensory,
+    VisionInput,
+    AuditoryInput,
+    TactileInput,
+    OlfactoryInput,
+    GustatoryInput,
+)
 
 
 async def main():
@@ -43,15 +51,24 @@ async def main():
     )
 
     sensory_data = Sensory(
-        vision=vision_input,
-        auditory=auditory_input,
-        tactile=tactile_input,
-        olfactory=olfactory_input,
-        gustatory=gustatory_input,
+        vision=[VisionInput(content=vision_input)],
+        auditory=[AuditoryInput(content=auditory_input)],
+        tactile=[TactileInput(content=tactile_input)],
+        olfactory=[OlfactoryInput(content=olfactory_input)],
+        gustatory=[GustatoryInput(content=gustatory_input)],
     )
 
+    actions = [
+        Action(name="move forward"),
+        Action(name="move backward"),
+        Action(name="turn left"),
+        Action(name="turn right"),
+    ]
+
     # Call the process_prefrontal function directly
-    decision = await process_prefrontal(sensory_data.model_dump(), brain_config)
+    decision = await process_prefrontal(
+        sensory_data.model_dump(), brain_config, actions
+    )
 
     print("Decision made based on sensory data:", decision)
 

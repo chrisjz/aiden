@@ -68,15 +68,25 @@ you to choose which services to run and whether to use CPU or GPU resources.
 - **Start all default services with GPU support:**
 
 ```shell
-docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --profile cognitive-gpu --profile vocal-gpu up -d
+docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --profile cognitive-gpu --profile vision-gpu --profile vocal-gpu up -d
 ```
 
 - **Start all default services in CPU-only mode:**
 
 ```shell
-docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vocal-cpu up -d
+docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu up -d
 ```
 
+| **Recommendation**: You will want at least the `cognitive` and
+`vision` services running for the simulation.
+This will enable the AI agent to at least process thoughts
+and see their environment.
+If your machine cannot run more than one model, set `COGNITIVE_MODEL`
+to a multi-modal model such as `bakllava`, change `VISION_API_PORT`
+to match `COGNITIVE_API_PORT` and spin up only the `cognitive` service.
+
+The services are optional and can be started individually or in combination
+based on your requirements.
 You can also have any combination of CPU and GPU services.
 
 For the Vocal API, you will need to create a personal access token on GitHub
@@ -117,25 +127,24 @@ them. For example:
 - **Stop all default services with GPU support:**
 
 ```shell
-docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --profile cognitive-gpu --profile vocal-gpu stop
+docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --profile cognitive-gpu --profile vision-gpu --profile vocal-gpu stop
 ```
 
 - **Stop all default services in CPU-only mode:**
 
 ```shell
-docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vocal-cpu stop
+docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu stop
 ```
-
-### Service Notes
-
-- The services are optional and can be started individually or in combination
-based on your requirements.
-- You can choose between CPU and GPU profiles for the `vision-api` and
-`cognitive-api` services depending on your hardware and performance needs.
 
 ### Starting Simulation
 
 Run the Unity simulation to interact with the virtual environment and AIden.
+
+Open Unity and navigate to the following scene to start the
+simulation: `Assets/Project/Scenes/Home.unity`.
+
+An executable of the simulation will be provided in the future
+for different operating systems.
 
 #### Controls
 

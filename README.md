@@ -77,7 +77,7 @@ docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --
 docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu up -d
 ```
 
-| **Recommendation**: You will want at least the `cognitive` and
+> **_RECOMMENDATION:_** You will want at least the `cognitive` and
 `vision` services running for the simulation.
 This will enable the AI agent to at least process thoughts
 and see their environment.

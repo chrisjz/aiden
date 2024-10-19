@@ -4967,6 +4967,53 @@ Transform:
   - {fileID: 1263598108}
   m_Father: {fileID: 1781214040}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &799044604
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 799044605}
+  - component: {fileID: 799044606}
+  m_Layer: 0
+  m_Name: PlayerChatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &799044605
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799044604}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1401037883}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &799044606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799044604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15ed0c3e06c2404faf104a4c8a1f20c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInputField: {fileID: 802402605}
+  responseText: {fileID: 753275888}
+  sendButton: {fileID: 1227152277}
 --- !u!1 &802402603
 GameObject:
   m_ObjectHideFlags: 0
@@ -5488,13 +5535,14 @@ MonoBehaviour:
   AIAgentTagName: AI
   playerTagName: Player
   agentAutoScrollManager: {fileID: 1318801325}
-  agentDebugMenuCanvas: {fileID: 0}
+  agentDebugMenuCanvas: {fileID: 635099533}
   firstPersonCanvas: {fileID: 306086044}
   mainMenuCanvas: {fileID: 125241291}
   playerInput: {fileID: 1862328920}
   playerLook: {fileID: 188838642}
   buttonSubmitUserRecording: {fileID: 1175416866}
   distanceToAI: 3
+  logOutput: {fileID: 1582702096}
 --- !u!1 &840386721
 GameObject:
   m_ObjectHideFlags: 0
@@ -9765,6 +9813,7 @@ Transform:
   - {fileID: 1092342182}
   - {fileID: 93094584}
   - {fileID: 48806574}
+  - {fileID: 799044605}
   - {fileID: 830881865}
   - {fileID: 1206771077}
   - {fileID: 1007083593}

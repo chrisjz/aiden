@@ -269,12 +269,28 @@ namespace AIden
             _simulationIndex = (_simulationIndex + 1) % simulatedSensoryInputs.Count;  // Loop through the list
 
             // Simulate cortical response by echoing the sensory inputs
-            string action = null;
-            string speech = null;
             string thoughts = $"I see... {string.Join(", ", simulatedInput.vision.Select(v => v.content))}, " +
                   $"I hear... {string.Join(", ", simulatedInput.auditory.Select(a => a.content))}";
 
+            // Mirror auditory language inputs received in buffer
+            string speech = null;
+            if (auditoryLanguageBufferList.Count > 0)
+            {
+                speech = "Someone said: \"";
+                foreach (var auditoryInput in auditoryLanguageBufferList)
+                {
+                    speech += auditoryInput.content + "\n";
+                }
+
+                // Trim the trailing newline character
+                speech = speech.TrimEnd('\n') + "\"";
+
+                // Clear buffer
+                auditoryLanguageBufferList.Clear();
+            }
+
             // Execute action based on the tactile input (if any)
+            string action = null;
             foreach (var tactileInput in simulatedInput.tactile)
             {
                 if (tactileInput.type == "action" && tactileInput.command != null)

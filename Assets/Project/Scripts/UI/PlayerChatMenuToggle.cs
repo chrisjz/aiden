@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using CandyCoded.env;
 using TMPro;
+using UnityEngine.UI;
 
 public class PlayerChatMenuToggle : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class PlayerChatMenuToggle : MonoBehaviour
     public PlayerInput playerInput;
     public PlayerLook playerLook;
     public GameObject buttonSubmitUserRecording;
+    public Button hideButton;
 
     // Public variable to set the distance range, default to 3 units
     public float distanceToAI = 3.0f;
@@ -26,6 +28,7 @@ public class PlayerChatMenuToggle : MonoBehaviour
 
     void Start()
     {
+        hideButton.onClick.AddListener(HideMenu);
         // Find the AI GameObject by tag
         aiAgent = GameObject.FindGameObjectWithTag(AIAgentTagName);
         player = GameObject.FindGameObjectWithTag(playerTagName);
@@ -38,12 +41,12 @@ public class PlayerChatMenuToggle : MonoBehaviour
         // Calculate the distance between the player and the AI
         float distance = Vector3.Distance(player.transform.position, aiAgent.transform.position);
 
-        // Check if the player presses the 'T' key and is within the allowed distance
-        if (Input.GetKeyDown(KeyCode.T))
+        // Check if the player presses the 'T' key and is within the allowed distance to show the menu
+        if (Input.GetKeyDown(KeyCode.T) && !isMenuVisible)
         {
             if (distance <= distanceToAI)
             {
-                ToggleMenuVisibility();
+                ToggleMenuVisibility(true);
             }
             else
             {
@@ -90,6 +93,11 @@ public class PlayerChatMenuToggle : MonoBehaviour
             Cursor.visible = false;
             agentAutoScrollManager.autoScrollEnabled = true;
         }
+    }
+
+    private void HideMenu()
+    {
+        ToggleMenuVisibility(false);
     }
 
     public GameObject GetCurrentAIAgent()

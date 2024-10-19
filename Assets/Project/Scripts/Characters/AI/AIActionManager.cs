@@ -20,6 +20,8 @@ namespace AIden
         public PlayerInputs aiInputs;
         public ThirdPersonController aiThirdPersonController;
 
+        private float _moveDistance = 1.0f;
+
         private void Start()
         {
             // Initialize action mappings with name and description
@@ -27,6 +29,11 @@ namespace AIden
             ActionMap[ActionType.MoveBackward] = new AIAction("Move Backward", "Move backward");
             ActionMap[ActionType.TurnLeft] = new AIAction("Turn Left", "Turn left");
             ActionMap[ActionType.TurnRight] = new AIAction("Turn Right", "Turn right");
+        }
+
+        public void SetMoveDistance(float moveDistance)
+        {
+            _moveDistance = moveDistance;
         }
 
         // Call an action based on the input
@@ -60,7 +67,7 @@ namespace AIden
         // Move forward (move along the z-axis)
         private void MoveForward()
         {
-            StartCoroutine(MoveForwardCoroutine(1.0f));  // Move forward by 1 unit
+            StartCoroutine(MoveForwardCoroutine(_moveDistance));
         }
 
         private IEnumerator MoveForwardCoroutine(float distance)
@@ -89,7 +96,7 @@ namespace AIden
         // Move backward (move along the negative z-axis)
         private void MoveBackward()
         {
-            StartCoroutine(MoveBackwardCoroutine(1.0f));  // Move backward by 1 unit
+            StartCoroutine(MoveBackwardCoroutine(_moveDistance));
         }
 
         private IEnumerator MoveBackwardCoroutine(float distance)

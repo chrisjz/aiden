@@ -12,23 +12,29 @@ namespace AIden
     public class BrainController : MonoBehaviour
     {
         [Header("Agent Profile")]
-        [Tooltip("Unique ID of agent")]
+        [Tooltip("Unique ID of agent.")]
         public string agentId = "1";
-        [Tooltip("Name of agent")]
+        [Tooltip("Name of agent.")]
         public string agentName = "AIden";
 
         [Header("Configuration")]
-        [Tooltip("File path to brain configuration")]
+        [Tooltip("File path to brain configuration.")]
         public string configPath = "./config/brain/default.json";
         [Header("Output")]
-        [Tooltip("Log output to display AI output")]
+        [Tooltip("Log output to display AI output.")]
         public TMP_Text logOutput;
 
         [Header("Toggle Sensors")]
-        [Tooltip("Toggle sensory inputs")]
+        [Tooltip("Toggle auditory ambient sensor.")]
         public bool toggleAuditoryAmbient = true;
+        [Tooltip("Toggle tactile sensor.")]
         public bool toggleTactileAction = true;
+        [Tooltip("Toggle vision sensor.")]
         public bool toggleVision = true;
+
+        [Header("Actions")]
+        [Tooltip("Movement distance per action, in unity units (approximately 1 meter).")]
+        public float moveDistance = 1.0f;
 
         [Header("Cycle Settings")]
         [Tooltip("Frequency in seconds of feeding external sensory to brain for responses. Set to 0 to disable.")]
@@ -37,6 +43,7 @@ namespace AIden
         [Header("Simulation Settings")]
         [Tooltip("Enable simulated inputs/responses instead of using real APIs.")]
         public bool enableSimulationMode = false;
+        [Tooltip("Sequential list of sensory inputs and outputs for AI to perform.")]
         public List<Sensory> simulatedSensoryInputs = new List<Sensory>();  // User-defined sensory inputs
 
         private int _simulationIndex = 0;  // To track the current index in the simulation list
@@ -55,6 +62,7 @@ namespace AIden
         {
             // Initialize the action manager
             _actionManager = GetComponentInChildren<AIActionManager>();
+            _actionManager.SetMoveDistance(moveDistance);
 
             // Initialize API clients if not in simulation mode
             if (!enableSimulationMode)

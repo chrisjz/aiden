@@ -5014,6 +5014,7 @@ MonoBehaviour:
   playerInputField: {fileID: 802402605}
   responseText: {fileID: 753275888}
   sendButton: {fileID: 1227152277}
+  playerChatMenuToggle: {fileID: 830881866}
 --- !u!1 &802402603
 GameObject:
   m_ObjectHideFlags: 0

@@ -32,6 +32,10 @@ namespace AIden
         [Tooltip("Toggle vision sensor.")]
         public bool toggleVision = true;
 
+        [Header("Sensory Inputs")]
+        [Tooltip("Buffer for auditory language inputs received from users or other agents.")]
+        public List<AuditoryInput> auditoryLanguageBufferList = new List<AuditoryInput>();
+
         [Header("Actions")]
         [Tooltip("Movement distance per action, in unity units (approximately 1 meter).")]
         public float moveDistance = 1.0f;
@@ -321,6 +325,15 @@ namespace AIden
             }
 
             yield return null;
+        }
+
+        public void AddToAuditoryLanguageBuffer(string inputText)
+        {
+            if (inputText == null) return;
+
+            AuditoryInput inputItem = new AuditoryInput(AuditoryType.LANGUAGE, inputText);
+
+            auditoryLanguageBufferList.Add(inputItem);
         }
     }
 }

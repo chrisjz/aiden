@@ -21,22 +21,22 @@ public class PlayerChatMenuToggle : MonoBehaviour
     public TMP_Text logOutput;
 
     private bool isMenuVisible = false;
-    private GameObject aiHumanoid;
+    private GameObject aiAgent;
     private GameObject player;
 
     void Start()
     {
         // Find the AI GameObject by tag
-        aiHumanoid = GameObject.FindGameObjectWithTag(AIAgentTagName);
+        aiAgent = GameObject.FindGameObjectWithTag(AIAgentTagName);
         player = GameObject.FindGameObjectWithTag(playerTagName);
     }
 
     void Update()
     {
-        if (aiHumanoid == null) return; // If AI is not found, do nothing
+        if (aiAgent == null) return; // If AI is not found, do nothing
 
         // Calculate the distance between the player and the AI
-        float distance = Vector3.Distance(player.transform.position, aiHumanoid.transform.position);
+        float distance = Vector3.Distance(player.transform.position, aiAgent.transform.position);
 
         // Check if the player presses the 'T' key and is within the allowed distance
         if (Input.GetKeyDown(KeyCode.T))
@@ -90,5 +90,10 @@ public class PlayerChatMenuToggle : MonoBehaviour
             Cursor.visible = false;
             agentAutoScrollManager.autoScrollEnabled = true;
         }
+    }
+
+    public GameObject GetCurrentAIAgent()
+    {
+        return aiAgent;
     }
 }

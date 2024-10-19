@@ -148,7 +148,9 @@ for different operating systems.
 
 #### Controls
 
-- **Open/Close Menu:** Press the "`" (backtick) key to open and close the
+- **Open/Close Main Menu:** Press the ESC key to open and close
+the main menu.
+- **Open/Close Debug Menu:** Press the "`" (backtick) key to open and close the
 prompt panel for interacting with AIden.
 - **Movement:** Use the WASD keys or arrow keys to move in the simulation.
 - **Jump:** Press the spacebar to jump.
@@ -156,6 +158,8 @@ prompt panel for interacting with AIden.
 with certain objects in the environment.
 - **Look Around:** Use the mouse to control the camera and look around in
 the simulation.
+- **Switch perspective** Press TAB to switch between controlling
+the player or observing through AIden.
 
 ## Development
 

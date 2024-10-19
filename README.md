@@ -154,6 +154,8 @@ the main menu.
 prompt panel for interacting with AIden.
 - **Movement:** Use the WASD keys or arrow keys to move in the simulation.
 - **Jump:** Press the spacebar to jump.
+- **Chat with AI Agent:** Press the "T" key to chat with AIden using text input.
+You need to be close to AIden to initiate the chat.
 - **Interact:** Press the "E" key or left-click with the mouse to interact
 with certain objects in the environment.
 - **Look Around:** Use the mouse to control the camera and look around in

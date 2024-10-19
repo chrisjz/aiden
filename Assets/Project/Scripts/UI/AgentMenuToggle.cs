@@ -7,6 +7,7 @@ public class AgentMenuToggle : MonoBehaviour
     public GameObject menuCanvas;
     public AutoScrollManager agentAutoScrollManager;
     public GameObject firstPersonCanvas;
+    public GameObject playerChatCanvas;
     public GameObject mainMenuCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
@@ -44,6 +45,7 @@ public class AgentMenuToggle : MonoBehaviour
                 agentAutoScrollManager.autoScrollEnabled = false;
 
                 mainMenuCanvas.SetActive(false);
+                playerChatCanvas.SetActive(false);
             }
             else
             {

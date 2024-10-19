@@ -6,6 +6,7 @@ public class MainMenu : MonoBehaviour
     public GameObject menuCanvas;
     public GameObject agentMenuCanvas;
     public GameObject firstPersonCanvas;
+    public GameObject playerChatCanvas;
     public GameObject screenMain;
     public GameObject screenControls;
     public GameObject screenExit;
@@ -27,6 +28,7 @@ public class MainMenu : MonoBehaviour
         isMenuVisible = !isMenuVisible;
         menuCanvas.SetActive(isMenuVisible);
         firstPersonCanvas.SetActive(!isMenuVisible);
+        playerChatCanvas.SetActive(!isMenuVisible);
         playerInput.enabled = !isMenuVisible;
         playerLook.enabled = !isMenuVisible;
 

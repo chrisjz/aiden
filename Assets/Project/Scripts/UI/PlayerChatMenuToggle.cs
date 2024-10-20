@@ -9,7 +9,6 @@ public class PlayerChatMenuToggle : MonoBehaviour
     public GameObject menuCanvas;
     public string AIAgentTagName = "AI";
     public string playerTagName = "Player";
-    public AutoScrollManager agentAutoScrollManager;
     public GameObject agentDebugMenuCanvas;
     public GameObject firstPersonCanvas;
     public GameObject mainMenuCanvas;
@@ -81,9 +80,6 @@ public class PlayerChatMenuToggle : MonoBehaviour
             env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_ENABLE", out bool isAuditoryLanguageEnabled);
             buttonSubmitUserRecording.SetActive(isAuditoryLanguageEnabled);
 
-            // Disable agent output auto-scrolling
-            agentAutoScrollManager.autoScrollEnabled = false;
-
             // Hide main menu canvas if it's visible
             mainMenuCanvas.SetActive(false);
         }
@@ -91,7 +87,6 @@ public class PlayerChatMenuToggle : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked; // Lock the cursor
             Cursor.visible = false;
-            agentAutoScrollManager.autoScrollEnabled = true;
         }
     }
 

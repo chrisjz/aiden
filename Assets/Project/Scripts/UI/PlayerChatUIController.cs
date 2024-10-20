@@ -13,6 +13,7 @@ public class PlayerChatUIController : MonoBehaviour
     public TMP_Text responseText;
     public Button sendButton;
     public PlayerChatMenuToggle playerChatMenuToggle;
+    public TMP_Text logOutput;
 
 
     private void Start()
@@ -29,12 +30,16 @@ public class PlayerChatUIController : MonoBehaviour
         string playerMessage = playerInputField.text;
         sendButton.interactable = false;
 
-        // Add user's input in canvas output
-        responseText.text += $"<b><color=#66ff66>User</color></b>\n";
-        responseText.text += $"<color=#000000>{playerMessage}</color>\n";
+        // Add user's input in canvas and log outputs
+        string playerMessageFormatted = $"<b><color=#66ff66>User</color></b>\n";
+        playerMessageFormatted += $"{playerMessage}\n";
+        responseText.text += playerMessageFormatted;
+        if (logOutput != null) logOutput.text += playerMessageFormatted;
 
-        Debug.Log("Send player speech to AI agent");
+        Debug.Log("Send player speech to AI agent: " + playerMessage);
         brainController.AddToAuditoryLanguageBuffer(playerMessage);
+
+        playerInputField.text = "";
         sendButton.interactable = true;
     }
 }

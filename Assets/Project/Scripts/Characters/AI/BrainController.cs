@@ -23,6 +23,8 @@ namespace AIden
         [Header("Output")]
         [Tooltip("Log output to display AI output.")]
         public TMP_Text logOutput;
+        [Tooltip("Chat output to display AI output.")]
+        public TMP_Text chatOutput;
 
         [Header("Toggle Sensors")]
         [Tooltip("Toggle auditory ambient sensor.")]
@@ -316,29 +318,29 @@ namespace AIden
             Debug.Log("Simulated Cortical Response: " + response);
 
             // Output to text object if set
-            if (logOutput != null)
+            string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
+            string output = $"{agentDisplayName}\n";
+
+            string outputSpeech = null;
+            if (!string.IsNullOrEmpty(response.speech))
             {
-                string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
-                string output = $"{agentDisplayName}\n";
-
-                if (!string.IsNullOrEmpty(response.speech))
-                {
-                    output += $"<b>Speech</b>: {response.speech}\n";
-                }
-
-                if (!string.IsNullOrEmpty(response.thoughts))
-                {
-                    output += $"<b>Thoughts</b>: {response.thoughts}\n";
-                }
-
-                if (!string.IsNullOrEmpty(response.action))
-                {
-                    output += $"<b>Action</b>: {response.action}\n";
-                }
-
-                // Set the output text
-                logOutput.text += output;
+                outputSpeech = response.speech;
+                output += $"<b>Speech</b>: {outputSpeech}\n";
             }
+
+            if (!string.IsNullOrEmpty(response.thoughts))
+            {
+                output += $"<b>Thoughts</b>: {response.thoughts}\n";
+            }
+
+            if (!string.IsNullOrEmpty(response.action))
+            {
+                output += $"<b>Action</b>: {response.action}\n";
+            }
+
+            // Set the output text
+            if (chatOutput != null && outputSpeech != null) chatOutput.text += $"{agentDisplayName}\n{outputSpeech}\n";
+            if (logOutput != null) logOutput.text += output;
 
             yield return null;
         }

@@ -15120,6 +15120,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1582702096}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: chatOutput
+      value: 
+      objectReference: {fileID: 753275888}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: outputText
       value: 
       objectReference: {fileID: 1582702096}

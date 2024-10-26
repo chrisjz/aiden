@@ -8,7 +8,7 @@
       "depth": 1,
       "source": "registry",
       "url": "https://packages.unity.com",
-      "version": "1.8.17"
+      "version": "1.8.18"
     },
     "com.unity.cinemachine": {
       "dependencies": {
@@ -24,7 +24,7 @@
       "depth": 0,
       "source": "registry",
       "url": "https://packages.unity.com",
-      "version": "2.4.4"
+      "version": "2.5.2"
     },
     "com.unity.editorcoroutines": {
       "dependencies": {},
@@ -86,7 +86,7 @@
       "depth": 0,
       "source": "registry",
       "url": "https://packages.unity.com",
-      "version": "1.7.0"
+      "version": "1.11.0"
     },
     "com.unity.mathematics": {
       "dependencies": {},
@@ -427,7 +427,7 @@
       "depth": 0,
       "source": "registry",
       "url": "https://packages.unity.com",
-      "version": "3.0.6"
+      "version": "3.0.7"
     },
     "com.unity.timeline": {
       "dependencies": {

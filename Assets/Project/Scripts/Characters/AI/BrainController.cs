@@ -29,6 +29,8 @@ namespace AIden
         [Header("Toggle Sensors")]
         [Tooltip("Toggle auditory ambient sensor.")]
         public bool toggleAuditoryAmbient = true;
+        [Tooltip("Toggle auditory language sensor.")]
+        public bool toggleAuditoryLanguage = true;
         [Tooltip("Toggle tactile sensor.")]
         public bool toggleTactileAction = true;
         [Tooltip("Toggle vision sensor.")]
@@ -61,6 +63,7 @@ namespace AIden
         private AIActionManager _actionManager;
 
         private bool _isAuditoryAmbientSensorEnabled = false;
+        private bool _isAuditoryLanguageSensorEnabled = false;
         private bool _isTactileActionSensorEnabled = false;
         private bool _isVisionSensorEnabled = false;
 
@@ -80,10 +83,11 @@ namespace AIden
                 _visionApiClient = new VisionAPIClient(cameraCapture);
 
                 _isAuditoryAmbientSensorEnabled = toggleAuditoryAmbient && _auditoryApiClient.IsAPIEnabled();
+                _isAuditoryLanguageSensorEnabled = toggleAuditoryLanguage;
                 _isVisionSensorEnabled = toggleVision && _visionApiClient.IsAPIEnabled();
                 _isTactileActionSensorEnabled = toggleTactileAction;
 
-                if (!_isAuditoryAmbientSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
+                if (!_isAuditoryAmbientSensorEnabled && !_isAuditoryLanguageSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
                 {
                     Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
                     if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensor APIs are enabled. At least one sensor is required for cortical processing.</color>\n";
@@ -153,6 +157,20 @@ namespace AIden
                 ));
             }
 
+            // Fetch Auditory Data (Language) if enabled
+            if (_isAuditoryLanguageSensorEnabled && auditoryLanguageBufferList.Count > 0)
+            {
+                string speech = null;
+
+                foreach (var auditoryInput in auditoryLanguageBufferList)
+                {
+                    speech += auditoryInput.content + "\n";
+                }
+                speech = speech.TrimEnd('\n') + "\"";
+                sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.LANGUAGE, speech));
+                auditoryLanguageBufferList.Clear();
+            }
+
             // Fetch Tactile Data (Actions) if enabled
             if (_isTactileActionSensorEnabled)
             {
@@ -167,7 +185,7 @@ namespace AIden
             }
 
             // Ensure at least one sensory input is available
-            if (sensoryInput.vision.Count == 0 && sensoryInput.auditory.Count == 0 && sensoryInput.auditory.Count == 0)
+            if (sensoryInput.vision.Count == 0 && sensoryInput.auditory.Count == 0 && sensoryInput.tactile.Count == 0 && sensoryInput.olfactory.Count == 0 && sensoryInput.gustatory.Count == 0)
             {
                 Debug.LogError("No sensory data available for cortical processing.");
                 if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensory data available for cortical processing.</color>\n";
@@ -207,29 +225,29 @@ namespace AIden
             CorticalResponse corticalResponse = JsonUtility.FromJson<CorticalResponse>(corticalResponseJson);
 
             // Output to text object if set
-            if (logOutput != null)
+            string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
+            string output = $"{agentDisplayName}\n";
+
+            string outputSpeech = null;
+            if (!string.IsNullOrEmpty(corticalResponse.speech))
             {
-                string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
-                string output = $"{agentDisplayName}\n";
-
-                if (!string.IsNullOrEmpty(corticalResponse.speech))
-                {
-                    output += $"<b>Speech</b>: {corticalResponse.speech}\n";
-                }
-
-                if (!string.IsNullOrEmpty(corticalResponse.thoughts))
-                {
-                    output += $"<b>Thoughts</b>: {corticalResponse.thoughts}\n";
-                }
-
-                if (!string.IsNullOrEmpty(corticalResponse.action))
-                {
-                    output += $"<b>Action</b>: {corticalResponse.action}\n";
-                }
-
-                // Set the output text
-                logOutput.text += output;
+                outputSpeech = corticalResponse.speech;
+                output += $"<b>Speech</b>: {outputSpeech}\n";
             }
+
+            if (!string.IsNullOrEmpty(corticalResponse.thoughts))
+            {
+                output += $"<b>Thoughts</b>: {corticalResponse.thoughts}\n";
+            }
+
+            if (!string.IsNullOrEmpty(corticalResponse.action))
+            {
+                output += $"<b>Action</b>: {corticalResponse.action}\n";
+            }
+
+            // Set the output text
+            if (chatOutput != null && outputSpeech != null) chatOutput.text += $"{agentDisplayName}\n{outputSpeech}\n";
+            if (logOutput != null) logOutput.text += output;
 
             // Check if action is null
             if (string.IsNullOrEmpty(corticalResponse.action))

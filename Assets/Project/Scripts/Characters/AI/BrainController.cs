@@ -119,6 +119,9 @@ namespace AIden
         {
             while (cycleTime > 0.0f)
             {
+                // Wait for the defined cycle time before starting the next cycle
+                yield return new WaitForSeconds(cycleTime);
+
                 if (enableSimulationMode)
                 {
                     // Process fake/simulated sensory data
@@ -129,9 +132,6 @@ namespace AIden
                     // Process real sensory data
                     yield return StartCoroutine(ProcessSensoryData());
                 }
-
-                // Wait for the defined cycle time before starting the next cycle
-                yield return new WaitForSeconds(cycleTime);
             }
         }
 

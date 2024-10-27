@@ -4,6 +4,8 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using CandyCoded.env;
+using System.Threading.Tasks;
+using PimDeWitte.UnityMainThreadDispatcher;
 
 public class VisionAPIClient
 {
@@ -85,6 +87,102 @@ public class VisionAPIClient
         {
             onError?.Invoke("Vision API request failed: " + request.error);
         }
+    }
+
+    public async Task<string> GetVisionDataAsync()
+    {
+        if (string.IsNullOrEmpty(apiURL))
+        {
+            Debug.LogError("Vision API URL is not set.");
+            return null;
+        }
+
+        // Step 1: Capture the camera render texture on the main thread
+        var textureTask = new TaskCompletionSource<Texture2D>();
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        {
+            try
+            {
+                Texture2D capturedImage = CaptureCameraRenderTexture(cameraCapture);
+                textureTask.SetResult(capturedImage);
+            }
+            catch (Exception ex)
+            {
+                textureTask.SetException(ex);
+            }
+        });
+
+        Texture2D capturedImage = await textureTask.Task;
+        if (capturedImage == null)
+        {
+            Debug.LogError("Failed to capture camera render texture.");
+            return null;
+        }
+
+        // Step 2: Convert Texture to Base64 on the main thread
+        var base64Task = new TaskCompletionSource<string>();
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        {
+            try
+            {
+                string base64Image = TextureToBase64(capturedImage);
+                base64Task.SetResult(base64Image);
+            }
+            catch (Exception ex)
+            {
+                base64Task.SetException(ex);
+            }
+        });
+
+        string base64Image = await base64Task.Task;
+        if (base64Image == null)
+        {
+            Debug.LogError("Failed to convert image to base64.");
+            return null;
+        }
+
+        // Save the captured image to a file
+        SaveImageToFile(capturedImage, saveCapturedImage);
+
+
+        // Step 3: Send the base64 image to the Vision API on the main thread
+        var responseTask = new TaskCompletionSource<string>();
+        UnityMainThreadDispatcher.Instance().Enqueue(async () =>
+        {
+            try
+            {
+                var json = JsonUtility.ToJson(new VisionRequest { image = base64Image });
+                var request = new UnityWebRequest(apiURL, "POST")
+                {
+                    uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+                    downloadHandler = new DownloadHandlerBuffer()
+                };
+                request.SetRequestHeader("Content-Type", "application/json");
+
+                var asyncOp = request.SendWebRequest();
+                while (!asyncOp.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    responseTask.SetResult(request.downloadHandler.text);
+                }
+                else
+                {
+                    responseTask.SetException(new Exception($"Vision API request failed: {request.error}"));
+                }
+            }
+            catch (Exception ex)
+            {
+                responseTask.SetException(ex);
+            }
+        });
+
+        string response = await responseTask.Task;
+        Debug.Log($"Vision API response: {response}");
+        return response;
     }
 
     public Texture2D CaptureCameraRenderTexture(Camera cameraCapture)

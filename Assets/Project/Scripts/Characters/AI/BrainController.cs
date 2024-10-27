@@ -6,6 +6,34 @@ using UnityEngine;
 using UnityEngine.Networking;
 using CandyCoded.env;
 using TMPro;
+using System.Threading.Tasks;
+
+public static class UnityWebRequestExtensions
+{
+    public static Task<UnityWebRequest> SendWebRequestAsync(this UnityWebRequest request)
+    {
+        var tcs = new TaskCompletionSource<UnityWebRequest>();
+
+        request.SendWebRequest().completed += operation =>
+        {
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                tcs.SetResult(request);
+            }
+            else
+            {
+                tcs.SetException(new UnityWebRequestException(request.error));
+            }
+        };
+
+        return tcs.Task;
+    }
+}
+
+public class UnityWebRequestException : System.Exception
+{
+    public UnityWebRequestException(string message) : base(message) { }
+}
 
 namespace AIden
 {
@@ -112,68 +140,68 @@ namespace AIden
             }
 
             // Start the sensory data processing loop
-            StartCoroutine(ProcessSensoryDataLoop());
+            ProcessSensoryDataLoop();
         }
 
-        private IEnumerator ProcessSensoryDataLoop()
+        private async void ProcessSensoryDataLoop()
         {
             while (cycleTime > 0.0f)
             {
                 // Wait for the defined cycle time before starting the next cycle
-                yield return new WaitForSeconds(cycleTime);
+                await Task.Delay(TimeSpan.FromSeconds(cycleTime));
 
                 if (enableSimulationMode)
                 {
                     // Process fake/simulated sensory data
-                    yield return StartCoroutine(ProcessSimulatedSensoryData());
+                    ProcessSimulatedSensoryData();
                 }
                 else
                 {
                     // Process real sensory data
-                    yield return StartCoroutine(ProcessSensoryData());
+                    await ProcessSensoryData();
                 }
             }
         }
 
-        private IEnumerator ProcessSensoryData()
+        private async Task ProcessSensoryData()
         {
             Sensory sensoryInput = new Sensory();
-            List<Coroutine> sensoryTasks = new List<Coroutine>();
+            List<Task> sensoryTasks = new List<Task>();
 
             // Fetch Occipital Data (Vision) if enabled
             if (_isVisionSensorEnabled)
             {
-                sensoryTasks.Add(StartCoroutine(_visionApiClient.GetVisionDataCoroutine(
-                    occipitalData => sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData)),
-                    error => Debug.LogError(error)
-                )));
+                sensoryTasks.Add(Task.Run(async () =>
+                {
+                    string occipitalData = await _visionApiClient.GetVisionDataAsync();
+                    if (occipitalData != null)
+                    {
+                        sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData));
+                    }
+                }));
             }
+
 
             // Fetch Auditory Data (Ambient Noise) if enabled
             if (_isAuditoryAmbientSensorEnabled)
             {
-                sensoryTasks.Add(StartCoroutine(_auditoryApiClient.GetAuditoryDataCoroutine(
-                    auditoryData => sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData)),
-                    error => Debug.LogError(error)
-                )));
+                sensoryTasks.Add(Task.Run(async () =>
+                {
+                    string auditoryData = await _auditoryApiClient.GetAuditoryDataAsync();
+                    if (auditoryData != null)
+                    {
+                        sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData));
+                    }
+                }));
             }
 
-            // Wait for all sensory coroutines to complete
-            foreach (var task in sensoryTasks)
-            {
-                yield return task;
-            }
+            // Wait for all sensory tasks to complete
+            await Task.WhenAll(sensoryTasks);
 
             // Fetch Auditory Data (Language) if enabled
             if (_isAuditoryLanguageSensorEnabled && auditoryLanguageBufferList.Count > 0)
             {
-                string speech = null;
-
-                foreach (var auditoryInput in auditoryLanguageBufferList)
-                {
-                    speech += auditoryInput.content + "\n";
-                }
-                speech = speech.TrimEnd('\n') + "\"";
+                string speech = string.Join("\n", auditoryLanguageBufferList.Select(a => a.content));
                 sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.LANGUAGE, speech));
                 auditoryLanguageBufferList.Clear();
             }
@@ -196,7 +224,7 @@ namespace AIden
             {
                 Debug.LogError("No sensory data available for cortical processing.");
                 if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensory data available for cortical processing.</color>\n";
-                yield break;
+                return;
             }
 
             // Send to Cortical API
@@ -209,76 +237,70 @@ namespace AIden
 
             string corticalRequestJson = JsonUtility.ToJson(corticalRequestData);
             Debug.Log("Cortical request JSON: " + corticalRequestJson);
-            UnityWebRequest corticalRequest = new UnityWebRequest(_corticalApiUrl, "POST")
+
+            using (var corticalRequest = new UnityWebRequest(_corticalApiUrl, "POST"))
             {
-                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(corticalRequestJson)),
-                downloadHandler = new DownloadHandlerBuffer()
-            };
-            corticalRequest.SetRequestHeader("Content-Type", "application/json");
+                corticalRequest.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(corticalRequestJson));
+                corticalRequest.downloadHandler = new DownloadHandlerBuffer();
+                corticalRequest.SetRequestHeader("Content-Type", "application/json");
 
-            yield return corticalRequest.SendWebRequest();
-            if (corticalRequest.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError("Cortical API call failed: " + corticalRequest.error);
-                if (logOutput != null) logOutput.text += $"<color=#FF9999>Cortical API call failed: {corticalRequest.error}</color>\n";
-                yield break;
-            }
+                await corticalRequest.SendWebRequestAsync();
 
-            // Process Cortical Response
-            string corticalResponseJson = corticalRequest.downloadHandler.text;
-            Debug.Log("Cortical Response: " + corticalResponseJson);
-
-            // Deserialize the response
-            CorticalResponse corticalResponse = JsonUtility.FromJson<CorticalResponse>(corticalResponseJson);
-
-            // Output to text object if set
-            string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";  // Bold and blue
-            string output = $"{agentDisplayName}\n";
-
-            string outputSpeech = null;
-            if (!string.IsNullOrEmpty(corticalResponse.speech))
-            {
-                outputSpeech = corticalResponse.speech;
-                output += $"<b>Speech</b>: {outputSpeech}\n";
-            }
-
-            if (!string.IsNullOrEmpty(corticalResponse.thoughts))
-            {
-                output += $"<b>Thoughts</b>: {corticalResponse.thoughts}\n";
-            }
-
-            if (!string.IsNullOrEmpty(corticalResponse.action))
-            {
-                output += $"<b>Action</b>: {corticalResponse.action}\n";
-            }
-
-            // Set the output text
-            if (chatOutput != null && outputSpeech != null) chatOutput.text += $"{agentDisplayName}\n{outputSpeech}\n";
-            if (logOutput != null) logOutput.text += output;
-
-            // Check if action is null
-            if (string.IsNullOrEmpty(corticalResponse.action))
-            {
-                // Do nothing if the action is null or empty
-                Debug.Log("No action returned from cortical response.");
-            }
-            else
-            {
-                // Map the action from the response
-                AIActionManager.ActionType outputActionType;
-                if (Enum.TryParse(corticalResponse.action, true, out outputActionType))  // Case-insensitive comparison
+                if (corticalRequest.result != UnityWebRequest.Result.Success)
                 {
-                    _actionManager.ExecuteAction(outputActionType);
+                    Debug.LogError("Cortical API call failed: " + corticalRequest.error);
+                    if (logOutput != null) logOutput.text += $"<color=#FF9999>Cortical API call failed: {corticalRequest.error}</color>\n";
+                    return;
                 }
-                else
+
+                // Process Cortical Response
+                string corticalResponseJson = corticalRequest.downloadHandler.text;
+                Debug.Log("Cortical Response: " + corticalResponseJson);
+
+                // Deserialize the response
+                CorticalResponse corticalResponse = JsonUtility.FromJson<CorticalResponse>(corticalResponseJson);
+
+                // Output to text object if set
+                string agentDisplayName = $"<b><color=#6666FF>{agentName}</color></b>";
+                string output = $"{agentDisplayName}\n";
+
+                if (!string.IsNullOrEmpty(corticalResponse.speech))
                 {
-                    Debug.LogError($"Unrecognized action: {corticalResponse.action}");
-                    if (logOutput != null) logOutput.text += $"<color=#FF9999>Unrecognized action: {corticalResponse.action}</color>\n";
+                    output += $"<b>Speech</b>: {corticalResponse.speech}\n";
+                }
+
+                if (!string.IsNullOrEmpty(corticalResponse.thoughts))
+                {
+                    output += $"<b>Thoughts</b>: {corticalResponse.thoughts}\n";
+                }
+
+                if (!string.IsNullOrEmpty(corticalResponse.action))
+                {
+                    output += $"<b>Action</b>: {corticalResponse.action}\n";
+                }
+
+                // Set the output text
+                if (chatOutput != null && corticalResponse.speech != null)
+                    chatOutput.text += $"{agentDisplayName}\n{corticalResponse.speech}\n";
+                if (logOutput != null) logOutput.text += output;
+
+                // Execute action if available
+                if (!string.IsNullOrEmpty(corticalResponse.action))
+                {
+                    if (Enum.TryParse(corticalResponse.action, true, out AIActionManager.ActionType outputActionType))
+                    {
+                        _actionManager.ExecuteAction(outputActionType);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Unrecognized action: {corticalResponse.action}");
+                        if (logOutput != null) logOutput.text += $"<color=#FF9999>Unrecognized action: {corticalResponse.action}</color>\n";
+                    }
                 }
             }
         }
 
-        private IEnumerator ProcessSimulatedSensoryData()
+        private void ProcessSimulatedSensoryData()
         {
             // If no simulation inputs are defined, use a default sensory input
             if (simulatedSensoryInputs.Count == 0)
@@ -366,8 +388,6 @@ namespace AIden
             // Set the output text
             if (chatOutput != null && outputSpeech != null) chatOutput.text += $"{agentDisplayName}\n{outputSpeech}\n";
             if (logOutput != null) logOutput.text += output;
-
-            yield return null;
         }
 
         public void AddToAuditoryLanguageBuffer(string inputText)

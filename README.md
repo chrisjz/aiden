@@ -150,8 +150,6 @@ for different operating systems.
 
 - **Open/Close Main Menu:** Press the ESC key to open and close
 the main menu.
-- **Open/Close Debug Menu:** Press the "`" (backtick) key to open and close the
-prompt panel for interacting with AIden.
 - **Movement:** Use the WASD keys or arrow keys to move in the simulation.
 - **Jump:** Press the spacebar to jump.
 - **Chat with AI Agent:** Press the "T" key to chat with AIden using text input.

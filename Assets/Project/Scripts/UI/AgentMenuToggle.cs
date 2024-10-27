@@ -14,11 +14,17 @@ public class AgentMenuToggle : MonoBehaviour
     public GameObject buttonSubmitAISpeak;
     public GameObject buttonSubmitAIVisual;
     public GameObject buttonSubmitUserRecording;
+    public bool enableMenu = true;
 
     private bool isMenuVisible = false;
 
     void Update()
     {
+        if (!enableMenu)
+        {
+            return;
+        }
+
         env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_ENABLE", out bool isAuditoryLanguageEnabled);
         env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isVisionEnabled);
         env.TryParseEnvironmentVariable("VOCAL_ENABLE", out bool isVocalEnabled);

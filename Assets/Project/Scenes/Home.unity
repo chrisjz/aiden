@@ -10343,6 +10343,7 @@ MonoBehaviour:
   buttonSubmitAISpeak: {fileID: 1370225164}
   buttonSubmitAIVisual: {fileID: 1634835570}
   buttonSubmitUserRecording: {fileID: 840386721}
+  enableMenu: 0
 --- !u!1 &1453012982
 GameObject:
   m_ObjectHideFlags: 0

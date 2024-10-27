@@ -144,7 +144,6 @@ public class VisionAPIClient
         // Save the captured image to a file
         SaveImageToFile(capturedImage, saveCapturedImage);
 
-
         // Step 3: Send the base64 image to the Vision API on the main thread
         var responseTask = new TaskCompletionSource<string>();
         UnityMainThreadDispatcher.Instance().Enqueue(async () =>
@@ -180,9 +179,18 @@ public class VisionAPIClient
             }
         });
 
-        string response = await responseTask.Task;
-        Debug.Log($"Vision API response: {response}");
-        return response;
+
+        try
+        {
+            string response = await responseTask.Task;
+            Debug.Log($"Vision API response: {response}");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex.Message);
+            return null;
+        }
     }
 
     public Texture2D CaptureCameraRenderTexture(Camera cameraCapture)

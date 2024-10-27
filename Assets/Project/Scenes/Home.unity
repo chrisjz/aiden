@@ -7788,6 +7788,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: UnityMainThreadDispatcher
       objectReference: {fileID: 0}
+    - target: {fileID: 184210, guid: 8a749df5e56f6422ba9fe64d83915a89, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 22414968, guid: 8a749df5e56f6422ba9fe64d83915a89, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -15281,6 +15285,10 @@ PrefabInstance:
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: moveDistance
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: throttleFrameRate
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: enableSimulationMode

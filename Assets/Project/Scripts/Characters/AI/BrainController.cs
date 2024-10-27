@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 using CandyCoded.env;
 using TMPro;
 using System.Threading.Tasks;
+using PimDeWitte.UnityMainThreadDispatcher;
 
 public static class UnityWebRequestExtensions
 {
@@ -71,6 +72,14 @@ namespace AIden
         [Header("Actions")]
         [Tooltip("Movement distance per action, in unity units (approximately 1 meter).")]
         public float moveDistance = 1.0f;
+
+        [Header("Resource Settings")]
+        [Tooltip("When using the same GPU for Unity and inference servers, enabling this will allow Unity to reduce GPU resource when making inference calls.")]
+        public bool toggleGPUThrottling = true;
+        [Tooltip("Reduce Unity graphics quality level to this when making inference calls.")]
+        public int throttleQualityLevel = 0;
+        [Tooltip("Reduce Unity frame rate to this when making inference calls.")]
+        public int throttleFrameRate = 30;
 
         [Header("Cycle Settings")]
         [Tooltip("Frequency in seconds of feeding external sensory to brain for responses. Set to 0 to disable.")]
@@ -168,6 +177,40 @@ namespace AIden
             Sensory sensoryInput = new Sensory();
             List<Task> sensoryTasks = new List<Task>();
 
+            int originalQualityLevel = 5;
+            int originalFrameRate = -1;
+            if (toggleGPUThrottling)
+            {
+                // Get and set the original quality level on the main thread
+                originalQualityLevel = await Task.Run(() =>
+                {
+                    var taskCompletionSource = new TaskCompletionSource<int>();
+                    UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                    {
+                        taskCompletionSource.SetResult(QualitySettings.GetQualityLevel());
+                    });
+                    return taskCompletionSource.Task;
+                });
+
+                // Lower render quality
+                UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                {
+                    QualitySettings.SetQualityLevel(throttleQualityLevel);
+                });
+
+                // Get and set the original frame rate on the main thread
+                originalFrameRate = await Task.Run(() =>
+                {
+                    var taskCompletionSource = new TaskCompletionSource<int>();
+                    UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                    {
+                        taskCompletionSource.SetResult(Application.targetFrameRate);
+                        Application.targetFrameRate = throttleFrameRate; // Lower the target frame rate
+                    });
+                    return taskCompletionSource.Task;
+                });
+            }
+
             // Fetch Occipital Data (Vision) if enabled
             if (_isVisionSensorEnabled)
             {
@@ -224,6 +267,8 @@ namespace AIden
             {
                 Debug.LogError("No sensory data available for cortical processing.");
                 if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensory data available for cortical processing.</color>\n";
+
+                ResetGPUThrottling(originalQualityLevel, originalFrameRate);
                 return;
             }
 
@@ -250,8 +295,12 @@ namespace AIden
                 {
                     Debug.LogError("Cortical API call failed: " + corticalRequest.error);
                     if (logOutput != null) logOutput.text += $"<color=#FF9999>Cortical API call failed: {corticalRequest.error}</color>\n";
+
+                    ResetGPUThrottling(originalQualityLevel, originalFrameRate);
                     return;
                 }
+
+                ResetGPUThrottling(originalQualityLevel, originalFrameRate);
 
                 // Process Cortical Response
                 string corticalResponseJson = corticalRequest.downloadHandler.text;
@@ -299,7 +348,6 @@ namespace AIden
                 }
             }
         }
-
         private void ProcessSimulatedSensoryData()
         {
             // If no simulation inputs are defined, use a default sensory input
@@ -398,6 +446,20 @@ namespace AIden
 
             auditoryLanguageBufferList.Add(inputItem);
         }
+
+        private void ResetGPUThrottling(int originalQualityLevel, int originalFrameRate)
+        {
+            if (toggleGPUThrottling)
+            {
+                // Restore the original render quality and frame rate on the main thread
+                UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                {
+                    QualitySettings.SetQualityLevel(originalQualityLevel);
+                    Application.targetFrameRate = originalFrameRate;
+                });
+            }
+        }
+
     }
 }
 

@@ -164,8 +164,36 @@ public class AuditoryAPIClient
 
         // Convert the byte array to Base64
         string base64audio = Convert.ToBase64String(wavData);
-
         var json = JsonUtility.ToJson(new AuditoryRequest { audio = base64audio });
+
+        // Get and set the original quality level on the main thread
+        int originalQualityLevel = await Task.Run(() =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<int>();
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
+            {
+                taskCompletionSource.SetResult(QualitySettings.GetQualityLevel());
+            });
+            return taskCompletionSource.Task;
+        });
+
+        // Lower render quality
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        {
+            QualitySettings.SetQualityLevel(0);
+        });
+
+        // Get and set the original frame rate on the main thread
+        int originalFrameRate = await Task.Run(() =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<int>();
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
+            {
+                taskCompletionSource.SetResult(Application.targetFrameRate);
+                Application.targetFrameRate = 30; // Lower the target frame rate
+            });
+            return taskCompletionSource.Task;
+        });
 
         // Run UnityWebRequest on the main thread and capture response
         var responseTask = new TaskCompletionSource<string>();
@@ -203,6 +231,15 @@ public class AuditoryAPIClient
         {
             Debug.LogError(ex.Message);
             return null;
+        }
+        finally
+        {
+            // Restore the original render quality and frame rate on the main thread
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
+            {
+                QualitySettings.SetQualityLevel(originalQualityLevel);
+                Application.targetFrameRate = originalFrameRate;
+            });
         }
     }
 

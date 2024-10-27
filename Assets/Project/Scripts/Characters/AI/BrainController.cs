@@ -138,23 +138,30 @@ namespace AIden
         private IEnumerator ProcessSensoryData()
         {
             Sensory sensoryInput = new Sensory();
+            List<Coroutine> sensoryTasks = new List<Coroutine>();
 
             // Fetch Occipital Data (Vision) if enabled
             if (_isVisionSensorEnabled)
             {
-                yield return StartCoroutine(_visionApiClient.GetVisionDataCoroutine(
+                sensoryTasks.Add(StartCoroutine(_visionApiClient.GetVisionDataCoroutine(
                     occipitalData => sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData)),
                     error => Debug.LogError(error)
-                ));
+                )));
             }
 
             // Fetch Auditory Data (Ambient Noise) if enabled
             if (_isAuditoryAmbientSensorEnabled)
             {
-                yield return StartCoroutine(_auditoryApiClient.GetAuditoryDataCoroutine(
+                sensoryTasks.Add(StartCoroutine(_auditoryApiClient.GetAuditoryDataCoroutine(
                     auditoryData => sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData)),
                     error => Debug.LogError(error)
-                ));
+                )));
+            }
+
+            // Wait for all sensory coroutines to complete
+            foreach (var task in sensoryTasks)
+            {
+                yield return task;
             }
 
             // Fetch Auditory Data (Language) if enabled

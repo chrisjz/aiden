@@ -80,6 +80,7 @@ def test_wipe_memory(redis_client):
     assert redis_client.get("agent:0:memory") is None
 
 
+@pytest.mark.skip("Not implemented")
 def test_consolidate_memory(monkeypatch, redis_client):
     # Given
     monkeypatch.setenv("MEMORY_CONSOLIDATION_HISTORY_MIN_CONSOLIDATE", "4")

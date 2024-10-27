@@ -28,7 +28,6 @@ public class MainMenu : MonoBehaviour
         isMenuVisible = !isMenuVisible;
         menuCanvas.SetActive(isMenuVisible);
         firstPersonCanvas.SetActive(!isMenuVisible);
-        playerChatCanvas.SetActive(!isMenuVisible);
         playerInput.enabled = !isMenuVisible;
         playerLook.enabled = !isMenuVisible;
 
@@ -38,6 +37,7 @@ public class MainMenu : MonoBehaviour
             Cursor.lockState = CursorLockMode.None; // Unlock the cursor
             Cursor.visible = true;
 
+            playerChatCanvas.SetActive(false);
             agentMenuCanvas.SetActive(false);
             screenMain.SetActive(true);
             screenControls.SetActive(false);

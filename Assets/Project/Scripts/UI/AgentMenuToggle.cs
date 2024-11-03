@@ -7,17 +7,24 @@ public class AgentMenuToggle : MonoBehaviour
     public GameObject menuCanvas;
     public AutoScrollManager agentAutoScrollManager;
     public GameObject firstPersonCanvas;
+    public GameObject playerChatCanvas;
     public GameObject mainMenuCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
     public GameObject buttonSubmitAISpeak;
     public GameObject buttonSubmitAIVisual;
     public GameObject buttonSubmitUserRecording;
+    public bool enableMenu = true;
 
     private bool isMenuVisible = false;
 
     void Update()
     {
+        if (!enableMenu)
+        {
+            return;
+        }
+
         env.TryParseEnvironmentVariable("AUDITORY_LANGUAGE_ENABLE", out bool isAuditoryLanguageEnabled);
         env.TryParseEnvironmentVariable("VISION_ENABLE", out bool isVisionEnabled);
         env.TryParseEnvironmentVariable("VOCAL_ENABLE", out bool isVocalEnabled);
@@ -44,6 +51,7 @@ public class AgentMenuToggle : MonoBehaviour
                 agentAutoScrollManager.autoScrollEnabled = false;
 
                 mainMenuCanvas.SetActive(false);
+                playerChatCanvas.SetActive(false);
             }
             else
             {

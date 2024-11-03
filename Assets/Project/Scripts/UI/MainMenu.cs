@@ -6,6 +6,7 @@ public class MainMenu : MonoBehaviour
     public GameObject menuCanvas;
     public GameObject agentMenuCanvas;
     public GameObject firstPersonCanvas;
+    public GameObject playerChatCanvas;
     public GameObject screenMain;
     public GameObject screenControls;
     public GameObject screenExit;
@@ -36,6 +37,7 @@ public class MainMenu : MonoBehaviour
             Cursor.lockState = CursorLockMode.None; // Unlock the cursor
             Cursor.visible = true;
 
+            playerChatCanvas.SetActive(false);
             agentMenuCanvas.SetActive(false);
             screenMain.SetActive(true);
             screenControls.SetActive(false);

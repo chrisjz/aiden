@@ -10,6 +10,7 @@
       "description": [
         "Respond using the information from your sensors.",
         "Respond in first person from your perspective.",
+        "Your response must be concise.",
         ""
       ],
       "instruction": "Please describe any thoughts based on your provided sensory data.",

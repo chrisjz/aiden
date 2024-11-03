@@ -423,10 +423,14 @@ MonoBehaviour:
   agentId: 1
   agentName: AIden
   configPath: ./config/brain/default.json
+  logOutput: {fileID: 0}
   toggleAuditoryAmbient: 1
   toggleTactileAction: 1
   toggleVision: 1
+  moveDistance: 1
   cycleTime: 1
+  enableSimulationMode: 0
+  simulatedSensoryInputs: []
 --- !u!114 &6003587672831212709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1165,7 +1169,7 @@ GameObject:
   - component: {fileID: 5620116994917964177}
   m_Layer: 8
   m_Name: Avatar
-  m_TagString: Untagged
+  m_TagString: AI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

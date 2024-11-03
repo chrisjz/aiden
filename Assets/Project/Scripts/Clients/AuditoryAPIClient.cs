@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using CandyCoded.env;
+using PimDeWitte.UnityMainThreadDispatcher;
 
 public class AuditoryAPIClient
 {
@@ -122,6 +123,85 @@ public class AuditoryAPIClient
         else
         {
             onError?.Invoke("Auditory API request failed: " + request.error);
+        }
+    }
+
+    public async Task<string> GetAuditoryDataAsync()
+    {
+        if (string.IsNullOrEmpty(apiURL))
+        {
+            Debug.LogError("Auditory API URL is not set.");
+            return null;
+        }
+
+        // Get the last second of audio data from the audio capture component
+        float[] lastSecondAudioData = audioCapture.GetLastSecondAudio();
+
+        // Fetch output sample rate on the main thread
+        var sampleRateTask = new TaskCompletionSource<int>();
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        {
+            try
+            {
+                sampleRateTask.SetResult(AudioSettings.outputSampleRate);
+            }
+            catch (Exception ex)
+            {
+                sampleRateTask.SetException(ex);
+            }
+        });
+
+        int sourceSampleRate = await sampleRateTask.Task;
+
+        // Downsample to 16,000 Hz
+        float[] downsampledData = DownsampleAudio(lastSecondAudioData, sourceSampleRate, 16000);
+
+        // Convert downsampled audio data to WAV format
+        byte[] wavData = ConvertToWav(downsampledData, 16000);
+
+        // Save the audio data if toggled on
+        SaveAudioToFile(wavData, saveCapturedAudio);
+
+        // Convert the byte array to Base64
+        string base64audio = Convert.ToBase64String(wavData);
+        var json = JsonUtility.ToJson(new AuditoryRequest { audio = base64audio });
+
+        // Run UnityWebRequest on the main thread and capture response
+        var responseTask = new TaskCompletionSource<string>();
+        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        {
+            var request = new UnityWebRequest(apiURL, "POST")
+            {
+                uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            var asyncOp = request.SendWebRequest();
+
+            asyncOp.completed += _ =>
+            {
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    responseTask.SetResult(request.downloadHandler.text);
+                }
+                else
+                {
+                    responseTask.SetException(new Exception("Auditory API request failed: " + request.error));
+                }
+            };
+        });
+
+        try
+        {
+            string response = await responseTask.Task;
+            Debug.Log($"Auditory API response: {response}");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex.Message);
+            return null;
         }
     }
 

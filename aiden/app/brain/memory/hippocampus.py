@@ -7,6 +7,7 @@ from redis import Redis
 from aiden import logger
 
 CHROMA_COLLECTION_MEMORY = "memory"
+TOGGLE_MEMORY_CONSOLIDATION = False
 
 
 class MemoryManager:
@@ -67,12 +68,16 @@ class MemoryManager:
         if len(history) < min_history_to_consolidate * 2:
             return
 
+        if not TOGGLE_MEMORY_CONSOLIDATION:
+            logger.info("Memory consolidation not implemented, skipping for now.")
+            return
+
+        # TODO: Consolidate oldest memories to long-term memory
+
         logger.info("Perform memory consolidation.")
         keep_newest_memories_num = int(
             os.environ.get("MEMORY_CONSOLIDATION_HISTORY_KEEP_LATEST", "10")
         )
-
-        # TODO: Consolidate oldest memories to long-term memory
 
         # Update short-term memory by removing the oldest entries
         updated_history = history[-keep_newest_memories_num * 2 :]

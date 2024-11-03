@@ -1,7 +1,8 @@
-import json
+from enum import StrEnum
 import os
 import re
 
+from langchain_core.tools import tool
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_ollama import ChatOllama
 
@@ -37,27 +38,22 @@ async def process_prefrontal(
         action_names.append(ACTION_NONE)
 
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
-    decision_prompt = f"{sensory_input}\nYour action decision:"
+    decision_prompt = f"{sensory_input}\n{instruction}"
 
     messages = [
         HumanMessage(content=decision_prompt),
     ]
 
-    def map_decision_to_action(action: str) -> dict[str, str]:
+    Actions = StrEnum("Actions", action_names)
+
+    @tool
+    def map_decision_to_action(action: Actions) -> str:
         """
-        Custom function for mapping decision to action.
+        Based on the sensory inputs provided, decide which action to take.
         """
         if action in action_names:
-            return {"action": action}
-        return {"action": ACTION_NONE}
-
-    # # Create a Tool for this function
-    # decision_tool = Tool.from_function(
-    #     name="_map_decision_to_action",
-    #     func=map_decision_to_action,
-    #     description=instruction,
-    #     return_direct=True
-    # )
+            return action
+        return ACTION_NONE
 
     llm = ChatOllama(
         base_url=COGNITIVE_API_URL_BASE,
@@ -72,19 +68,28 @@ async def process_prefrontal(
     ).bind_tools([map_decision_to_action])
 
     logger.info(f"Prefrontal chat message: {messages}")
+    logger.debug(
+        f"Prefrontal tool schema: {map_decision_to_action.args_schema.model_json_schema()}"
+    )
 
     try:
-        response: AIMessage = llm.invoke(messages)
-        logger.info(f"Prefrontal response: {response.content}")
-        decision = json.loads(response.content).get("action", ACTION_NONE)
-        logger.info(f"Prefrontal decision: {decision}")
+        response: AIMessage = llm.invoke(decision_prompt)
+        logger.debug(f"Prefrontal response: {response}")
+        args = (
+            response.tool_calls[0]["args"]
+            if response.tool_calls and "args" in response.tool_calls[0]
+            else {"actions": ACTION_NONE}
+        )
+        logger.info(f"Prefrontal tool arguments: {args}")
+        action = map_decision_to_action.invoke(args)
     except ValueError as exc:
         # Workaround for models that do not fully handle functions e.g. bakllava
+        # TODO: This needs to be reworked based on new Ollama functions implementation
         cleaned_exc_message = str(exc).strip()
         match = re.search(r'"action":\s*"([^"]*)"', cleaned_exc_message)
         if match:
-            decision = match.group(1)
-            logger.info(f"Inferred action from failed function call: {decision}")
+            action = match.group(1)
+            logger.info(f"Inferred action from failed function call: {action}")
         else:
             logger.info("No action found.")
             return None
@@ -95,11 +100,11 @@ async def process_prefrontal(
         return None
 
     try:
-        if decision == ACTION_NONE:
-            decision = None
+        if action == ACTION_NONE:
+            action = None
 
-        logger.info(f"Mapped action: {decision}")
-        return decision
+        logger.info(f"Mapped action: {action}")
+        return action
     except Exception as exc:
         logger.error(f"Failed prefrontal decision-making with error: {exc}")
         return None

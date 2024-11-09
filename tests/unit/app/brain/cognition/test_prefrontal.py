@@ -1,11 +1,6 @@
 import pytest
-
 from langchain_core.messages import AIMessage
-
-from aiden.app.brain.cognition.prefrontal import (
-    _map_decision_to_action,
-    process_prefrontal,
-)
+from aiden.app.brain.cognition.prefrontal import process_prefrontal
 from aiden.models.brain import Action
 
 
@@ -25,7 +20,7 @@ from aiden.models.brain import Action
             "move forward",
         ),
         # Test with only action to do nothing
-        ([[Action(name="none", description=None)], "none", None]),
+        ([Action(name="none", description=None)], "none", None),
     ],
 )
 @pytest.mark.asyncio
@@ -38,25 +33,19 @@ async def test_process_prefrontal_decision_with_actions(
         id="some_id",
         tool_calls=[
             {
-                "name": "_map_decision_to_action",
+                "name": "map_decision_to_action",
                 "args": {"action": expected_decision},
                 "id": "some_id",
             }
         ],
     )
 
-    # Mock OllamaFunctions class to return a predefined response
+    # Mock ChatOllama class to return a predefined response
     mock_ollama = mocker.patch(
-        "aiden.app.brain.cognition.prefrontal.OllamaFunctions.bind_tools", autospec=True
+        "aiden.app.brain.cognition.prefrontal.ChatOllama.bind_tools", autospec=True
     )
     instance = mock_ollama.return_value
     instance.invoke.return_value = mock_response
-
-    # Mock response parser
-    return_value = f'{{"action": "{expected_decision}"}}'
-    mocker.patch(
-        "aiden.app.brain.cognition.prefrontal.parse_response", return_value=return_value
-    )
 
     # Simulate the function call
     response = await process_prefrontal(
@@ -82,22 +71,3 @@ async def test_process_prefrontal_decision_without_actions(brain_config):
 
     # Check if the response matches the expected action
     assert response is None
-
-
-@pytest.mark.asyncio
-async def test_map_decision_to_action():
-    actions = [
-        "enter room",
-        "move backward",
-        "move forward",
-        "none",
-        "turn left",
-        "turn right",
-    ]
-    assert await _map_decision_to_action("Move forward", actions) == "move forward"
-    assert await _map_decision_to_action("move forward", actions) == "move forward"
-    assert await _map_decision_to_action("turn_left", actions) == "turn left"
-    assert await _map_decision_to_action("Backward", actions) == "move backward"
-    assert await _map_decision_to_action("right", actions) == "turn right"
-    assert await _map_decision_to_action("0199393921", actions) == "none"
-    assert await _map_decision_to_action("enter room", actions) == "enter room"

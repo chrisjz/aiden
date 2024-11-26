@@ -35,8 +35,9 @@ from aiden.models.scene import (
 
 def capture_output(func, *args, **kwargs):
     captured_output = io.StringIO()
-    with patch("sys.stdout", new=captured_output), patch(
-        "sys.stdin", io.StringIO("exit\n")
+    with (
+        patch("sys.stdout", new=captured_output),
+        patch("sys.stdin", io.StringIO("exit\n")),
     ):
         func(*args, **kwargs)
     return captured_output.getvalue()

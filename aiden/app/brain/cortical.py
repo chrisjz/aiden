@@ -1,6 +1,7 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Literal
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langgraph.graph import StateGraph, START, END, MessagesState
 
 from aiden import logger
 from aiden.app.brain.memory.hippocampus import MemoryManager
@@ -16,11 +17,20 @@ from aiden.app.utils import (
 from aiden.models.brain import (
     Action,
     AuditoryType,
+    BrainConfig,
     CorticalRequest,
     CorticalResponse,
     TactileInput,
     TactileType,
 )
+
+
+class CorticalState(MessagesState):
+    action_choices: list[Action]
+    action_chosen: str | None
+    brain_config: BrainConfig
+    language_input: str
+    sensory_input: str
 
 
 async def _extract_actions_from_tactile_inputs(
@@ -40,6 +50,107 @@ async def _extract_actions_from_tactile_inputs(
         for input in tactile_inputs
         if input.type == TactileType.ACTION and input.command is not None
     ]
+
+
+async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
+    """
+    Simulates the cortical region (cerebral cortex) by processing sensory inputs to determine
+    the AI's actions and thoughts.
+
+    Args:
+        request (CorticalRequest): The request containing sensory data and configuration.
+
+    Returns:
+        Generator: A generator yielding the AI's responses as a stream.
+    """
+    brain_config = load_brain_config(request.config)
+    cortical_config = brain_config.regions.cortical
+    personality = cortical_config.personality
+
+    # Prepare the system prompt
+    system_input = cortical_config.about + "\n"
+    if brain_config.settings.feature_toggles.personality:
+        system_input += f"Personality Profile:\n- Traits: {', '.join(personality.traits)}\n- Preferences: {', '.join(personality.preferences)}\n- Boundaries: {', '.join(personality.boundaries)}\n\n"
+    system_input += "\n".join(cortical_config.description)
+
+    # Prepare the user prompt based on available sensory data
+    raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
+    logger.info(f"Raw sensory: {raw_sensory_input}")
+    print(f"Raw sensory: {raw_sensory_input}")
+
+    # Prepare graph
+    graph_builder = StateGraph(CorticalState)
+
+    async def call_thalamus(state: CorticalState) -> dict[str, list]:
+        response = await process_thalamus(
+            sensory_input=state["sensory_input"], brain_config=state["brain_config"]
+        )
+        return {"messages": [response]}
+
+    async def call_prefrontal(state: CorticalState) -> dict[str, list]:
+        sensory_input = state["messages"][-1].content
+        response = await process_prefrontal(
+            sensory_input=sensory_input,
+            brain_config=state["brain_config"],
+            actions=state["action_choices"],
+        )
+        state["action_chosen"] = response
+        return state
+
+    async def has_actions(state: CorticalState) -> Literal["end", "continue"]:
+        actions = state["action_choices"]
+
+        if actions:
+            return "continue"
+
+        return "end"
+
+    # Add nodes
+    graph_builder.add_node("thalamus", call_thalamus)
+    graph_builder.add_node("prefrontal", call_prefrontal)
+
+    # Add edges
+    graph_builder.add_edge(START, "thalamus")
+    graph_builder.add_conditional_edges(
+        "thalamus",
+        has_actions,
+        {
+            "continue": "prefrontal",
+            "end": END,
+        },
+    )
+
+    # Compile graph
+    graph = graph_builder.compile()
+
+    # Prepare lists of actions available from tactile sensory input
+    actions = await _extract_actions_from_tactile_inputs(request.sensory.tactile)
+    logger.info(f"Action commands available: {actions}")
+
+    # Set initial cortical state
+    state = CorticalState(
+        brain_config=brain_config,
+        sensory_input=raw_sensory_input,
+        action_choices=actions,
+    )
+
+    # Execute graph
+    response = await graph.ainvoke(state)
+
+    # Set cortical outputs
+    action_output = response["action_chosen"]
+    speech_output = None
+    thoughts_output = response["messages"][-1].content
+
+    # Prepare response
+    response = CorticalResponse(
+        action=action_output,
+        speech=speech_output,
+        thoughts=thoughts_output,
+    )
+    logger.info(f"Cortical response: {response}")
+
+    return response
 
 
 async def process_cortical(request: CorticalRequest) -> AsyncGenerator:

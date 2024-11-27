@@ -277,6 +277,7 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
     thoughts_output = response["messages"][-1].content
 
     # Combine action, thoughts, and speech into one message
+    # TODO: Move memory update to tool node
     combined_message_content = ""
     if action_output:
         combined_message_content += f"<action>{action_output}</action>\n"
@@ -293,8 +294,11 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
         f"\nMy actions performed: {action_output}" if action_output else ""
     )
 
+    # Store the updated history in Redis
     messages = response["messages"]
     messages.append(AIMessage(content=combined_message_content_formatted))
+    memory_manager = MemoryManager(redis_client=redis_client)
+    memory_manager.update_memory(agent_id, messages)
 
     # Prepare response
     response = CorticalResponse(
@@ -308,10 +312,5 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
     async def stream_response():
         # Stream the combined message
         yield response.model_dump_json()
-
-        # Store the updated history in Redis
-        # TODO: Move memory related to a tool node
-        memory_manager = MemoryManager(redis_client=redis_client)
-        memory_manager.update_memory(agent_id, messages)
 
     return stream_response()

@@ -1,4 +1,5 @@
-from typing import AsyncGenerator, Literal
+import operator
+from typing import Annotated, AsyncGenerator, Literal
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
@@ -16,21 +17,23 @@ from aiden.app.utils import (
 )
 from aiden.models.brain import (
     Action,
+    AuditoryInput,
     AuditoryType,
     BrainConfig,
     CorticalRequest,
     CorticalResponse,
+    Sensory,
     TactileInput,
     TactileType,
 )
 
 
 class CorticalState(MessagesState):
-    action_choices: list[Action]
-    action_chosen: str | None
+    action: str | None
+    aggregate: Annotated[list, operator.add]
     brain_config: BrainConfig
-    language_input: str
-    sensory_input: str
+    sensory: Sensory
+    speech: str | None
 
 
 async def _extract_actions_from_tactile_inputs(
@@ -50,6 +53,40 @@ async def _extract_actions_from_tactile_inputs(
         for input in tactile_inputs
         if input.type == TactileType.ACTION and input.command is not None
     ]
+
+
+async def _has_actions_in_tactile_inputs(
+    tactile_inputs: list[TactileInput],
+) -> bool:
+    """
+    Checks if there are any actions in a list of tactile inputs.
+
+    Args:
+        tactile_inputs (list[TactileInput]): A list of tactile inputs where some might be of type ACTION.
+
+    Returns:
+        bool: True if there are any tactile inputs of type ACTION with a valid command, otherwise False.
+    """
+    return any(
+        input.type == TactileType.ACTION and input.command is not None
+        for input in tactile_inputs
+    )
+
+
+def _has_speech_in_auditory_inputs(auditory_inputs: list[AuditoryInput]) -> bool:
+    """
+    Checks if there is any speech (LANGUAGE type) content in the list of auditory inputs.
+
+    Args:
+        auditory_inputs (list[AuditoryInput]): A list of auditory inputs to check.
+
+    Returns:
+        bool: True if any auditory input of type LANGUAGE contains non-empty content, otherwise False.
+    """
+    return any(
+        auditory_input.type == AuditoryType.LANGUAGE and bool(auditory_input.content)
+        for auditory_input in auditory_inputs
+    )
 
 
 async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
@@ -73,74 +110,130 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
         system_input += f"Personality Profile:\n- Traits: {', '.join(personality.traits)}\n- Preferences: {', '.join(personality.preferences)}\n- Boundaries: {', '.join(personality.boundaries)}\n\n"
     system_input += "\n".join(cortical_config.description)
 
-    # Prepare the user prompt based on available sensory data
-    raw_sensory_input = build_sensory_input_prompt_template(request.sensory)
-    logger.info(f"Raw sensory: {raw_sensory_input}")
-    print(f"Raw sensory: {raw_sensory_input}")
-
     # Prepare graph
     graph_builder = StateGraph(CorticalState)
 
     async def call_thalamus(state: CorticalState) -> dict[str, list]:
+        # Prepare the user prompt based on available sensory data
+        raw_sensory_input = build_sensory_input_prompt_template(state["sensory"])
+        logger.info(f"Raw sensory: {raw_sensory_input}")
+        print(f"Raw sensory: {raw_sensory_input}")
         response = await process_thalamus(
-            sensory_input=state["sensory_input"], brain_config=state["brain_config"]
+            sensory_input=raw_sensory_input, brain_config=state["brain_config"]
         )
         return {"messages": [response]}
 
     async def call_prefrontal(state: CorticalState) -> dict[str, list]:
+        sensory = state["sensory"]
         sensory_input = state["messages"][-1].content
+
+        # Prepare lists of actions available from tactile sensory input
+        actions = await _extract_actions_from_tactile_inputs(sensory.tactile)
+        logger.info(f"Action commands available: {actions}")
+
         response = await process_prefrontal(
             sensory_input=sensory_input,
             brain_config=state["brain_config"],
-            actions=state["action_choices"],
+            actions=actions,
         )
-        state["action_chosen"] = response
+
+        print(f"Action response: {response}")
+        return {"aggregate": [{"action": response}]}
+
+    async def call_broca(state: CorticalState) -> dict[str, list]:
+        sensory_input = state["messages"][-1].content
+
+        # Get language input in sensory_input
+        language_input = None
+        for auditory_input in request.sensory.auditory:
+            if auditory_input.type == AuditoryType.LANGUAGE and auditory_input.content:
+                language_input = auditory_input.content
+                logger.info(f"Language input: {language_input}")
+                break  # Assuming we only need the first relevant language input
+
+        response = await process_broca(
+            sensory_input=sensory_input,
+            brain_config=state["brain_config"],
+            language_input=language_input,
+        )
+
+        print(f"Speech response: {response}")
+        return {"aggregate": [{"speech": response}]}
+
+    async def call_subconscious(state: CorticalState) -> dict[str, list]:
+        for aggr in state["aggregate"]:
+            if "action" in aggr:
+                state["action"] = aggr["action"]
+            if "speech" in aggr:
+                state["speech"] = aggr["speech"]
+        print("Called subconscious processor")
         return state
 
-    async def has_actions(state: CorticalState) -> Literal["end", "continue"]:
-        actions = state["action_choices"]
+    async def has_actions(
+        state: CorticalState,
+    ) -> Literal["run_prefrontal", "run_subconscious"]:
+        sensory = state["sensory"]
 
-        if actions:
-            return "continue"
+        if await _has_actions_in_tactile_inputs(sensory.tactile):
+            return "run_prefrontal"
 
-        return "end"
+        return "run_subconscious"
+
+    async def has_speech(
+        state: CorticalState,
+    ) -> Literal["run_broca", "run_subconscious"]:
+        sensory = state["sensory"]
+
+        if _has_speech_in_auditory_inputs(sensory.auditory):
+            return "run_broca"
+
+        return "run_subconscious"
 
     # Add nodes
     graph_builder.add_node("thalamus", call_thalamus)
     graph_builder.add_node("prefrontal", call_prefrontal)
+    graph_builder.add_node("broca", call_broca)
+    graph_builder.add_node("subconscious", call_subconscious)
 
     # Add edges
     graph_builder.add_edge(START, "thalamus")
+    graph_builder.add_edge("prefrontal", "subconscious")
+    graph_builder.add_edge("broca", "subconscious")
     graph_builder.add_conditional_edges(
         "thalamus",
         has_actions,
         {
-            "continue": "prefrontal",
-            "end": END,
+            "run_prefrontal": "prefrontal",
+            "run_subconscious": "subconscious",
         },
     )
+    graph_builder.add_conditional_edges(
+        "thalamus",
+        has_speech,
+        {
+            "run_broca": "broca",
+            "run_subconscious": "subconscious",
+        },
+    )
+    graph_builder.add_edge("subconscious", END)
 
     # Compile graph
     graph = graph_builder.compile()
 
-    # Prepare lists of actions available from tactile sensory input
-    actions = await _extract_actions_from_tactile_inputs(request.sensory.tactile)
-    logger.info(f"Action commands available: {actions}")
-
     # Set initial cortical state
     state = CorticalState(
         brain_config=brain_config,
-        sensory_input=raw_sensory_input,
-        action_choices=actions,
-        action_chosen=None,
+        sensory=request.sensory,
+        action=None,
+        speech=None,
     )
 
     # Execute graph
     response = await graph.ainvoke(state)
 
     # Set cortical outputs
-    action_output = response["action_chosen"]
-    speech_output = None
+    action_output = response["action"]
+    speech_output = response["speech"]
     thoughts_output = response["messages"][-1].content
 
     # Prepare response
@@ -225,7 +318,7 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
 
     logger.info(f"History from redis: {history}")
 
-    # # Perform memory consolidation
+    # Perform memory consolidation
     memory_manager.consolidate_memory(agent_id)
 
     # Prepare the chat message for the Cognitive API

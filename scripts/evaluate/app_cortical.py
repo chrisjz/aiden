@@ -9,6 +9,7 @@ from aiden.app.brain.cortical import process_cortical_new
 from aiden.models.brain import (
     Action,
     AuditoryInput,
+    AuditoryType,
     CorticalRequest,
     CorticalResponse,
     GustatoryInput,
@@ -31,6 +32,11 @@ async def main():
         "--default",
         action="store_true",
         help="Process cortical with default sensory input",
+    )
+    parser.add_argument(
+        "--speech",
+        action="store_true",
+        help="Include preset speech input for cortical processing",
     )
     args = parser.parse_args()
 
@@ -82,9 +88,19 @@ async def main():
     else:
         final_tactile_input = [TactileInput(content=tactile_input)]
 
+    if args.speech:
+        SPEECH_INPUT = "Move out of the way please!"
+
+        final_speech_input = [
+            AuditoryInput(type=AuditoryType.LANGUAGE, content=SPEECH_INPUT),
+            AuditoryInput(content=auditory_input),
+        ]
+    else:
+        final_speech_input = [AuditoryInput(content=auditory_input)]
+
     sensory_data = Sensory(
         vision=[VisionInput(content=vision_input)],
-        auditory=[AuditoryInput(content=auditory_input)],
+        auditory=final_speech_input,
         tactile=final_tactile_input,
         olfactory=[OlfactoryInput(content=olfactory_input)],
         gustatory=[GustatoryInput(content=gustatory_input)],

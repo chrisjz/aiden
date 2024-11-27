@@ -108,6 +108,7 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
         # Prepare the user prompt based on available sensory data
         raw_sensory_input = build_sensory_input_prompt_template(state["sensory"])
         logger.info(f"Raw sensory: {raw_sensory_input}")
+
         response = await process_thalamus(
             sensory_input=raw_sensory_input, brain_config=state["brain_config"]
         )
@@ -254,10 +255,13 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
     # Compile graph
     graph = graph_builder.compile()
 
+    # Get agent ID
+    agent_id = getattr(request, "agent_id", "0")
+
     # Set initial cortical state
     state = CorticalState(
         # Check if agent_id is provided in request or default to the catch-all zero ID
-        agent_id=getattr(request, "agent_id", "0"),
+        agent_id=agent_id,
         brain_config=load_brain_config(request.config),
         sensory=request.sensory,
         action=None,
@@ -308,6 +312,6 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
         # Store the updated history in Redis
         # TODO: Move memory related to a tool node
         memory_manager = MemoryManager(redis_client=redis_client)
-        memory_manager.update_memory(getattr(request, "agent_id", "0"), messages)
+        memory_manager.update_memory(agent_id, messages)
 
     return stream_response()

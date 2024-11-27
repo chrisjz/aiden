@@ -132,6 +132,7 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
         brain_config=brain_config,
         sensory_input=raw_sensory_input,
         action_choices=actions,
+        action_chosen=None,
     )
 
     # Execute graph

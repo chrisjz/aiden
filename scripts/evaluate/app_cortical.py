@@ -23,6 +23,11 @@ from aiden.models.brain import (
 async def main():
     parser = argparse.ArgumentParser(description="Evaluate the cortical processor.")
     parser.add_argument(
+        "--actions",
+        action="store_true",
+        help="Include preset actions for cortical processing",
+    )
+    parser.add_argument(
         "--default",
         action="store_true",
         help="Process cortical with default sensory input",
@@ -65,19 +70,22 @@ async def main():
             or gustatory_input_default
         )
 
-    # Tactile input with actions
-    tactile_input_extended = [
-        TactileInput(type=TactileType.ACTION, command=Action(name="move forward")),
-        TactileInput(type=TactileType.ACTION, command=Action(name="move backward")),
-        TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
-        TactileInput(type=TactileType.ACTION, command=Action(name="turn right")),
-        TactileInput(content=tactile_input),
-    ]
+    if args.actions:
+        # Tactile input with actions
+        final_tactile_input = [
+            TactileInput(type=TactileType.ACTION, command=Action(name="move forward")),
+            TactileInput(type=TactileType.ACTION, command=Action(name="move backward")),
+            TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+            TactileInput(type=TactileType.ACTION, command=Action(name="turn right")),
+            TactileInput(content=tactile_input),
+        ]
+    else:
+        final_tactile_input = [TactileInput(content=tactile_input)]
 
     sensory_data = Sensory(
         vision=[VisionInput(content=vision_input)],
         auditory=[AuditoryInput(content=auditory_input)],
-        tactile=tactile_input_extended,
+        tactile=final_tactile_input,
         olfactory=[OlfactoryInput(content=olfactory_input)],
         gustatory=[GustatoryInput(content=gustatory_input)],
     )

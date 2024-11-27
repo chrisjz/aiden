@@ -4,6 +4,7 @@ CLI to directly interact with the process_cortical function in the Brain module.
 
 import argparse
 import asyncio
+import json
 
 from aiden.app.brain.cortical import process_cortical_new
 from aiden.models.brain import (
@@ -11,7 +12,6 @@ from aiden.models.brain import (
     AuditoryInput,
     AuditoryType,
     CorticalRequest,
-    CorticalResponse,
     GustatoryInput,
     OlfactoryInput,
     Sensory,
@@ -112,12 +112,18 @@ async def main():
         agent_id="0",
     )
 
-    response: CorticalResponse = await process_cortical_new(payload)
+    response_generator = await process_cortical_new(payload)
+
+    response_chunks = []
+    async for chunk in response_generator:
+        response_chunks.append(chunk)
+
+    response = json.loads("".join(response_chunks))
 
     print("Response from cortical:\n---")
-    print(f"    Action:\n{response.action}")
-    print(f"    Speech:\n{response.speech}")
-    print(f"    Thoughts:\n{response.thoughts}")
+    print(f"    Action:\n{response["action"]}")
+    print(f"    Speech:\n{response["speech"]}")
+    print(f"    Thoughts:\n{response["thoughts"]}")
 
 
 if __name__ == "__main__":

@@ -272,6 +272,26 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
     speech_output = response["speech"]
     thoughts_output = response["messages"][-1].content
 
+    # Combine action, thoughts, and speech into one message
+    combined_message_content = ""
+    if action_output:
+        combined_message_content += f"<action>{action_output}</action>\n"
+    combined_message_content += f"<thoughts>{thoughts_output}</thoughts>\n"
+    if speech_output:
+        combined_message_content += f"<speech>{speech_output}</speech>\n"
+
+    # Append formatted combined message to messages
+    combined_message_content_formatted = f"My thoughts:\n{thoughts_output}"
+    combined_message_content_formatted += (
+        f"\nMy speech:\n{speech_output}" if speech_output else ""
+    )
+    combined_message_content_formatted += (
+        f"\nMy actions performed: {action_output}" if action_output else ""
+    )
+
+    messages = response["messages"]
+    messages.append(AIMessage(content=combined_message_content_formatted))
+
     # Prepare response
     response = CorticalResponse(
         action=action_output,
@@ -280,7 +300,17 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
     )
     logger.info(f"Cortical response: {response}")
 
-    return response
+    # TODO: Stream all of these separately
+    async def stream_response():
+        # Stream the combined message
+        yield response.model_dump_json()
+
+        # Store the updated history in Redis
+        # TODO: Move memory related to a tool node
+        memory_manager = MemoryManager(redis_client=redis_client)
+        memory_manager.update_memory(getattr(request, "agent_id", "0"), messages)
+
+    return stream_response()
 
 
 async def process_cortical(request: CorticalRequest) -> AsyncGenerator:

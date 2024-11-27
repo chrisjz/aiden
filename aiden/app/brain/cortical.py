@@ -30,6 +30,7 @@ from aiden.models.brain import (
 
 class CorticalState(MessagesState):
     action: str | None
+    agent_id: str
     aggregate: Annotated[list, operator.add]
     brain_config: BrainConfig
     sensory: Sensory
@@ -100,16 +101,6 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
     Returns:
         Generator: A generator yielding the AI's responses as a stream.
     """
-    brain_config = load_brain_config(request.config)
-    cortical_config = brain_config.regions.cortical
-    personality = cortical_config.personality
-
-    # Prepare the system prompt
-    system_input = cortical_config.about + "\n"
-    if brain_config.settings.feature_toggles.personality:
-        system_input += f"Personality Profile:\n- Traits: {', '.join(personality.traits)}\n- Preferences: {', '.join(personality.preferences)}\n- Boundaries: {', '.join(personality.boundaries)}\n\n"
-    system_input += "\n".join(cortical_config.description)
-
     # Prepare graph
     graph_builder = StateGraph(CorticalState)
 
@@ -161,12 +152,58 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
         return {"aggregate": [{"speech": response}]}
 
     async def call_subconscious(state: CorticalState) -> dict[str, list]:
+        sensory_input = state["messages"][-1].content
+        agent_id = state["agent_id"]
+        brain_config = state["brain_config"]
+        cortical_config = brain_config.regions.cortical
+        personality = cortical_config.personality
+
+        # Aggregate action and speech outputs if set
+        action_output = None
         for aggr in state["aggregate"]:
             if "action" in aggr:
-                state["action"] = aggr["action"]
+                action_output = aggr["action"]
+                state["action"] = action_output
             if "speech" in aggr:
                 state["speech"] = aggr["speech"]
-        print("Called subconscious processor")
+
+        # Prepare the system prompt
+        system_input = cortical_config.about + "\n"
+        if brain_config.settings.feature_toggles.personality:
+            system_input += f"Personality Profile:\n- Traits: {', '.join(personality.traits)}\n- Preferences: {', '.join(personality.preferences)}\n- Boundaries: {', '.join(personality.boundaries)}\n\n"
+        system_input += "\n".join(cortical_config.description)
+
+        # Format final thoughts prompt
+        final_thoughts_input = (
+            f"\n{cortical_config.instruction}\nYour sensory data: {sensory_input}"
+        )
+        if action_output:
+            action_output_formatted = action_output.replace("_", " ")
+            final_thoughts_input += (
+                f"\nYou decide to perform the action: {action_output_formatted}."
+            )
+
+        # Retrieve short-term memory
+        memory_manager = MemoryManager(redis_client=redis_client)
+        history = memory_manager.read_memory(agent_id)
+
+        logger.info(f"History from redis: {history}")
+
+        # Perform memory consolidation
+        memory_manager.consolidate_memory(agent_id)
+
+        # Prepare the chat message for the Cognitive API
+        messages = [SystemMessage(content=system_input)]
+        if history:
+            messages.extend(history)
+
+        messages.append(HumanMessage(content=final_thoughts_input))
+
+        # Thoughts output through subconcious function
+        thoughts_output = await process_subconscious(messages)
+
+        state["messages"] = [thoughts_output]
+
         return state
 
     async def has_actions(
@@ -222,7 +259,9 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
 
     # Set initial cortical state
     state = CorticalState(
-        brain_config=brain_config,
+        # Check if agent_id is provided in request or default to the catch-all zero ID
+        agent_id=getattr(request, "agent_id", "0"),
+        brain_config=load_brain_config(request.config),
         sensory=request.sensory,
         action=None,
         speech=None,

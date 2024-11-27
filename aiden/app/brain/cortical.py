@@ -37,6 +37,35 @@ class CorticalState(MessagesState):
     speech: str | None
 
 
+def _add_cortical_output_to_memory(state: CorticalState):
+    """
+    Updates agent memory with consolidated cortical response.
+
+    Args:
+        state CorticalState: The cortical state.
+    """
+    agent_id = state["agent_id"]
+    messages = state["messages"]
+
+    action_output = state["action"]
+    speech_output = state["speech"]
+    thoughts_output = messages[-1].content
+
+    # Append formatted combined message to messages
+    combined_message_content_formatted = f"My thoughts:\n{thoughts_output}"
+    combined_message_content_formatted += (
+        f"\nMy speech:\n{speech_output}" if speech_output else ""
+    )
+    combined_message_content_formatted += (
+        f"\nMy actions performed: {action_output}" if action_output else ""
+    )
+
+    # Store the updated history in Redis
+    messages.append(AIMessage(content=combined_message_content_formatted))
+    memory_manager = MemoryManager(redis_client=redis_client)
+    memory_manager.update_memory(agent_id, messages)
+
+
 async def _extract_actions_from_tactile_inputs(
     tactile_inputs: list[TactileInput],
 ) -> list[Action]:
@@ -271,34 +300,13 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
     # Execute graph
     response = await graph.ainvoke(state)
 
+    # Combine action, thoughts, and speech into one message to save in agent's memory
+    _add_cortical_output_to_memory(response)
+
     # Set cortical outputs
     action_output = response["action"]
     speech_output = response["speech"]
     thoughts_output = response["messages"][-1].content
-
-    # Combine action, thoughts, and speech into one message
-    # TODO: Move memory update to tool node
-    combined_message_content = ""
-    if action_output:
-        combined_message_content += f"<action>{action_output}</action>\n"
-    combined_message_content += f"<thoughts>{thoughts_output}</thoughts>\n"
-    if speech_output:
-        combined_message_content += f"<speech>{speech_output}</speech>\n"
-
-    # Append formatted combined message to messages
-    combined_message_content_formatted = f"My thoughts:\n{thoughts_output}"
-    combined_message_content_formatted += (
-        f"\nMy speech:\n{speech_output}" if speech_output else ""
-    )
-    combined_message_content_formatted += (
-        f"\nMy actions performed: {action_output}" if action_output else ""
-    )
-
-    # Store the updated history in Redis
-    messages = response["messages"]
-    messages.append(AIMessage(content=combined_message_content_formatted))
-    memory_manager = MemoryManager(redis_client=redis_client)
-    memory_manager.update_memory(agent_id, messages)
 
     # Prepare response
     response = CorticalResponse(

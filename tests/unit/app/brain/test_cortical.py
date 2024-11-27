@@ -78,6 +78,12 @@ async def test_process_cortical_request(mocker, brain_config):
         return_value="I wonder where I should go next.",
     )
 
+    # Mock adding consolidated cortical output to memory
+    mocker.patch(
+        "aiden.app.brain.cortical._add_cortical_output_to_memory",
+        return_value=None,
+    )
+
     # Mock the update_memory and read_memory functions from the hippocampus script
     mocker.patch(
         "aiden.app.brain.cortical.MemoryManager.update_memory", return_value=None

@@ -6,6 +6,7 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.11"
+aiohttp = "^3.11.7"
 # chromadb won't install on at least mac, only needed for docker anyway
 chromadb = [{platform = "linux", version = "^0.5.20"}]
 fastapi = "^0.115.5"

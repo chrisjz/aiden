@@ -6,7 +6,7 @@ import argparse
 import asyncio
 import json
 
-from aiden.app.brain.cortical import process_cortical_new
+from aiden.app.brain.cortical import process_cortical
 from aiden.models.brain import (
     Action,
     AuditoryInput,
@@ -112,7 +112,7 @@ async def main():
         agent_id="0",
     )
 
-    response_generator = await process_cortical_new(payload)
+    response_generator = await process_cortical(payload)
 
     response_chunks = []
     async for chunk in response_generator:

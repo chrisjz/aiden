@@ -1,7 +1,7 @@
 import os
 
 from langchain_core.load import dumps, loads
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage
 from redis import Redis
 
 from aiden import logger
@@ -45,20 +45,7 @@ class MemoryManager:
         key = self._get_memory_key(agent_id)
         history_json = self.redis_client.get(key)
         if history_json:
-            history = []
-            history_interim = loads(history_json)
-            for msg in history_interim:
-                if msg.get("type") == "human":
-                    history.append(HumanMessage(content=msg.get("content")))
-                elif msg.get("type") == "ai":
-                    history.append(AIMessage(content=msg.get("content")))
-                elif msg.get("type") == "system":
-                    history.append(AIMessage(content=msg.get("content")))
-                else:
-                    raise TypeError(
-                        "Could not read agent's memory: message type cannot be deserialized."
-                    )
-            return history
+            return loads(history_json)
         else:
             return []
 

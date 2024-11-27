@@ -120,10 +120,14 @@ async def main():
 
     response = json.loads("".join(response_chunks))
 
+    action_output = response["action"]
+    speech_output = response["speech"]
+    thoughts_output = response["thoughts"]
+
     print("Response from cortical:\n---")
-    print(f"    Action:\n{response["action"]}")
-    print(f"    Speech:\n{response["speech"]}")
-    print(f"    Thoughts:\n{response["thoughts"]}")
+    print(f"    Action:\n{action_output}")
+    print(f"    Speech:\n{speech_output}")
+    print(f"    Thoughts:\n{thoughts_output}")
 
 
 if __name__ == "__main__":

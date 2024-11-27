@@ -108,7 +108,6 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
         # Prepare the user prompt based on available sensory data
         raw_sensory_input = build_sensory_input_prompt_template(state["sensory"])
         logger.info(f"Raw sensory: {raw_sensory_input}")
-        print(f"Raw sensory: {raw_sensory_input}")
         response = await process_thalamus(
             sensory_input=raw_sensory_input, brain_config=state["brain_config"]
         )
@@ -128,7 +127,6 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
             actions=actions,
         )
 
-        print(f"Action response: {response}")
         return {"aggregate": [{"action": response}]}
 
     async def call_broca(state: CorticalState) -> dict[str, list]:
@@ -148,7 +146,6 @@ async def process_cortical_new(request: CorticalRequest) -> AsyncGenerator:
             language_input=language_input,
         )
 
-        print(f"Speech response: {response}")
         return {"aggregate": [{"speech": response}]}
 
     async def call_subconscious(state: CorticalState) -> dict[str, list]:

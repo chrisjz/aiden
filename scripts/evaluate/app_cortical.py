@@ -2,6 +2,7 @@
 CLI to directly interact with the process_cortical function in the Brain module.
 """
 
+import argparse
 import asyncio
 
 from aiden.app.brain.cortical import process_cortical_new
@@ -20,33 +21,49 @@ from aiden.models.brain import (
 
 
 async def main():
-    # Prompt user for sensory data
-    vision_input = (
-        input("Enter vision input (default: 'I see a tree and a car.'): ")
-        or "I see a tree and a car."
+    parser = argparse.ArgumentParser(description="Evaluate the cortical processor.")
+    parser.add_argument(
+        "--default",
+        action="store_true",
+        help="Process cortical with default sensory input",
     )
-    auditory_input = (
-        input("Enter auditory input (default: 'I hear a bird chirping.'): ")
-        or "I hear a bird chirping."
-    )
-    tactile_input = (
-        input(
-            "Enter tactile input (default: 'I feel the gentle breeze of the wind.'): "
+    args = parser.parse_args()
+
+    # Default inputs
+    vision_input_default = "I see a tree and a car."
+    auditory_input_default = "I hear a bird chirping."
+    tactile_input_default = "I feel the gentle breeze of the wind."
+    olfactory_input_default = "I smell the sweet scent of flowers blooming."
+    gustatory_input_default = "I taste the minty flavour of the gum I'm chewing."
+
+    if args.default:
+        vision_input = vision_input_default
+        auditory_input = auditory_input_default
+        tactile_input = tactile_input_default
+        olfactory_input = olfactory_input_default
+        gustatory_input = gustatory_input_default
+    else:
+        # Prompt user for sensory data
+        vision_input = (
+            input(f"Enter vision input (default: '{vision_input_default}'): ")
+            or vision_input_default
         )
-        or "I feel the gentle breeze of the wind."
-    )
-    olfactory_input = (
-        input(
-            "Enter olfactory input (default: 'I smell the sweet scent of flowers blooming.'): "
+        auditory_input = (
+            input(f"Enter auditory input (default: '{auditory_input_default}'): ")
+            or auditory_input_default
         )
-        or "I smell the sweet scent of flowers blooming."
-    )
-    gustatory_input = (
-        input(
-            "Enter gustatory input (default: 'I taste the minty flavour of the gum I'm chewing.'): "
+        tactile_input = (
+            input(f"Enter tactile input (default: '{tactile_input_default}'): ")
+            or tactile_input_default
         )
-        or "I taste the minty flavour of the gum I'm chewing."
-    )
+        olfactory_input = (
+            input(f"Enter olfactory input (default: '{olfactory_input_default}'): ")
+            or olfactory_input_default
+        )
+        gustatory_input = (
+            input(f"Enter gustatory input (default: '{gustatory_input_default}'): ")
+            or gustatory_input_default
+        )
 
     # Tactile input with actions
     tactile_input_extended = [

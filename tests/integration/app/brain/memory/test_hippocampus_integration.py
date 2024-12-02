@@ -4,19 +4,8 @@ import pytest
 from fastapi.encoders import jsonable_encoder
 from langchain_core.load import dumps
 from langchain_core.messages import AIMessage, HumanMessage
-from testcontainers.redis import RedisContainer
 
 from aiden.app.brain.memory.hippocampus import MemoryManager
-
-
-@pytest.fixture(scope="function")
-def redis_client():
-    """
-    Provides a Redis client connected to a test Redis container.
-    """
-    with RedisContainer() as redis_container:
-        client = redis_container.get_client(decode_responses=True)
-        yield client
 
 
 def test_update_memory(redis_client):

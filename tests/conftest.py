@@ -1,7 +1,18 @@
+from testcontainers.redis import RedisContainer
 from aiden.models.brain import BrainConfig
 
 
 import pytest
+
+
+@pytest.fixture(scope="function")
+def redis_client():
+    """
+    Provides a Redis client connected to a test Redis container.
+    """
+    with RedisContainer() as redis_container:
+        client = redis_container.get_client(decode_responses=True)
+        yield client
 
 
 @pytest.fixture

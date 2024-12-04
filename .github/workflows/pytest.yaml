@@ -30,3 +30,6 @@ jobs:
 
     - name: Run tests
       run: poetry run pytest
+      env:
+        COGNITIVE_MODEL: "llama3.2:1b"
+        TESTCONTAINERS_OLLAMA_IMAGE: "ollama/ollama:0.4.7"

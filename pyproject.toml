@@ -6,13 +6,14 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.11"
+aiohttp = "^3.11.7"
 # chromadb won't install on at least mac, only needed for docker anyway
 chromadb = [{platform = "linux", version = "^0.5.20"}]
 fastapi = "^0.115.5"
 httpx = "^0.27.2"
-langchain-community = "^0.3.8"
 langchain-core = "^0.3.21"
 langchain-ollama = "^0.2.0"
+langgraph = "^0.2.53"
 pillow = "^11.0.0"
 pydantic = "^2.10.1"
 redis = "^5.2.0"
@@ -29,3 +30,9 @@ testcontainers = "^4.8.2"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+env = [
+    "COGNITIVE_MODEL=llama3.2:1b",
+    "TESTCONTAINERS_OLLAMA_IMAGE=ollama/ollama:0.4.7",
+]

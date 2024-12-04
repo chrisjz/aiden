@@ -1,5 +1,7 @@
 from aiden.app.brain.cortical import (
     _extract_actions_from_tactile_inputs,
+    _has_actions_in_tactile_inputs,
+    _has_speech_in_auditory_inputs,
     process_cortical,
 )
 
@@ -32,7 +34,13 @@ async def test_process_cortical_request(mocker, brain_config):
             AuditoryInput(content="No sounds"),
             AuditoryInput(type=AuditoryType.LANGUAGE, content="Hello world"),
         ],
-        tactile=[TactileInput(content="No tactile input")],
+        tactile=[
+            TactileInput(type=TactileType.ACTION, command=Action(name="move forward")),
+            TactileInput(type=TactileType.ACTION, command=Action(name="move backward")),
+            TactileInput(type=TactileType.ACTION, command=Action(name="turn left")),
+            TactileInput(type=TactileType.ACTION, command=Action(name="turn right")),
+            TactileInput(content="No tactile input"),
+        ],
         olfactory=[OlfactoryInput(content="No olfactory input")],
         gustatory=[GustatoryInput(content="No gustatory input")],
     )
@@ -68,6 +76,12 @@ async def test_process_cortical_request(mocker, brain_config):
     mocker.patch(
         "aiden.app.brain.cortical.process_subconscious",
         return_value="I wonder where I should go next.",
+    )
+
+    # Mock adding consolidated cortical output to memory
+    mocker.patch(
+        "aiden.app.brain.cortical._add_cortical_output_to_memory",
+        return_value=None,
     )
 
     # Mock the update_memory and read_memory functions from the hippocampus script
@@ -134,3 +148,50 @@ async def test_process_cortical_request(mocker, brain_config):
 async def test_extract_actions_from_tactile_inputs(tactile_inputs, expected_actions):
     result = await _extract_actions_from_tactile_inputs(tactile_inputs)
     assert result == expected_actions
+
+
+@pytest.mark.parametrize(
+    "tactile_inputs, expected_result",
+    [
+        # Test with actions present
+        (
+            [
+                TactileInput(type=TactileType.ACTION, command=Action(name="move")),
+                TactileInput(type=TactileType.GENERAL, content="Texture data."),
+            ],
+            True,
+        ),
+        # Test with no actions
+        (
+            [TactileInput(type=TactileType.GENERAL, content="Only general inputs.")],
+            False,
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_has_actions_in_tactile_inputs(tactile_inputs, expected_result):
+    result = await _has_actions_in_tactile_inputs(tactile_inputs)
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "auditory_inputs, expected_result",
+    [
+        # Test with language input present
+        (
+            [
+                AuditoryInput(type=AuditoryType.AMBIENT, content="Background noise"),
+                AuditoryInput(type=AuditoryType.LANGUAGE, content="Hello, world!"),
+            ],
+            True,
+        ),
+        # Test with no language input
+        (
+            [AuditoryInput(type=AuditoryType.AMBIENT, content="Noise only.")],
+            False,
+        ),
+    ],
+)
+def test_has_speech_in_auditory_inputs(auditory_inputs, expected_result):
+    result = _has_speech_in_auditory_inputs(auditory_inputs)
+    assert result == expected_result

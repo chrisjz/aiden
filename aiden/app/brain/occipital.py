@@ -2,7 +2,7 @@ import json
 import os
 from typing import AsyncGenerator
 
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage
 
 from aiden import logger

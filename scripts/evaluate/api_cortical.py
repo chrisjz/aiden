@@ -7,7 +7,15 @@ import os
 import requests
 import json
 
-from aiden.models.brain import CorticalRequest, Sensory
+from aiden.models.brain import (
+    AuditoryInput,
+    CorticalRequest,
+    GustatoryInput,
+    OlfactoryInput,
+    Sensory,
+    TactileInput,
+    VisionInput,
+)
 
 
 def main():
@@ -42,18 +50,18 @@ def main():
     )
 
     sensory_data = Sensory(
-        auditory=auditory_input,
-        gustatory=gustatory_input,
-        olfactory=olfactory_input,
-        tactile=tactile_input,
-        vision=vision_input,
+        vision=[VisionInput(content=vision_input)],
+        auditory=[AuditoryInput(content=auditory_input)],
+        tactile=[TactileInput(content=tactile_input)],
+        olfactory=[OlfactoryInput(content=olfactory_input)],
+        gustatory=[GustatoryInput(content=gustatory_input)],
     )
 
     payload = CorticalRequest(
         config="./config/brain/default.json",
         sensory=sensory_data,
         agent_id="0",
-    ).model_dump()
+    ).model_dump(mode="json")
 
     # Send a POST request to the Cortical endpoint
     print("Send sensory data to Cortical endpoint.")

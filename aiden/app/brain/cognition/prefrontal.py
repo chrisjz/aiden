@@ -1,6 +1,5 @@
 from enum import StrEnum
 import os
-import re
 
 from langchain_core.tools import tool
 from langchain_core.messages import AIMessage, HumanMessage
@@ -83,19 +82,13 @@ async def process_prefrontal(
         logger.info(f"Prefrontal tool arguments: {args}")
         action = map_decision_to_action.invoke(args)
     except ValueError as exc:
-        # Workaround for models that do not fully handle functions e.g. bakllava
-        # TODO: This needs to be reworked based on new Ollama functions implementation
-        cleaned_exc_message = str(exc).strip()
-        match = re.search(r'"action":\s*"([^"]*)"', cleaned_exc_message)
-        if match:
-            action = match.group(1)
-            logger.info(f"Inferred action from failed function call: {action}")
-        else:
-            logger.info("No action found.")
-            return None
+        logger.error(
+            f"The current model does not support tool/function calling. Error: {exc}"
+        )
+        return None
     except Exception as exc:
-        logger.warning(
-            f"Could not infer action from failed function call with error: {exc}"
+        logger.error(
+            f"An unknown error occured when generating prefrontal response: {exc}"
         )
         return None
 

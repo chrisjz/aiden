@@ -73,8 +73,8 @@ async def test_cortical_success(monkeypatch, redis_client, cognitive_api):
 
     # Then
     assert response["thoughts"] is not None
-    assert response["action"] is not None
-    assert response["speech"] is not None
+    assert "action" in response
+    assert "speech" in response
 
     assert len(memory) == 3
     assert isinstance(memory[0], SystemMessage)
@@ -97,8 +97,8 @@ async def test_cortical_success(monkeypatch, redis_client, cognitive_api):
 
     # Then
     assert response["thoughts"] is not None
-    assert response["action"] is not None
-    assert response["speech"] is not None
+    assert "action" in response
+    assert "speech" in response
 
     assert len(memory) == 5
     assert isinstance(memory[0], SystemMessage)

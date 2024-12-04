@@ -83,3 +83,31 @@ async def test_cortical_success(monkeypatch, redis_client, cognitive_api):
     assert memory[1].content is not None
     assert isinstance(memory[2], AIMessage)
     assert memory[2].content is not None
+
+    # When
+    response_generator = await process_cortical(request)
+
+    response_chunks = []
+    async for chunk in response_generator:
+        response_chunks.append(chunk)
+
+    response = json.loads("".join(response_chunks))
+
+    memory = memory_manager.read_memory(agent_id=agent_id)
+
+    # Then
+    assert response["thoughts"] is not None
+    assert response["action"] is not None
+    assert response["speech"] is not None
+
+    assert len(memory) == 5
+    assert isinstance(memory[0], SystemMessage)
+    assert memory[0].content is not None
+    assert isinstance(memory[1], HumanMessage)
+    assert memory[1].content is not None
+    assert isinstance(memory[2], AIMessage)
+    assert memory[2].content is not None
+    assert isinstance(memory[3], HumanMessage)
+    assert memory[3].content is not None
+    assert isinstance(memory[4], AIMessage)
+    assert memory[4].content is not None

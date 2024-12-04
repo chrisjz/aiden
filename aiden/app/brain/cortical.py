@@ -222,9 +222,7 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
         memory_manager.consolidate_memory(agent_id)
 
         # Prepare the chat message for the Cognitive API
-        messages = [SystemMessage(content=system_input)]
-        if history:
-            messages.extend(history)
+        messages = history or [SystemMessage(content=system_input)]
 
         messages.append(HumanMessage(content=final_thoughts_input))
 

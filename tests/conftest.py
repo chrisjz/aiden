@@ -25,7 +25,8 @@ def cognitive_api():
     """
     base_image = os.environ.get("TESTCONTAINERS_OLLAMA_IMAGE", "ollama/ollama:0.4.7")
     target_model = os.environ.get("COGNITIVE_MODEL", "llama3.2:1b")
-    target_image = f"testcontainers_ollama/{target_model.replace(":", "_")}"
+    target_model_formatted = target_model.replace(":", "_")
+    target_image = f"testcontainers_ollama/{target_model_formatted}"
 
     def pull_model(ollama: OllamaContainer, target_model: str) -> None:
         if target_model not in [e["name"] for e in ollama.list_models()]:

@@ -1,5 +1,6 @@
 import json
 import pytest
+from aiden.app.brain import cortical
 from aiden.app.brain.cognition import broca, prefrontal, subconscious, thalamus
 from aiden.app.brain.cortical import process_cortical
 from aiden.models.brain import (
@@ -47,6 +48,7 @@ async def test_cortical_success(monkeypatch, redis_client, cognitive_api):
         agent_id=agent_id, config=brain_config, sensory=sensory_data
     )
 
+    monkeypatch.setattr(cortical, "redis_client", redis_client)
     monkeypatch.setattr(broca, "COGNITIVE_API_URL_BASE", cognitive_api)
     monkeypatch.setattr(prefrontal, "COGNITIVE_API_URL_BASE", cognitive_api)
     monkeypatch.setattr(subconscious, "COGNITIVE_API_URL_BASE", cognitive_api)

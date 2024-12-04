@@ -23,7 +23,8 @@ def cognitive_api():
     """
     Connect to Ollama container for Cognitive API.
     """
-    target_model = os.environ.get("TEST_COGNITIVE_MODEL", "llama3.2:1b")
+    base_image = os.environ.get("TESTCONTAINERS_OLLAMA_IMAGE", "ollama/ollama:0.4.7")
+    target_model = os.environ.get("COGNITIVE_MODEL", "llama3.2:1b")
     target_image = f"testcontainers_ollama/{target_model.replace(":", "_")}"
 
     def pull_model(ollama: OllamaContainer, target_model: str) -> None:
@@ -41,7 +42,7 @@ def cognitive_api():
 
             yield ollama.get_endpoint()
     else:
-        with OllamaContainer() as ollama:
+        with OllamaContainer(image=base_image) as ollama:
             pull_model(ollama=ollama, target_model=target_model)
 
             # Cache the image

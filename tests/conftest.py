@@ -1,3 +1,6 @@
+import os
+from testcontainers.core.docker_client import DockerClient
+from testcontainers.ollama import OllamaContainer
 from testcontainers.redis import RedisContainer
 from aiden.models.brain import BrainConfig
 
@@ -13,6 +16,38 @@ def redis_client():
     with RedisContainer() as redis_container:
         client = redis_container.get_client(decode_responses=True)
         yield client
+
+
+@pytest.fixture(scope="session")
+def cognitive_api():
+    """
+    Connect to Ollama container for Cognitive API.
+    """
+    target_model = os.environ.get("TEST_COGNITIVE_MODEL", "llama3.2:1b")
+    target_image = f"testcontainers_ollama/{target_model.replace(":", "_")}"
+
+    def pull_model(ollama: OllamaContainer, target_model: str) -> None:
+        if target_model not in [e["name"] for e in ollama.list_models()]:
+            ollama.pull_model(target_model)
+
+    # Check existing images
+    docker_client = DockerClient()
+    existing_images = docker_client.client.images.list(name=target_image)
+
+    # Load cached image of model if exists
+    if existing_images:
+        with OllamaContainer(image=target_image) as ollama:
+            pull_model(ollama=ollama, target_model=target_model)
+
+            yield ollama.get_endpoint()
+    else:
+        with OllamaContainer() as ollama:
+            pull_model(ollama=ollama, target_model=target_model)
+
+            # Cache the image
+            ollama.commit_to_image(target_image)
+
+            yield ollama.get_endpoint()
 
 
 @pytest.fixture

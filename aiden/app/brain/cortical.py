@@ -1,7 +1,7 @@
 import operator
 from typing import Annotated, AsyncGenerator, Literal
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
 
 from aiden import logger
@@ -33,6 +33,7 @@ class CorticalState(MessagesState):
     agent_id: str
     aggregate: Annotated[list, operator.add]
     brain_config: BrainConfig
+    history: list[BaseMessage]
     sensory: Sensory
     speech: str | None
 
@@ -45,6 +46,7 @@ def _add_cortical_output_to_memory(state: CorticalState):
         state CorticalState: The cortical state.
     """
     agent_id = state["agent_id"]
+    history = state["history"]
     messages = state["messages"]
 
     action_output = state["action"]
@@ -61,9 +63,9 @@ def _add_cortical_output_to_memory(state: CorticalState):
     )
 
     # Store the updated history in Redis
-    messages.append(AIMessage(content=combined_message_content_formatted))
+    history.append(AIMessage(content=combined_message_content_formatted))
     memory_manager = MemoryManager(redis_client=redis_client)
-    memory_manager.update_memory(agent_id, messages)
+    memory_manager.update_memory(agent_id, history)
 
 
 async def _extract_actions_from_tactile_inputs(
@@ -230,6 +232,7 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
         thoughts_output = await process_subconscious(messages)
 
         state["messages"] = [thoughts_output]
+        state["history"] = messages
 
         return state
 

@@ -1,8 +1,12 @@
 import json
 import pytest
+
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+
 from aiden.app.brain import cortical
 from aiden.app.brain.cognition import broca, prefrontal, subconscious, thalamus
 from aiden.app.brain.cortical import process_cortical
+from aiden.app.brain.memory.hippocampus import MemoryManager
 from aiden.models.brain import (
     Action,
     AuditoryInput,
@@ -48,6 +52,8 @@ async def test_cortical_success(monkeypatch, redis_client, cognitive_api):
         agent_id=agent_id, config=brain_config, sensory=sensory_data
     )
 
+    memory_manager = MemoryManager(redis_client=redis_client)
+
     monkeypatch.setattr(cortical, "redis_client", redis_client)
     monkeypatch.setattr(broca, "COGNITIVE_API_URL_BASE", cognitive_api)
     monkeypatch.setattr(prefrontal, "COGNITIVE_API_URL_BASE", cognitive_api)
@@ -63,7 +69,17 @@ async def test_cortical_success(monkeypatch, redis_client, cognitive_api):
 
     response = json.loads("".join(response_chunks))
 
+    memory = memory_manager.read_memory(agent_id=agent_id)
+
     # Then
     assert response["thoughts"] is not None
     assert response["action"] is not None
     assert response["speech"] is not None
+
+    assert len(memory) == 3
+    assert isinstance(memory[0], SystemMessage)
+    assert memory[0].content is not None
+    assert isinstance(memory[1], HumanMessage)
+    assert memory[1].content is not None
+    assert isinstance(memory[2], AIMessage)
+    assert memory[2].content is not None

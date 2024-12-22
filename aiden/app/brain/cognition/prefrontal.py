@@ -37,8 +37,15 @@ async def process_prefrontal(
     if ACTION_NONE not in action_names:
         action_names.append(ACTION_NONE)
 
+    # Format actions into a string to add in decision prompt
+    # TODO: Adding this to the decision prompt wasn't required in older langchain versions
+    #   for the current tool to work. Can we simplify the implementation again?
+    formatted_actions = ", ".join(f"'{action}'" for action in action_names)
+
     instruction = "\n".join(brain_config.regions.prefrontal.instruction)
-    decision_prompt = f"{sensory_input}\n{instruction}"
+    decision_prompt = (
+        f"{sensory_input}\n{instruction}\nActions available: {formatted_actions}"
+    )
 
     messages = [
         HumanMessage(content=decision_prompt),
@@ -49,7 +56,7 @@ async def process_prefrontal(
     @tool
     def map_decision_to_action(action: Actions) -> str:
         """
-        Based on the sensory inputs provided, decide which action to take.
+        Based on the sensory and action inputs, decide which action to take.
         """
         if action in action_names:
             return action

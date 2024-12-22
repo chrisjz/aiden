@@ -4,6 +4,7 @@ import os
 from langchain_core.tools import tool
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_ollama import ChatOllama
+from pydantic import ValidationError
 
 from aiden import logger
 from aiden.app.brain.cognition import COGNITIVE_API_URL_BASE
@@ -81,6 +82,9 @@ async def process_prefrontal(
         )
         logger.info(f"Prefrontal tool arguments: {args}")
         action = map_decision_to_action.invoke(args)
+    except ValidationError as exc:
+        logger.error(f"The current model produced an unexpected action. Error: {exc}")
+        return None
     except ValueError as exc:
         logger.error(
             f"The current model does not support tool/function calling. Error: {exc}"

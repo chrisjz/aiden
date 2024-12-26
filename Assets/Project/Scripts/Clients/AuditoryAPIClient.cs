@@ -85,6 +85,7 @@ public class AuditoryAPIClient
         };
         request.SetRequestHeader("Content-Type", "application/json");
 
+        Debug.Log("Auditory API request sent");
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
@@ -179,6 +180,7 @@ public class AuditoryAPIClient
 
             var asyncOp = request.SendWebRequest();
 
+            Debug.Log("Auditory API request sent");
             asyncOp.completed += _ =>
             {
                 if (request.result == UnityWebRequest.Result.Success)
@@ -297,12 +299,12 @@ public class AuditoryAPIClient
         if (request.result == UnityWebRequest.Result.Success)
         {
             string responseString = request.downloadHandler.text;
-            Debug.Log("Response: " + responseString);
+            Debug.Log("Auditory API response: " + responseString);
             onResponse?.Invoke(responseString);
         }
         else
         {
-            Debug.LogError("Error: " + request.error);
+            Debug.LogError("Auditory API error: " + request.error);
             onResponse?.Invoke(null);
         }
     }

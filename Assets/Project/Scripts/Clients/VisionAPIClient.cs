@@ -75,6 +75,7 @@ public class VisionAPIClient
         };
         request.SetRequestHeader("Content-Type", "application/json");
 
+        Debug.Log("Vision API request sent");
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
@@ -159,6 +160,7 @@ public class VisionAPIClient
                 request.SetRequestHeader("Content-Type", "application/json");
 
                 var asyncOp = request.SendWebRequest();
+                Debug.Log("Vision API request sent");
                 while (!asyncOp.isDone)
                 {
                     await Task.Yield();

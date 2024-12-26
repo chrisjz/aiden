@@ -15295,6 +15295,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+      propertyPath: toggleAuditoryAmbient
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: simulatedSensoryInputs.Array.size
       value: 2
       objectReference: {fileID: 0}

@@ -49,6 +49,7 @@ namespace AIden
         [Header("Configuration")]
         [Tooltip("File path to brain configuration.")]
         public string configPath = "./config/brain/default.json";
+
         [Header("Output")]
         [Tooltip("Log output to display AI output.")]
         public TMP_Text logOutput;
@@ -64,6 +65,10 @@ namespace AIden
         public bool toggleTactileAction = true;
         [Tooltip("Toggle vision sensor.")]
         public bool toggleVision = true;
+
+        [Header("Sensory Execution Mode")]
+        [Tooltip("Toggle between parallel and sequential execution of sensory tasks. Running in parallel where sensory APIs are on the same machine may cause performance degradation.")]
+        public bool runSensoryTasksInParallel = false; // Default is sequential
 
         [Header("Sensory Inputs")]
         [Tooltip("Buffer for auditory language inputs received from users or other agents.")]
@@ -89,7 +94,7 @@ namespace AIden
         [Tooltip("Enable simulated inputs/responses instead of using real APIs.")]
         public bool enableSimulationMode = false;
         [Tooltip("Sequential list of sensory inputs and outputs for AI to perform.")]
-        public List<Sensory> simulatedSensoryInputs = new List<Sensory>();  // User-defined sensory inputs
+        public List<Sensory> simulatedSensoryInputs = new List<Sensory>();
 
         private int _simulationIndex = 0;  // To track the current index in the simulation list
 
@@ -127,7 +132,7 @@ namespace AIden
                 if (!_isAuditoryAmbientSensorEnabled && !_isAuditoryLanguageSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
                 {
                     Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
-                    if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensor APIs are enabled. At least one sensor is required for cortical processing.</color>\n";
+                    if (logOutput != null) logOutput.text += "<color=#FF9999>No sensor APIs are enabled. At least one sensor is required for cortical processing.</color>\n";
                     return;
                 }
 
@@ -143,7 +148,7 @@ namespace AIden
                 else
                 {
                     Debug.LogError("Missing environment variables for cortical API URL.");
-                    if (logOutput != null) logOutput.text += $"<color=#FF9999>Missing environment variables for cortical API URL.</color>\n";
+                    if (logOutput != null) logOutput.text += "<color=#FF9999>Missing environment variables for cortical API URL.</color>\n";
                     return;
                 }
             }
@@ -175,7 +180,6 @@ namespace AIden
         private async Task ProcessSensoryData()
         {
             Sensory sensoryInput = new Sensory();
-            List<Task> sensoryTasks = new List<Task>();
 
             int originalQualityLevel = 5;
             int originalFrameRate = -1;
@@ -211,35 +215,15 @@ namespace AIden
                 });
             }
 
-            // Fetch Occipital Data (Vision) if enabled
-            if (_isVisionSensorEnabled)
+            // Fetch Vision Data and Auditory Data (Ambient) if enabled
+            if (runSensoryTasksInParallel)
             {
-                sensoryTasks.Add(Task.Run(async () =>
-                {
-                    string occipitalData = await _visionApiClient.GetVisionDataAsync();
-                    if (occipitalData != null)
-                    {
-                        sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData));
-                    }
-                }));
+                await RunSensoryTasksInParallel(sensoryInput);
             }
-
-
-            // Fetch Auditory Data (Ambient Noise) if enabled
-            if (_isAuditoryAmbientSensorEnabled)
+            else
             {
-                sensoryTasks.Add(Task.Run(async () =>
-                {
-                    string auditoryData = await _auditoryApiClient.GetAuditoryDataAsync();
-                    if (auditoryData != null)
-                    {
-                        sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData));
-                    }
-                }));
+                await RunSensoryTasksSequentially(sensoryInput);
             }
-
-            // Wait for all sensory tasks to complete
-            await Task.WhenAll(sensoryTasks);
 
             // Fetch Auditory Data (Language) if enabled
             if (_isAuditoryLanguageSensorEnabled && auditoryLanguageBufferList.Count > 0)
@@ -266,13 +250,70 @@ namespace AIden
             if (sensoryInput.vision.Count == 0 && sensoryInput.auditory.Count == 0 && sensoryInput.tactile.Count == 0 && sensoryInput.olfactory.Count == 0 && sensoryInput.gustatory.Count == 0)
             {
                 Debug.LogError("No sensory data available for cortical processing.");
-                if (logOutput != null) logOutput.text += $"<color=#FF9999>No sensory data available for cortical processing.</color>\n";
+                if (logOutput != null) logOutput.text += "<color=#FF9999>No sensory data available for cortical processing.</color>\n";
 
                 ResetGPUThrottling(originalQualityLevel, originalFrameRate);
                 return;
             }
 
-            // Send to Cortical API
+            await SendCorticalRequest(sensoryInput, originalQualityLevel, originalFrameRate);
+        }
+
+        private async Task RunSensoryTasksInParallel(Sensory sensoryInput)
+        {
+            List<Task> sensoryTasks = new List<Task>();
+
+            if (_isVisionSensorEnabled)
+            {
+                sensoryTasks.Add(Task.Run(async () =>
+                {
+                    string occipitalData = await _visionApiClient.GetVisionDataAsync();
+                    if (occipitalData != null)
+                    {
+                        sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData));
+                    }
+                }));
+            }
+
+            // Fetch Auditory Data (Ambient Noise) if enabled
+            if (_isAuditoryAmbientSensorEnabled)
+            {
+                sensoryTasks.Add(Task.Run(async () =>
+                {
+                    string auditoryData = await _auditoryApiClient.GetAuditoryDataAsync();
+                    if (auditoryData != null)
+                    {
+                        sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData));
+                    }
+                }));
+            }
+
+            await Task.WhenAll(sensoryTasks);
+        }
+
+        private async Task RunSensoryTasksSequentially(Sensory sensoryInput)
+        {
+            if (_isVisionSensorEnabled)
+            {
+                string occipitalData = await _visionApiClient.GetVisionDataAsync();
+                if (occipitalData != null)
+                {
+                    sensoryInput.vision.Add(new VisionInput(VisionType.GENERAL, occipitalData));
+                }
+            }
+
+            if (_isAuditoryAmbientSensorEnabled)
+            {
+                string auditoryData = await _auditoryApiClient.GetAuditoryDataAsync();
+                if (auditoryData != null)
+                {
+                    sensoryInput.auditory.Add(new AuditoryInput(AuditoryType.AMBIENT, auditoryData));
+                }
+            }
+        }
+
+        private async Task SendCorticalRequest(Sensory sensoryInput, int originalQualityLevel, int originalFrameRate)
+        {
             CorticalRequest corticalRequestData = new CorticalRequest
             {
                 agent_id = agentId,
@@ -281,7 +322,6 @@ namespace AIden
             };
 
             string corticalRequestJson = JsonUtility.ToJson(corticalRequestData);
-            Debug.Log("Cortical request JSON: " + corticalRequestJson);
 
             using (var corticalRequest = new UnityWebRequest(_corticalApiUrl, "POST"))
             {
@@ -348,6 +388,7 @@ namespace AIden
                 }
             }
         }
+
         private void ProcessSimulatedSensoryData()
         {
             // If no simulation inputs are defined, use a default sensory input
@@ -459,7 +500,6 @@ namespace AIden
                 });
             }
         }
-
     }
 }
 

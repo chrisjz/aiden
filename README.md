@@ -77,11 +77,17 @@ docker compose --profile auditory-ambient-gpu --profile auditory-language-gpu --
 docker compose --profile auditory-ambient-cpu --profile auditory-language-cpu --profile cognitive-cpu --profile vision-cpu --profile vocal-cpu up -d
 ```
 
-> **_RECOMMENDATION:_** You will want at least the `cognitive` and
+> **_RECOMMENDATIONS:_**
+>
+> - You will want at least the `cognitive` and
 `vision` services running for the simulation.
 This will enable the AI agent to at least process thoughts
 and see their environment.
-If your machine cannot run more than one model, set `COGNITIVE_MODEL`
+> - If you're running locally with only one GPU, use the GPU for the
+`cognitive` and `vision` services, and your CPU for the `auditory-ambient`.
+The `auditory-ambient` service performs well on just a CPU, and overall
+the performance will be better particularly when running the Unity simulation.
+> - If your machine cannot run more than one model, set `COGNITIVE_MODEL`
 to a multi-modal model such as `bakllava`, change `VISION_API_PORT`
 to match `COGNITIVE_API_PORT` and spin up only the `cognitive` service.
 

@@ -17708,8 +17708,10 @@ MonoBehaviour:
   sectionConfiguration: {fileID: 2059866367}
   sectionBackground: {fileID: 7358625}
   scrollViewLogOutput: {fileID: 877225201}
+  scrollViewLogOutputText: {fileID: 1582702094}
   toggledPositionScrollViewLogOutput: {x: 0, y: 0, z: 0}
   toggledSizeDeltaScrollViewLogOutput: {x: 700, y: 400}
+  toggledSizeDeltaScrollViewLogOutputText: {x: 650, y: 0}
   enableMenu: 1
 --- !u!1 &1453012982
 GameObject:

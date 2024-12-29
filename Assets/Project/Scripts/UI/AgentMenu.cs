@@ -15,28 +15,48 @@ public class AgentMenu : MonoBehaviour
     public GameObject sectionConfiguration;
     public GameObject sectionBackground;
     public GameObject scrollViewLogOutput;
+    public GameObject scrollViewLogOutputText;
     public Vector3 toggledPositionScrollViewLogOutput;
     public Vector2 toggledSizeDeltaScrollViewLogOutput;
+    public Vector2 toggledSizeDeltaScrollViewLogOutputText;
     public bool enableMenu = true;
 
     private bool isMenuVisible = false;
     private Vector3 originalPositionScrollViewLogOutput;
     private Vector2 originalSizeDeltaScrollViewLogOutput;
+    private Vector2 originalSizeDeltaScrollViewLogOutputText;
 
     void Start()
     {
         // Save the original position and size of the log output GameObject
         if (scrollViewLogOutput != null)
         {
-            RectTransform rectTransform = scrollViewLogOutput.GetComponent<RectTransform>();
-            if (rectTransform == null)
+            RectTransform parentRectTransform = scrollViewLogOutput.GetComponent<RectTransform>();
+            if (parentRectTransform == null)
             {
                 Debug.LogError("Target log output object does not have a RectTransform.");
                 return;
             }
 
-            originalPositionScrollViewLogOutput = rectTransform.localPosition;
-            originalSizeDeltaScrollViewLogOutput = rectTransform.sizeDelta;
+            originalPositionScrollViewLogOutput = parentRectTransform.localPosition;
+            originalSizeDeltaScrollViewLogOutput = parentRectTransform.sizeDelta;
+        }
+        else
+        {
+            Debug.LogError("Target log output object is not assigned.");
+        }
+
+        // Save the original size of the log output text GameObject
+        if (scrollViewLogOutputText != null)
+        {
+            RectTransform childRectTransform = scrollViewLogOutputText.GetComponent<RectTransform>();
+            if (childRectTransform == null)
+            {
+                Debug.LogError("Target log output object does not have a RectTransform.");
+                return;
+            }
+
+            originalSizeDeltaScrollViewLogOutputText = childRectTransform.sizeDelta;
         }
         else
         {
@@ -122,25 +142,27 @@ public class AgentMenu : MonoBehaviour
 
     public void ToggleLogOutputLocation()
     {
-        if (scrollViewLogOutput == null) return;
+        if (scrollViewLogOutput == null || scrollViewLogOutputText == null) return;
 
-        RectTransform rectTransform = scrollViewLogOutput.GetComponent<RectTransform>();
-        if (rectTransform == null) return;
+        RectTransform parentRectTransform = scrollViewLogOutput.GetComponent<RectTransform>();
+        RectTransform childRectTransform = scrollViewLogOutputText.GetComponent<RectTransform>();
+        if (parentRectTransform == null || childRectTransform == null) return;
 
         if (isMenuVisible && sectionLog.activeSelf)
         {
             // Move and resize to toggled position and size
-            rectTransform.localPosition = toggledPositionScrollViewLogOutput;
-            rectTransform.sizeDelta = toggledSizeDeltaScrollViewLogOutput;
-
+            parentRectTransform.localPosition = toggledPositionScrollViewLogOutput;
+            parentRectTransform.sizeDelta = toggledSizeDeltaScrollViewLogOutput;
+            childRectTransform.sizeDelta = toggledSizeDeltaScrollViewLogOutputText;
 
             sectionBackground.SetActive(false);
         }
         else
         {
             // Revert to original position and size
-            rectTransform.localPosition = originalPositionScrollViewLogOutput;
-            rectTransform.sizeDelta = originalSizeDeltaScrollViewLogOutput;
+            parentRectTransform.localPosition = originalPositionScrollViewLogOutput;
+            parentRectTransform.sizeDelta = originalSizeDeltaScrollViewLogOutput;
+            childRectTransform.sizeDelta = originalSizeDeltaScrollViewLogOutputText;
 
             sectionBackground.SetActive(true);
         }

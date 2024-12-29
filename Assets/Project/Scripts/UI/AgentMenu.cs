@@ -13,9 +13,36 @@ public class AgentMenu : MonoBehaviour
     public GameObject sectionControl;
     public GameObject sectionMemory;
     public GameObject sectionConfiguration;
+    public GameObject sectionBackground;
+    public GameObject scrollViewLogOutput;
+    public Vector3 toggledPositionScrollViewLogOutput;
+    public Vector2 toggledSizeDeltaScrollViewLogOutput;
     public bool enableMenu = true;
 
     private bool isMenuVisible = false;
+    private Vector3 originalPositionScrollViewLogOutput;
+    private Vector2 originalSizeDeltaScrollViewLogOutput;
+
+    void Start()
+    {
+        // Save the original position and size of the log output GameObject
+        if (scrollViewLogOutput != null)
+        {
+            RectTransform rectTransform = scrollViewLogOutput.GetComponent<RectTransform>();
+            if (rectTransform == null)
+            {
+                Debug.LogError("Target log output object does not have a RectTransform.");
+                return;
+            }
+
+            originalPositionScrollViewLogOutput = rectTransform.localPosition;
+            originalSizeDeltaScrollViewLogOutput = rectTransform.sizeDelta;
+        }
+        else
+        {
+            Debug.LogError("Target log output object is not assigned.");
+        }
+    }
 
     void Update()
     {
@@ -48,6 +75,8 @@ public class AgentMenu : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked; // Lock the cursor
                 Cursor.visible = false;
             }
+
+            ToggleLogOutputLocation();
         }
     }
 
@@ -57,6 +86,8 @@ public class AgentMenu : MonoBehaviour
         sectionControl.SetActive(false);
         sectionMemory.SetActive(false);
         sectionConfiguration.SetActive(false);
+
+        ToggleLogOutputLocation();
     }
 
     public void OpenSectionControl()
@@ -65,6 +96,8 @@ public class AgentMenu : MonoBehaviour
         sectionControl.SetActive(true);
         sectionMemory.SetActive(false);
         sectionConfiguration.SetActive(false);
+
+        ToggleLogOutputLocation();
     }
 
     public void OpenSectionMemory()
@@ -73,6 +106,8 @@ public class AgentMenu : MonoBehaviour
         sectionControl.SetActive(false);
         sectionMemory.SetActive(true);
         sectionConfiguration.SetActive(false);
+
+        ToggleLogOutputLocation();
     }
 
     public void OpenSectionConfiguration()
@@ -81,5 +116,33 @@ public class AgentMenu : MonoBehaviour
         sectionControl.SetActive(false);
         sectionMemory.SetActive(false);
         sectionConfiguration.SetActive(true);
+
+        ToggleLogOutputLocation();
+    }
+
+    public void ToggleLogOutputLocation()
+    {
+        if (scrollViewLogOutput == null) return;
+
+        RectTransform rectTransform = scrollViewLogOutput.GetComponent<RectTransform>();
+        if (rectTransform == null) return;
+
+        if (isMenuVisible && sectionLog.activeSelf)
+        {
+            // Move and resize to toggled position and size
+            rectTransform.localPosition = toggledPositionScrollViewLogOutput;
+            rectTransform.sizeDelta = toggledSizeDeltaScrollViewLogOutput;
+
+
+            sectionBackground.SetActive(false);
+        }
+        else
+        {
+            // Revert to original position and size
+            rectTransform.localPosition = originalPositionScrollViewLogOutput;
+            rectTransform.sizeDelta = originalSizeDeltaScrollViewLogOutput;
+
+            sectionBackground.SetActive(true);
+        }
     }
 }

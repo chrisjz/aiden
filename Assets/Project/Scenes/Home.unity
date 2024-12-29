@@ -4907,14 +4907,26 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 572691013}
   toggleTransition: 1
   graphic: {fileID: 1446092625}
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1449398701}
+        m_TargetAssemblyTypeName: AgentMenu, Assembly-CSharp
+        m_MethodName: ToggleFreeze
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 429893027}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Toggle, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 0
 --- !u!1 &466453707
 GameObject:
@@ -17716,6 +17728,7 @@ MonoBehaviour:
   playerChatCanvas: {fileID: 1595064618}
   playerInput: {fileID: 1862328920}
   playerLook: {fileID: 188838642}
+  agentBrainController: {fileID: 1704467503}
   sectionLog: {fileID: 529668119}
   sectionControl: {fileID: 82622843}
   sectionMemory: {fileID: 1533820827}
@@ -20489,6 +20502,17 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &1704467503 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
+  m_PrefabInstance: {fileID: 8746824087884854113}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3218d163aebaf49a55d9cec50ac519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1708248828
 GameObject:
   m_ObjectHideFlags: 0

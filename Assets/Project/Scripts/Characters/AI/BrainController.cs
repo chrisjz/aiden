@@ -87,7 +87,9 @@ namespace AIden
         public int throttleFrameRate = 30;
 
         [Header("Cycle Settings")]
-        [Tooltip("Frequency in seconds of feeding external sensory to brain for responses. Set to 0 to disable.")]
+        [Tooltip("Freeze the agent. The cycle loop will be disabled.")]
+        public bool freeze = false;
+        [Tooltip("Frequency in seconds of feeding external sensory to brain for responses.")]
         public float cycleTime = 1.0f;
 
         [Header("Simulation Settings")]
@@ -159,10 +161,12 @@ namespace AIden
 
         private async void ProcessSensoryDataLoop()
         {
-            while (cycleTime > 0.0f)
+            while (cycleTime >= 0.0f)
             {
                 // Wait for the defined cycle time before starting the next cycle
                 await Task.Delay(TimeSpan.FromSeconds(cycleTime));
+
+                if (freeze) continue;
 
                 if (enableSimulationMode)
                 {

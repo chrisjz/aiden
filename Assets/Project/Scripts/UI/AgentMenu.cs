@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using CandyCoded.env;
 using UnityEngine.UI;
+using AIden;
 
 public class AgentMenu : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class AgentMenu : MonoBehaviour
     public GameObject playerChatCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
+    public BrainController agentBrainController;
     public GameObject sectionLog;
     public GameObject sectionControl;
     public GameObject sectionMemory;
@@ -170,9 +172,14 @@ public class AgentMenu : MonoBehaviour
         }
     }
 
+    public void ToggleFreeze(Toggle change)
+    {
+        // TODO: Dynamically load brain controller based on selected agent.
+        agentBrainController.freeze = change.isOn;
+    }
+
     public void TogglePerspectiveSwitcher(Toggle change)
     {
-        // TODO: Handle clash with TAB
         perspectiveManager.SetIsPlayerPerspective(change.isOn);
     }
 }

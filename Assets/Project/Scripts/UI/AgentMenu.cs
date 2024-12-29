@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using CandyCoded.env;
+using UnityEngine.UI;
 
 public class AgentMenu : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class AgentMenu : MonoBehaviour
     public Vector3 toggledPositionScrollViewLogOutput;
     public Vector2 toggledSizeDeltaScrollViewLogOutput;
     public Vector2 toggledSizeDeltaScrollViewLogOutputText;
+    public PerspectiveSwitcher perspectiveManager;
     public bool enableMenu = true;
 
     private bool isMenuVisible = false;
@@ -166,5 +168,11 @@ public class AgentMenu : MonoBehaviour
 
             sectionBackground.SetActive(true);
         }
+    }
+
+    public void TogglePerspectiveSwitcher(Toggle change)
+    {
+        Debug.Log("Toggle perspective switcher value:" + change.isOn);
+        perspectiveManager.SetIsPlayerPerspective(change.isOn);
     }
 }

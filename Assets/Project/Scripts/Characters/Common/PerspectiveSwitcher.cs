@@ -32,15 +32,31 @@ public class PerspectiveSwitcher : MonoBehaviour
         // Check for Tab key press to toggle perspectives
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            if (isPlayerPerspective)
-            {
-                SwitchToAIPerspective();
-            }
-            else
-            {
-                SwitchToPlayerPerspective();
-            }
+            TogglePlayerPerspective();
         }
+    }
+
+    void TogglePlayerPerspective()
+    {
+        if (isPlayerPerspective)
+        {
+            SwitchToAIPerspective();
+        }
+        else
+        {
+            SwitchToPlayerPerspective();
+        }
+    }
+
+    public bool GetIsPlayerPerspective()
+    {
+        return isPlayerPerspective;
+    }
+
+    public void SetIsPlayerPerspective(bool toggle)
+    {
+        isPlayerPerspective = toggle;
+        TogglePlayerPerspective();
     }
 
     void SwitchToPlayerPerspective()

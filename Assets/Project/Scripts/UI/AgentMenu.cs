@@ -2,13 +2,17 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using CandyCoded.env;
 
-public class AgentMenuToggle : MonoBehaviour
+public class AgentMenu : MonoBehaviour
 {
     public GameObject menuCanvas;
     public GameObject firstPersonCanvas;
     public GameObject playerChatCanvas;
     public PlayerInput playerInput;
     public PlayerLook playerLook;
+    public GameObject sectionLog;
+    public GameObject sectionControl;
+    public GameObject sectionMemory;
+    public GameObject sectionConfiguration;
     public bool enableMenu = true;
 
     private bool isMenuVisible = false;
@@ -45,5 +49,37 @@ public class AgentMenuToggle : MonoBehaviour
                 Cursor.visible = false;
             }
         }
+    }
+
+    public void OpenSectionLog()
+    {
+        sectionLog.SetActive(true);
+        sectionControl.SetActive(false);
+        sectionMemory.SetActive(false);
+        sectionConfiguration.SetActive(false);
+    }
+
+    public void OpenSectionControl()
+    {
+        sectionLog.SetActive(false);
+        sectionControl.SetActive(true);
+        sectionMemory.SetActive(false);
+        sectionConfiguration.SetActive(false);
+    }
+
+    public void OpenSectionMemory()
+    {
+        sectionLog.SetActive(false);
+        sectionControl.SetActive(false);
+        sectionMemory.SetActive(true);
+        sectionConfiguration.SetActive(false);
+    }
+
+    public void OpenSectionConfiguration()
+    {
+        sectionLog.SetActive(false);
+        sectionControl.SetActive(false);
+        sectionMemory.SetActive(false);
+        sectionConfiguration.SetActive(true);
     }
 }

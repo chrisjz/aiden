@@ -5720,7 +5720,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &529668120
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6673,7 +6673,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 583132149}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1449398701}
+        m_TargetAssemblyTypeName: AgentMenu, Assembly-CSharp
+        m_MethodName: OpenSectionMemory
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &583132149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6928,7 +6940,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 599570803}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1449398701}
+        m_TargetAssemblyTypeName: AgentMenu, Assembly-CSharp
+        m_MethodName: OpenSectionLog
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &599570803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11297,7 +11321,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 952692738}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1449398701}
+        m_TargetAssemblyTypeName: AgentMenu, Assembly-CSharp
+        m_MethodName: OpenSectionControl
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &952692738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12853,7 +12889,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1077963565}
   m_Template: {fileID: 1525794469}
   m_CaptionText: {fileID: 33503863}
@@ -13144,7 +13180,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuCanvas: {fileID: 125241291}
-  agentMenuCanvas: {fileID: 635099533}
   firstPersonCanvas: {fileID: 306086044}
   playerChatCanvas: {fileID: 1595064618}
   screenMain: {fileID: 870827344}
@@ -14174,7 +14209,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1162598591}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1449398701}
+        m_TargetAssemblyTypeName: AgentMenu, Assembly-CSharp
+        m_MethodName: OpenSectionConfiguration
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1162598591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18091,15 +18138,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuCanvas: {fileID: 635099533}
-  agentAutoScrollManager: {fileID: 0}
   firstPersonCanvas: {fileID: 306086044}
   playerChatCanvas: {fileID: 1595064618}
-  mainMenuCanvas: {fileID: 125241291}
   playerInput: {fileID: 1862328920}
   playerLook: {fileID: 188838642}
-  buttonSubmitAISpeak: {fileID: 1370225164}
-  buttonSubmitAIVisual: {fileID: 1634835570}
-  buttonSubmitUserRecording: {fileID: 0}
+  sectionLog: {fileID: 529668119}
+  sectionControl: {fileID: 82622843}
+  sectionMemory: {fileID: 1533820827}
+  sectionConfiguration: {fileID: 2059866367}
   enableMenu: 1
 --- !u!1 &1453012982
 GameObject:

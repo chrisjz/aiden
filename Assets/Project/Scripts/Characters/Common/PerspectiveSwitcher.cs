@@ -1,9 +1,11 @@
 using StarterAssets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PerspectiveSwitcher : MonoBehaviour
 {
+    public Toggle perspectiveToggle;  // The toggle/checkbox UI element
     public Camera playerCamera;    // Assign the player's camera
     public Camera aiCamera;        // Assign the AI's camera
     public AudioListener playerAudioListener;  // Assign the player's audio listener
@@ -33,6 +35,7 @@ public class PerspectiveSwitcher : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             TogglePlayerPerspective();
+            perspectiveToggle.isOn = !isPlayerPerspective;
         }
     }
 

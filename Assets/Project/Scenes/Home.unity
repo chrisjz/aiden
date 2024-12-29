@@ -631,6 +631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83eebf60ed0e7004383a26cb8883b1f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  perspectiveToggle: {fileID: 480176908}
   playerCamera: {fileID: 1891717650}
   aiCamera: {fileID: 1304641811}
   playerAudioListener: {fileID: 1891717649}

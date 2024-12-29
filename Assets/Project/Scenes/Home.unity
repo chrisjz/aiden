@@ -2213,7 +2213,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 154596853}
   m_OnClick:
     m_PersistentCalls:
@@ -2300,8 +2300,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29e303484a07ccd419bc688340aed17c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  responseText: {fileID: 0}
-  sendButton: {fileID: 1000891912}
+  responseText: {fileID: 1582702096}
+  sendButton: {fileID: 154596852}
   saveCapturedAudio: 0
   audioCapture: {fileID: 312140959}
 --- !u!1 &168231372

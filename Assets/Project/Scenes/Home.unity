@@ -4144,7 +4144,7 @@ GameObject:
   - component: {fileID: 635099536}
   - component: {fileID: 635099535}
   m_Layer: 5
-  m_Name: CanvasAgentDebugMenu
+  m_Name: CanvasAgentMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10407,7 +10407,7 @@ GameObject:
   - component: {fileID: 1449398700}
   - component: {fileID: 1449398701}
   m_Layer: 0
-  m_Name: AgentDebugMenuManager
+  m_Name: AgentMenuManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

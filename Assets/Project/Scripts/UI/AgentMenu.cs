@@ -172,7 +172,7 @@ public class AgentMenu : MonoBehaviour
 
     public void TogglePerspectiveSwitcher(Toggle change)
     {
-        Debug.Log("Toggle perspective switcher value:" + change.isOn);
+        // TODO: Handle clash with TAB
         perspectiveManager.SetIsPlayerPerspective(change.isOn);
     }
 }

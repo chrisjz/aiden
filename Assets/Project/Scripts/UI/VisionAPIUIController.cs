@@ -38,7 +38,8 @@ public class VisionAPIUIController : MonoBehaviour
 
     private void UpdateResponseText(string text)
     {
-        responseText.text = text;
+        string responseTitle = $"<b><color=#6666FF>Agent's captured visual</color></b>";  // Bold and blue
+        if (responseText != null) responseText.text += responseTitle + text + "\n";
         sendButton.interactable = true;
     }
 }

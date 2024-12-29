@@ -2570,8 +2570,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraToCapture: {fileID: 1304641811}
-  responseText: {fileID: 0}
-  sendButton: {fileID: 1634835572}
+  responseText: {fileID: 1582702096}
+  sendButton: {fileID: 525039538}
   saveInput: 0
 --- !u!1 &219403595
 GameObject:
@@ -5662,7 +5662,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 525039539}
   m_OnClick:
     m_PersistentCalls:
@@ -25389,7 +25389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: cycleTime
-      value: 1
+      value: 99999
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: logOutput

@@ -17,6 +17,7 @@ public class AgentMenu : MonoBehaviour
     public GameObject sectionMemory;
     public GameObject sectionConfiguration;
     public GameObject sectionBackground;
+    public AutoScrollManager scrollViewManager;
     public GameObject scrollViewLogOutput;
     public GameObject scrollViewLogOutputText;
     public Vector3 toggledPositionScrollViewLogOutput;
@@ -159,6 +160,8 @@ public class AgentMenu : MonoBehaviour
             parentRectTransform.sizeDelta = toggledSizeDeltaScrollViewLogOutput;
             childRectTransform.sizeDelta = toggledSizeDeltaScrollViewLogOutputText;
 
+            scrollViewManager.autoScrollEnabled = false;
+
             sectionBackground.SetActive(false);
         }
         else
@@ -167,6 +170,8 @@ public class AgentMenu : MonoBehaviour
             parentRectTransform.localPosition = originalPositionScrollViewLogOutput;
             parentRectTransform.sizeDelta = originalSizeDeltaScrollViewLogOutput;
             childRectTransform.sizeDelta = originalSizeDeltaScrollViewLogOutputText;
+
+            scrollViewManager.autoScrollEnabled = true;
 
             sectionBackground.SetActive(true);
         }

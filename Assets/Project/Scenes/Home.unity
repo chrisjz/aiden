@@ -17734,6 +17734,7 @@ MonoBehaviour:
   sectionMemory: {fileID: 1533820827}
   sectionConfiguration: {fileID: 2059866367}
   sectionBackground: {fileID: 7358625}
+  scrollViewManager: {fileID: 1600620711}
   scrollViewLogOutput: {fileID: 877225201}
   scrollViewLogOutputText: {fileID: 1582702094}
   toggledPositionScrollViewLogOutput: {x: 0, y: 0, z: 0}

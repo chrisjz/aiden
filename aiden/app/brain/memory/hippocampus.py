@@ -5,6 +5,7 @@ from langchain_core.messages import BaseMessage
 from redis import Redis
 
 from aiden import logger
+from aiden.models.brain import NeuralyzerRequest, NeuralyzerResponse
 
 CHROMA_COLLECTION_MEMORY = "memory"
 TOGGLE_MEMORY_CONSOLIDATION = False
@@ -53,6 +54,8 @@ class MemoryManager:
         """
         Delete the agent's entire short-term memory in Redis
 
+        TODO: Check if agent entry exists.
+
         Args:
             agent_id (str): Unique identifier for the AI agent.
         """
@@ -84,3 +87,30 @@ class MemoryManager:
         self.update_memory(agent_id, updated_history)
 
         raise NotImplementedError("Memory consolidation not fully implemented.")
+
+
+async def process_wipe_memory(request: NeuralyzerRequest, redis_client: Redis) -> str:
+    """
+    Process request to delete an agent's short-term memory.
+
+    Args:
+        request (NeuralyzerRequest): The request containing the agent ID.
+        redis_client (Redis): The redis client.
+
+    Returns:
+        str: A JSON string indicating whether the memory wipe was successful.
+    """
+    try:
+        memory_manager = MemoryManager(redis_client=redis_client)
+        memory_manager.wipe_memory(agent_id=request.agent_id)
+
+        neuralyzer_response = NeuralyzerResponse(done=True)
+
+        return neuralyzer_response.model_dump_json()
+    # TODO: Handle other error types.
+    except Exception as e:
+        logger.error(f"Error during agent memory wipe: {e}")
+        error_response = NeuralyzerResponse(
+            done=False, error="Unexpected error occurred during agent memory wipe."
+        )
+        return error_response.model_dump_json()

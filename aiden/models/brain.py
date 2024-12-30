@@ -167,3 +167,12 @@ class CorticalResponse(BaseModel):
 class OccipitalRequest(BaseModel):
     config: str = Field(default="./config/brain/default.json")
     image: str  # Base64-encoded string representing the image file data (e.g., .jpg or .png file)
+
+
+class NeuralyzerRequest(BaseModel):
+    agent_id: str
+
+
+class NeuralyzerResponse(BaseModel):
+    done: bool
+    error: str | None = None

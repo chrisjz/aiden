@@ -1,11 +1,19 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from starlette.responses import StreamingResponse
 
 from aiden import logger
 from aiden.app.brain.auditory import process_auditory
 from aiden.app.brain.cortical import process_cortical
+from aiden.app.brain.memory.hippocampus import process_wipe_memory
 from aiden.app.brain.occipital import process_occipital
-from aiden.models.brain import AuditoryRequest, CorticalRequest, OccipitalRequest
+from aiden.app.clients.redis_client import redis_client
+from aiden.models.brain import (
+    AuditoryRequest,
+    CorticalRequest,
+    NeuralyzerRequest,
+    OccipitalRequest,
+)
 
 app = FastAPI()
 
@@ -38,7 +46,7 @@ async def read_occipital(request: OccipitalRequest) -> StreamingResponse:
         request (OccipitalRequest): The request payload containing image data and configuration.
 
     Returns:
-        StreamingResponse: The continuous response stream from the cognitive model.
+        StreamingResponse: The continuous response stream from the occipital model.
     """
     try:
         stream = process_occipital(request)
@@ -57,7 +65,7 @@ async def read_auditory(request: AuditoryRequest) -> StreamingResponse:
         request (AuditoryRequest): The request payload containing audio data and configuration.
 
     Returns:
-        StreamingResponse: The continuous response stream from the cognitive model.
+        StreamingResponse: The continuous response stream from the auditory model.
     """
     try:
         stream = process_auditory(request)
@@ -65,3 +73,20 @@ async def read_auditory(request: AuditoryRequest) -> StreamingResponse:
     except Exception as e:
         logger.error(f"Error in auditory endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/neuralyzer/")
+async def wipe_short_term_memory(request: NeuralyzerRequest) -> JSONResponse:
+    """
+    Endpoint to wipe an agent's short term memory.
+
+    Args:
+        request (NeuralyzerRequest): The request payload containing the agent ID.
+
+    Returns:
+        JSONResponse: The result of the memory wipe operation.
+    """
+    response_json = await process_wipe_memory(
+        request=request, redis_client=redis_client
+    )
+    return JSONResponse(content=response_json, media_type="application/json")

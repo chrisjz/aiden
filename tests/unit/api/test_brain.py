@@ -86,6 +86,31 @@ async def test_occipital_endpoint(mocker):
         assert "I see a park with children playing." in response.text
 
 
+@pytest.mark.asyncio
+async def test_neuralyzer_endpoint(mocker):
+    # Create a mock response object to simulate the API response
+    mock_response = Response(
+        status_code=200,
+        json={"done": True},
+    )
+
+    # Mock the post method of AsyncClient to return the mock response
+    mocker.patch.object(AsyncClient, "post", return_value=mock_response)
+
+    # Define the test payload
+    test_payload = {"agent_id": "12345"}
+
+    # Test the neuralyzer endpoint asynchronously
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/neuralyzer/", json=test_payload)
+
+        # Assert the response status code
+        assert response.status_code == 200
+
+        # Assert the response content
+        assert response.json() == {"done": True}
+
+
 # Integration test with a mock Ollama API
 @pytest.mark.asyncio
 async def test_integration_with_mock_ollama(mocker):

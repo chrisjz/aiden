@@ -97,4 +97,8 @@ def build_sensory_input_prompt_template(sensory: Sensory) -> str:
     if gustatory_str:
         prompt_lines.append(f"Your current gustatory input: {gustatory_str}")
 
+    # No sensory inputs
+    if not prompt_lines:
+        prompt_lines.append("No sensory inputs received")
+
     return "\n".join(prompt_lines)

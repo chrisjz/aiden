@@ -31,39 +31,21 @@ Your current gustatory input: Sweet candy.""",
         ),
         (
             Sensory(
-                vision=[],
                 auditory=[AuditoryInput(type="language", content="How are you today?")],
-                tactile=[],
-                olfactory=[],
-                gustatory=[],
             ),
-            """Your current visual input: No visual input detected.
-Your current auditory input: You hear the following spoken - How are you today?
-Your current tactile input: No tactile input detected.
-Your current olfactory input: No smells detected.
-Your current gustatory input: No taste detected.""",
+            """Your current auditory input: You hear the following spoken - How are you today?""",
         ),
         (
             Sensory(
-                vision=[],
                 auditory=[
                     AuditoryInput(type="ambient", content="A loud noise."),
                     AuditoryInput(type="language", content="How are you today?"),
                 ],
-                tactile=[],
-                olfactory=[],
-                gustatory=[],
             ),
-            """Your current visual input: No visual input detected.
-Your current auditory input: A loud noise. | You hear the following spoken - How are you today?
-Your current tactile input: No tactile input detected.
-Your current olfactory input: No smells detected.
-Your current gustatory input: No taste detected.""",
+            """Your current auditory input: A loud noise. | You hear the following spoken - How are you today?""",
         ),
         (
             Sensory(
-                vision=[],
-                auditory=[],
                 tactile=[
                     TactileInput(
                         type="action",
@@ -74,49 +56,27 @@ Your current gustatory input: No taste detected.""",
                         command=Action(name="crouch", description="Crouch down"),
                     ),
                 ],
-                olfactory=[],
-                gustatory=[],
             ),
-            """Your current visual input: No visual input detected.
-Your current auditory input: No sounds detected.
-Your current tactile input: You can perform the following actions - jump (Jump in the air), crouch (Crouch down)
-Your current olfactory input: No smells detected.
-Your current gustatory input: No taste detected.""",
+            """Your current tactile input: You can perform the following actions - jump (Jump in the air), crouch (Crouch down)""",
         ),
         (
             Sensory(
-                vision=[],
-                auditory=[],
                 tactile=[
                     TactileInput(type="action", command=Action(name="jump")),
                     TactileInput(type="action", command=Action(name="crouch")),
                 ],
-                olfactory=[],
-                gustatory=[],
             ),
-            """Your current visual input: No visual input detected.
-Your current auditory input: No sounds detected.
-Your current tactile input: You can perform the following actions - jump, crouch
-Your current olfactory input: No smells detected.
-Your current gustatory input: No taste detected.""",
+            """Your current tactile input: You can perform the following actions - jump, crouch""",
         ),
         (
             Sensory(
-                vision=[],
-                auditory=[],
                 tactile=[
                     TactileInput(type="general", content="Smooth surface."),
                     TactileInput(type="action", command=Action(name="jump")),
                     TactileInput(type="action", command=Action(name="crouch")),
                 ],
-                olfactory=[],
-                gustatory=[],
             ),
-            """Your current visual input: No visual input detected.
-Your current auditory input: No sounds detected.
-Your current tactile input: Smooth surface. | You can perform the following actions - jump, crouch
-Your current olfactory input: No smells detected.
-Your current gustatory input: No taste detected.""",
+            """Your current tactile input: Smooth surface. | You can perform the following actions - jump, crouch""",
         ),
         (
             Sensory(
@@ -126,11 +86,7 @@ Your current gustatory input: No taste detected.""",
                 olfactory=[OlfactoryInput(content="")],
                 gustatory=[GustatoryInput(content="")],
             ),
-            """Your current visual input: No visual input detected.
-Your current auditory input: No sounds detected.
-Your current tactile input: No tactile input detected.
-Your current olfactory input: No smells detected.
-Your current gustatory input: No taste detected.""",
+            """No sensory inputs received""",
         ),
     ],
 )

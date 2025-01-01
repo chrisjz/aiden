@@ -25,13 +25,16 @@ def build_sensory_input_prompt_template(sensory: Sensory) -> str:
 
     Returns:
         str: A formatted string that describes the current visual, auditory, tactile, olfactory, and gustatory inputs.
-             If any sensory input list is empty, a default message indicating its absence is used.
+             Lines are included only for sensory inputs that have content.
     """
-    vision_str = (
-        " | ".join([input.content for input in sensory.vision])
-        or "No visual input detected."
-    )
+    prompt_lines = []
 
+    # Visual Input
+    vision_str = " | ".join([input.content for input in sensory.vision])
+    if vision_str:
+        prompt_lines.append(f"Your current visual input: {vision_str}")
+
+    # Auditory Input
     auditory_ambient_str = " | ".join(
         [
             input.content
@@ -56,8 +59,10 @@ def build_sensory_input_prompt_template(sensory: Sensory) -> str:
             else ""
         )
     )
-    auditory_str = auditory_str or "No sounds detected."
+    if auditory_str:
+        prompt_lines.append(f"Your current auditory input: {auditory_str}")
 
+    # Tactile Input
     tactile_general_str = " | ".join(
         [
             input.content
@@ -79,22 +84,17 @@ def build_sensory_input_prompt_template(sensory: Sensory) -> str:
         + (" | " if tactile_general_str and tactile_action_str else "")
         + (f"{PROMPT_ACTION_PREFIX}{tactile_action_str}" if tactile_action_str else "")
     )
-    tactile_str = tactile_str or "No tactile input detected."
+    if tactile_str:
+        prompt_lines.append(f"Your current tactile input: {tactile_str}")
 
-    olfactory_str = (
-        " | ".join([input.content for input in sensory.olfactory])
-        or "No smells detected."
-    )
-    gustatory_str = (
-        " | ".join([input.content for input in sensory.gustatory])
-        or "No taste detected."
-    )
+    # Olfactory Input
+    olfactory_str = " | ".join([input.content for input in sensory.olfactory])
+    if olfactory_str:
+        prompt_lines.append(f"Your current olfactory input: {olfactory_str}")
 
-    prompt = f"""
-Your current visual input: {vision_str}
-Your current auditory input: {auditory_str}
-Your current tactile input: {tactile_str}
-Your current olfactory input: {olfactory_str}
-Your current gustatory input: {gustatory_str}
-"""
-    return prompt.strip()
+    # Gustatory Input
+    gustatory_str = " | ".join([input.content for input in sensory.gustatory])
+    if gustatory_str:
+        prompt_lines.append(f"Your current gustatory input: {gustatory_str}")
+
+    return "\n".join(prompt_lines)

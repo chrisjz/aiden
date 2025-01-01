@@ -87,14 +87,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 329574044458582217}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.8699257, z: 0, w: 0.4931829}
-  m_LocalPosition: {x: 1.6493095, y: 0.120125294, z: -0.1494806}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9202281398139532363}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -120.9, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &566895980554023340
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,10 +424,18 @@ MonoBehaviour:
   agentName: AIden
   configPath: ./config/brain/default.json
   logOutput: {fileID: 0}
+  chatOutput: {fileID: 0}
   toggleAuditoryAmbient: 1
+  toggleAuditoryLanguage: 1
   toggleTactileAction: 1
   toggleVision: 1
+  runSensoryTasksInParallel: 0
+  auditoryLanguageBufferList: []
   moveDistance: 1
+  toggleGPUThrottling: 1
+  throttleQualityLevel: 0
+  throttleFrameRate: 30
+  freeze: 0
   cycleTime: 1
   enableSimulationMode: 0
   simulatedSensoryInputs: []

@@ -1,26 +1,35 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterCollisionDetector : MonoBehaviour
 {
-    private readonly Dictionary<GameObject, string> currentCollisions = new(); // Tracks active collisions
-
-    [Tooltip("Radius for detecting nearby collisions.")]
-    public float collisionDetectionRadius = 0.5f;
-
-    [Tooltip("Frequency of collision updates in seconds.")]
-    public float updateFrequency = 1.0f;
-
-    private float nextUpdateTime = 0f;
-
-    private void FixedUpdate()
+    [System.Serializable]
+    public struct CollisionInfo
     {
-        // Periodically update collision state
-        if (Time.time >= nextUpdateTime)
+        public GameObject collidedObject;
+        public string region;
+
+        public CollisionInfo(GameObject obj, string reg)
         {
-            nextUpdateTime = Time.time + updateFrequency;
-            UpdateCollisionState();
+            collidedObject = obj;
+            region = reg;
         }
+    }
+
+    [Tooltip("The most recent collision detected.")]
+    public CollisionInfo lastDetectedCollision;
+
+    private CharacterController characterController;
+
+    private void Start()
+    {
+        characterController = GetComponent<CharacterController>();
+        if (characterController == null)
+        {
+            Debug.LogError("CharacterCollisionDetector requires a CharacterController component.");
+        }
+
+        // Initialize with default empty collision
+        lastDetectedCollision = new CollisionInfo(null, "None");
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -37,59 +46,13 @@ public class CharacterCollisionDetector : MonoBehaviour
         // Calculate the local position relative to the AI agent
         Vector3 localCollisionPoint = transform.InverseTransformPoint(collisionPoint);
 
-        // Determine the collision region (front, back, sides, top)
+        // Determine the collision region (front, back, sides)
         string region = GetCollisionRegion(localCollisionPoint);
 
-        if (region != "Unknown")
-        {
-            // Add or update the collision state
-            if (!currentCollisions.ContainsKey(hit.collider.gameObject))
-            {
-                Debug.Log($"Collision detected at: {region} with object: {hit.collider.gameObject.name}");
-            }
-            currentCollisions[hit.collider.gameObject] = region;
-        }
-    }
-
-    private void UpdateCollisionState()
-    {
-        // Check all objects within the collision radius
-        Collider[] colliders = Physics.OverlapSphere(transform.position, collisionDetectionRadius);
-        HashSet<GameObject> detectedObjects = new();
-
-        foreach (var collider in colliders)
-        {
-            if (collider.gameObject.layer == LayerMask.NameToLayer("IgnoreTactile"))
-            {
-                continue; // Skip ignored layers
-            }
-
-            // If an object is in the collision radius, keep it in the active collision list
-            detectedObjects.Add(collider.gameObject);
-
-            if (!currentCollisions.ContainsKey(collider.gameObject))
-            {
-                Debug.Log($"Collision started with object: {collider.gameObject.name}");
-                currentCollisions[collider.gameObject] = "Unknown"; // Default to unknown region
-            }
-        }
-
-        // Find objects no longer in collision and remove them
-        List<GameObject> objectsToRemove = new();
-        foreach (var collision in currentCollisions)
-        {
-            if (!detectedObjects.Contains(collision.Key))
-            {
-                Debug.Log($"Collision ended with object: {collision.Key.name}");
-                objectsToRemove.Add(collision.Key);
-            }
-        }
-
-        // Remove stale collisions
-        foreach (var obj in objectsToRemove)
-        {
-            currentCollisions.Remove(obj);
-        }
+        // Update the last detected collision
+        // TODO: Change to check if there's a current collision instead and store all of these as a list.
+        lastDetectedCollision = new CollisionInfo(hit.collider.gameObject, region);
+        Debug.Log($"Collision detected at: {region} with object: {hit.collider.gameObject.name}");
     }
 
     private string GetCollisionRegion(Vector3 localCollisionPoint)
@@ -106,13 +69,17 @@ public class CharacterCollisionDetector : MonoBehaviour
         if (localCollisionPoint.x > 0.5f) return "Right";
         if (localCollisionPoint.x < -0.5f) return "Left";
 
+        // TODO: Refine above rules as most unknown detections are close to existing regions
         return "Unknown";
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Draw the collision detection radius in the editor for debugging
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, collisionDetectionRadius);
+        // Draw the character controller's collision radius for debugging
+        if (characterController != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, characterController.radius + 0.1f);
+        }
     }
 }

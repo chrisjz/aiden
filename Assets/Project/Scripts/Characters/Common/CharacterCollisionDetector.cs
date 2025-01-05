@@ -29,6 +29,11 @@ public class CharacterCollisionDetector : MonoBehaviour
         }
 
         // Initialize with default empty collision
+        ClearDetectedCollisions();
+    }
+
+    public void ClearDetectedCollisions()
+    {
         lastDetectedCollision = new CollisionInfo(null, "None");
     }
 

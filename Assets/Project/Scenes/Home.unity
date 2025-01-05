@@ -22137,11 +22137,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1908840393}
   m_CullTransparentMesh: 1
---- !u!4 &1924769227 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8895717588111364959, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
-  m_PrefabInstance: {fileID: 2330512957606553434}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1927026708 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 451208, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
@@ -24831,14 +24826,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 1271458552283558744, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
-      propertyPath: playerBody
-      value: 
-      objectReference: {fileID: 1924769227}
-    - target: {fileID: 1271458552283558744, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
-      propertyPath: mouseSensitivity
-      value: 300
-      objectReference: {fileID: 0}
     - target: {fileID: 3437186562978733510, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -24902,10 +24889,6 @@ PrefabInstance:
     - target: {fileID: 7886123083738020381, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_TagString
       value: Untagged
-      objectReference: {fileID: 0}
-    - target: {fileID: 7923087312544926564, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
-      propertyPath: m_Radius
-      value: 0.38
       objectReference: {fileID: 0}
     - target: {fileID: 8754492422543301709, guid: 0565deaf68904fb40b3d2bd85a28fd47, type: 3}
       propertyPath: m_TagString
@@ -25001,10 +24984,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: cycleTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: logOutput
       value: 
       objectReference: {fileID: 1582702096}
@@ -25019,22 +24998,6 @@ PrefabInstance:
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: moveDistance
       value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: toggleVision
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: throttleFrameRate
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: enableSimulationMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
-      propertyPath: toggleAuditoryAmbient
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006753688704023201, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
       propertyPath: runSensoryTasksInParallel

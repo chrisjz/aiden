@@ -2533,8 +2533,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseXInputName: Mouse X
   mouseYInputName: Mouse Y
-  mouseSensitivity: 600
-  playerBody: {fileID: 5080499609455479616}
+  mouseSensitivity: 300
+  playerBody: {fileID: 8895717588111364959}
 --- !u!114 &520015835269184859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4134,7 +4134,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 1.8
-  m_Radius: 0.28
+  m_Radius: 0.38
   m_SlopeLimit: 45
   m_StepOffset: 0.25
   m_SkinWidth: 0.02

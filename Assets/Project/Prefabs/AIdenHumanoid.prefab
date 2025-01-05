@@ -1175,6 +1175,7 @@ GameObject:
   - component: {fileID: 1569519827043923960}
   - component: {fileID: 2142778239000292322}
   - component: {fileID: 5620116994917964177}
+  - component: {fileID: 8957993612384796840}
   m_Layer: 8
   m_Name: Avatar
   m_TagString: AI
@@ -1359,6 +1360,20 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &8957993612384796840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5347599977886235353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93c6400cfc5d2954eaf154c647960f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collisionDetectionRadius: 0.5
+  updateFrequency: 1
 --- !u!1 &5353371860521860399
 GameObject:
   m_ObjectHideFlags: 0

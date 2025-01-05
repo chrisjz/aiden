@@ -88,6 +88,7 @@ public class InteractObjectController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Check if the object has a CharacterController
+        // TODO: Only allow characters to interact if facing object
         if (other.GetComponent<CharacterController>() != null)
         {
             _detectedObjects.Add(other.gameObject);

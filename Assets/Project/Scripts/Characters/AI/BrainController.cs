@@ -61,8 +61,10 @@ namespace AIden
         public bool toggleAuditoryAmbient = true;
         [Tooltip("Toggle auditory language sensor.")]
         public bool toggleAuditoryLanguage = true;
-        [Tooltip("Toggle tactile sensor.")]
+        [Tooltip("Toggle tactile action sensor.")]
         public bool toggleTactileAction = true;
+        [Tooltip("Toggle tactile collision sensor.")]
+        public bool toggleTactileCollision = true;
         [Tooltip("Toggle vision sensor.")]
         public bool toggleVision = true;
 
@@ -100,6 +102,8 @@ namespace AIden
 
         private int _simulationIndex = 0;  // To track the current index in the simulation list
 
+        private CharacterCollisionDetector _collisionDetector;
+
         private AuditoryAPIClient _auditoryApiClient;
         private VisionAPIClient _visionApiClient;
         private string _corticalApiUrl;
@@ -109,6 +113,7 @@ namespace AIden
         private bool _isAuditoryAmbientSensorEnabled = false;
         private bool _isAuditoryLanguageSensorEnabled = false;
         private bool _isTactileActionSensorEnabled = false;
+        private bool _isTactileCollisionSensorEnabled = false;
         private bool _isVisionSensorEnabled = false;
 
         private void Start()
@@ -130,8 +135,9 @@ namespace AIden
                 _isAuditoryLanguageSensorEnabled = toggleAuditoryLanguage;
                 _isVisionSensorEnabled = toggleVision && _visionApiClient.IsAPIEnabled();
                 _isTactileActionSensorEnabled = toggleTactileAction;
+                _isTactileCollisionSensorEnabled = toggleTactileCollision;
 
-                if (!_isAuditoryAmbientSensorEnabled && !_isAuditoryLanguageSensorEnabled && !_isTactileActionSensorEnabled && !_isVisionSensorEnabled)
+                if (!_isAuditoryAmbientSensorEnabled && !_isAuditoryLanguageSensorEnabled && !_isTactileActionSensorEnabled && !_isTactileCollisionSensorEnabled && !_isVisionSensorEnabled)
                 {
                     Debug.LogError("No sensor APIs are enabled. At least one sensor is required for cortical processing.");
                     if (logOutput != null) logOutput.text += "<color=#FF9999>No sensor APIs are enabled. At least one sensor is required for cortical processing.</color>\n";
@@ -154,6 +160,9 @@ namespace AIden
                     return;
                 }
             }
+
+            // Initialize collision detector
+            _collisionDetector = GetComponentInParent<CharacterCollisionDetector>();
 
             // Start the sensory data processing loop
             ProcessSensoryDataLoop();
@@ -247,6 +256,22 @@ namespace AIden
 
                     AIAction actionCommand = new AIAction(inputActionType.ToString().ToLower(), inputAction.description);
                     sensoryInput.tactile.Add(new TactileInput(TactileType.ACTION, command: actionCommand));
+                }
+            }
+
+            // Fetch Tactile Data (Collisions) if enabled
+            if (_isTactileCollisionSensorEnabled && _collisionDetector != null)
+            {
+                var collision = _collisionDetector.lastDetectedCollision;
+                if (collision.collidedObject != null)
+                {
+                    // TODO: Templatise the input or handle on the API side.
+                    var tactileCollisionInput = $"Tactile collision detected on the {collision.region} side.";
+                    sensoryInput.tactile.Add(new TactileInput(TactileType.GENERAL, tactileCollisionInput));
+                    Debug.Log($"Tactile input detected: {collision.region} with object: {collision.collidedObject.name}");
+
+                    // Clear collisions buffer
+                    _collisionDetector.ClearDetectedCollisions();
                 }
             }
 

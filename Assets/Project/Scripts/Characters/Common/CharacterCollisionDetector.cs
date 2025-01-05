@@ -19,7 +19,7 @@ public class CharacterCollisionDetector : MonoBehaviour
     public CollisionInfo lastDetectedCollision;
 
     [Tooltip("Output debug logs to console")]
-    public bool toggleDebugMode = false;
+    public bool debugMode = false;
 
     private CharacterController characterController;
 
@@ -60,7 +60,7 @@ public class CharacterCollisionDetector : MonoBehaviour
         // Update the last detected collision
         // TODO: Change to check if there's a current collision instead and store all of these as a list.
         lastDetectedCollision = new CollisionInfo(hit.collider.gameObject, region);
-        if (toggleDebugMode) Debug.Log($"Collision detected at: {region} with object: {hit.collider.gameObject.name}");
+        if (debugMode) Debug.Log($"Collision detected at: {region} with object: {hit.collider.gameObject.name}");
     }
 
     private string GetCollisionRegion(Vector3 localCollisionPoint)
@@ -73,7 +73,7 @@ public class CharacterCollisionDetector : MonoBehaviour
         localCollisionPoint.Normalize();
 
         // Log collision point for debugging if enabled
-        if (toggleDebugMode) Debug.Log($"Collision detected location: {localCollisionPoint}");
+        if (debugMode) Debug.Log($"Collision detected location: {localCollisionPoint}");
 
         // Check for undefined regions (e.g., ceiling collision)
         if (Mathf.Approximately(localCollisionPoint.x, 0) && Mathf.Approximately(localCollisionPoint.z, 0))

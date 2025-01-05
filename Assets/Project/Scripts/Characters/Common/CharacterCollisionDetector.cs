@@ -65,20 +65,33 @@ public class CharacterCollisionDetector : MonoBehaviour
 
     private string GetCollisionRegion(Vector3 localCollisionPoint)
     {
-        // Normalize to mitigate uneven scaling or offsets
-        localCollisionPoint.Normalize();
-
-        // Determine region
         // TODO: Add collisions for top and bottom, such as for hitting roof or falling
         // TODO: Add finer collision output e.g. front-left
         // TODO: Support collision detection on body parts
-        if (localCollisionPoint.z > 0.5f) return "Front";
-        if (localCollisionPoint.z < -0.5f) return "Back";
-        if (localCollisionPoint.x > 0.5f) return "Right";
-        if (localCollisionPoint.x < -0.5f) return "Left";
 
-        // TODO: Refine above rules as most unknown detections are close to existing regions
-        return "Unknown";
+        // Normalize to mitigate uneven scaling or offsets
+        localCollisionPoint.Normalize();
+
+        // Log collision point for debugging if enabled
+        if (toggleDebugMode) Debug.Log($"Collision detected location: {localCollisionPoint}");
+
+        // Check for undefined regions (e.g., ceiling collision)
+        if (Mathf.Approximately(localCollisionPoint.x, 0) && Mathf.Approximately(localCollisionPoint.z, 0))
+        {
+            return "Unknown";
+        }
+
+        // Determine region based on absolute values of x and z
+        if (Mathf.Abs(localCollisionPoint.x) > Mathf.Abs(localCollisionPoint.z))
+        {
+            // Dominant axis is x
+            return localCollisionPoint.x > 0 ? "Right" : "Left";
+        }
+        else
+        {
+            // Dominant axis is z
+            return localCollisionPoint.z > 0 ? "Front" : "Back";
+        }
     }
 
     private void OnDrawGizmosSelected()

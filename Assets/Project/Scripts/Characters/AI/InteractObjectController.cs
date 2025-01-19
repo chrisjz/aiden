@@ -3,26 +3,28 @@ using System.Collections.Generic;
 
 public class InteractObjectController : MonoBehaviour
 {
+
+    [Tooltip("Name of the interactable object (e.g., Pantry)")]
+    public string objectName;
+
+    [Tooltip("Interaction range between object and players/agents")]
     public float interactionRange = 1.8f;
 
     [Tooltip("Output debug logs to console")]
     public bool debugMode = false;
 
+    [Tooltip("Mapping of animations to their labels and states")]
+    public List<AnimationStateMapping> animationStateMappings;
+
     private Animator _anim;
-
-    private MoveableObject _interactableObject;
-
-    private Dictionary<string, string> _availableActions = new Dictionary<string, string>();
-
-    private const string _animBoolName = "isOpen_Obj_";
 
     private HashSet<GameObject> _detectedObjects = new HashSet<GameObject>();
 
-    private bool showInteractMsg;
+    private bool _showInteractMsg;
 
-    private GUIStyle guiStyle;
+    private GUIStyle _guiStyle;
 
-    private string msg;
+    private string _interactiveMsg;
 
     void Start()
     {
@@ -30,168 +32,96 @@ public class InteractObjectController : MonoBehaviour
         _anim = GetComponent<Animator>();
         _anim.enabled = false;
 
-        // Initialize identifier for a moveable object
-        _interactableObject = GetComponent<MoveableObject>();
-
-        //setup GUI style settings for user prompts
+        // Setup GUI style settings for user prompts
         setupGui();
     }
 
     void Update()
     {
-        // Check if a player is within the trigger area before allowing interaction  
-        if ((Input.GetKeyUp(KeyCode.E) || Input.GetButtonDown("Fire1")) && _detectedObjects.Count > 0)
+        if (_detectedObjects.Count > 0)
         {
-            PerformAction($"Toggle_{_interactableObject.objectNumber}");
-        }
-    }
-
-    public Dictionary<string, string> GetAvailableActions()
-    {
-        return new Dictionary<string, string>(_availableActions);
-    }
-
-    public void PerformAction(string action)
-    {
-        if (_availableActions.ContainsKey(action))
-        {
-            if (action.StartsWith("Toggle_"))
+            _interactiveMsg = $"{objectName} - Actions:\n";
+            for (int i = 0; i < Mathf.Min(animationStateMappings.Count, 9); i++)
             {
-                int objectNumber = int.Parse(action.Split('_')[1]);
-                string animBoolNameNum = _animBoolName + objectNumber.ToString();
+                var mapping = animationStateMappings[i];
+                bool currentState = _anim.GetBool(mapping.animBoolName);
+                string stateLabel = currentState ? mapping.offLabel : mapping.onLabel;
 
-                bool isOpen = _anim.GetBool(animBoolNameNum);
-                _anim.enabled = true;
-                _anim.SetBool(animBoolNameNum, !isOpen);
+                _interactiveMsg += $"Press {i + 1} to {stateLabel}\n";
 
-                UpdateAvailableActions(objectNumber, !isOpen);
-            }
-            else
-            {
-                Debug.LogWarning($"Action {action} is not yet implemented.");
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+                {
+                    PerformAction(mapping);
+                }
             }
         }
         else
         {
-            Debug.LogError($"Action {action} is not available.");
+            _interactiveMsg = "";
         }
     }
 
-    public void UpdateAvailableActions(int objectNumber, bool isOpen)
+    private void PerformAction(AnimationStateMapping mapping)
     {
-        string actionKey = $"Toggle_{objectNumber}";
-        string actionDescription = isOpen ? "Close" : "Open";
-        if (debugMode) Debug.Log($"Updating available actions of key {actionKey} with description {actionDescription}");
+        bool currentState = _anim.GetBool(mapping.animBoolName);
+        _anim.enabled = true;
+        _anim.SetBool(mapping.animBoolName, !currentState);
 
-        if (_availableActions.ContainsKey(actionKey))
-        {
-            _availableActions[actionKey] = actionDescription;
-            // showInteractMsg = true;
-            msg = getGuiMsg(isOpen);
-        }
-        else
-        {
-            _availableActions.Add(actionKey, actionDescription);
-        }
+        if (debugMode) Debug.Log($"Performed action: {(currentState ? mapping.offLabel : mapping.onLabel)} on {objectName}");
     }
-
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check if the object has a CharacterController
-        // TODO: Only allow characters to interact if facing object
         if (other.GetComponent<CharacterController>() != null)
         {
             _detectedObjects.Add(other.gameObject);
-            UpdateAvailableActionsForDetectedObjects();
 
-            // Display the GUI message if the collider is a player
-            if (other.tag == "Player")
+            if (other.CompareTag("Player"))
             {
-                showInteractMsg = true;
+                _showInteractMsg = true;
             }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // Remove the object if it exits the trigger
         if (_detectedObjects.Contains(other.gameObject))
         {
             _detectedObjects.Remove(other.gameObject);
-            UpdateAvailableActionsForDetectedObjects();
 
-            // Hide the GUI message if the collider is a player
-            if (other.tag == "Player")
+            if (other.CompareTag("Player"))
             {
-                showInteractMsg = false;
+                _showInteractMsg = false;
             }
         }
     }
-
-    public void UpdateAvailableActionsForDetectedObjects()
-    {
-        _availableActions.Clear();
-
-        if (_interactableObject != null)
-        {
-            int objectNumber = _interactableObject.objectNumber;
-            string animBoolNameNum = _animBoolName + objectNumber.ToString();
-
-            bool isOpen = _anim.GetBool(animBoolNameNum);
-            UpdateAvailableActions(objectNumber, isOpen);
-
-            if (debugMode)
-            {
-                Debug.Log("Updated available actions:");
-                foreach (var action in GetAvailableActions())
-                {
-                    Debug.Log($"Action: {action.Key}, Description: {action.Value}");
-                }
-            }
-        }
-        else
-        {
-            Debug.LogError("Current object is missing a moveable object component.");
-        }
-    }
-
 
     #region GUI Config
 
-    //configure the style of the GUI
     private void setupGui()
     {
-        guiStyle = new GUIStyle();
-        guiStyle.fontSize = 16;
-        guiStyle.fontStyle = FontStyle.Bold;
-        guiStyle.normal.textColor = Color.white;
-        msg = "Press E/Fire1 to Open";
-    }
-
-    private string getGuiMsg(bool isOpen)
-    {
-        string rtnVal;
-        if (isOpen)
-        {
-            rtnVal = "Press E/Fire1 to Close";
-        }
-        else
-        {
-            rtnVal = "Press E/Fire1 to Open";
-        }
-
-        return rtnVal;
+        _guiStyle = new GUIStyle();
+        _guiStyle.fontSize = 16;
+        _guiStyle.fontStyle = FontStyle.Bold;
+        _guiStyle.normal.textColor = Color.white;
+        _interactiveMsg = "";
     }
 
     void OnGUI()
     {
-        if (showInteractMsg)  //show on-screen prompts to user for guide.
+        if (_showInteractMsg)
         {
-            Debug.Log("Show interactions");
-            GUI.Label(new Rect(50, Screen.height - 50, 200, 50), msg, guiStyle);
+            GUI.Label(new Rect(50, Screen.height - 100, 400, 100), _interactiveMsg, _guiStyle);
         }
     }
-    //End of GUI Config --------------
+
     #endregion
+
+    [System.Serializable]
+    public class AnimationStateMapping
+    {
+        public string animBoolName;
+        public string onLabel;
+        public string offLabel;
+    }
 }

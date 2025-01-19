@@ -14,6 +14,8 @@ public class InteractObjectController : MonoBehaviour
     public bool debugMode = false;
 
     [Tooltip("Mapping of animations to their labels and states")]
+    // TODO: These maps should be tied to MoveableObject objects e.g. for large objects
+    // with multiple sections, such as a long kitchen bench with many drawers
     public List<AnimationStateMapping> animationStateMappings;
 
     private Animator _anim;

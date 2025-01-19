@@ -113,7 +113,7 @@ public class InteractObjectController : MonoBehaviour
     {
         if (_showInteractMsg)
         {
-            GUI.Label(new Rect(50, Screen.height - 100, 400, 100), _interactiveMsg, _guiStyle);
+            GUI.Label(new Rect(50, 100, 400, 100), _interactiveMsg, _guiStyle);
         }
     }
 

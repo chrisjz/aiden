@@ -8,6 +8,8 @@ using CandyCoded.env;
 using TMPro;
 using System.Threading.Tasks;
 using PimDeWitte.UnityMainThreadDispatcher;
+using UnityEngine.InputSystem;
+using Unity.VisualScripting;
 
 public static class UnityWebRequestExtensions
 {
@@ -79,6 +81,8 @@ namespace AIden
         [Header("Actions")]
         [Tooltip("Movement distance per action, in unity units (approximately 1 meter).")]
         public float moveDistance = 1.0f;
+        [Tooltip("Toggle passing an action's description to the brain API.")]
+        public bool toggleActionDescriptions = true;
 
         [Header("Resource Settings")]
         [Tooltip("When using the same GPU for Unity and inference servers, enabling this will allow Unity to reduce GPU resource when making inference calls.")]
@@ -254,7 +258,9 @@ namespace AIden
                     var inputActionType = actionEntry.Key;
                     var inputAction = actionEntry.Value;
 
-                    AIAction actionCommand = new AIAction(inputActionType.ToString().ToLower(), inputAction.description);
+                    string actionDescription = toggleActionDescriptions ? inputAction.description : null;
+
+                    AIAction actionCommand = new AIAction(inputActionType.ToString().ToLower(), actionDescription);
                     sensoryInput.tactile.Add(new TactileInput(TactileType.ACTION, command: actionCommand));
                 }
             }
@@ -405,14 +411,15 @@ namespace AIden
                 // Execute action if available
                 if (!string.IsNullOrEmpty(corticalResponse.action))
                 {
-                    if (Enum.TryParse(corticalResponse.action, true, out AIActionManager.ActionType outputActionType))
+                    try
                     {
-                        _actionManager.ExecuteAction(outputActionType);
+
+                        _actionManager.ExecuteAction(corticalResponse.action.ToLower());
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Debug.LogError($"Unrecognized action: {corticalResponse.action}");
-                        if (logOutput != null) logOutput.text += $"<color=#FF9999>Unrecognized action: {corticalResponse.action}</color>\n";
+                        Debug.LogError(e);
+                        if (logOutput != null) logOutput.text += $"<color=#FF9999>Could not execute action: {corticalResponse.action}</color>\n";
                     }
                 }
             }
@@ -462,12 +469,16 @@ namespace AIden
             {
                 if (tactileInput.type == "action" && tactileInput.command != null)
                 {
-                    AIActionManager.ActionType outputActionType;
-                    if (Enum.TryParse(tactileInput.command.name, true, out outputActionType))  // Case-insensitive comparison
+                    action = tactileInput.command.name;
+                    try
                     {
-                        _actionManager.ExecuteAction(outputActionType);
-                        action = outputActionType.ToString();
+                        _actionManager.ExecuteAction(action);
                         break;  // Only one action is supported for now.
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                        if (logOutput != null) logOutput.text += $"<color=#FF9999>Could not execute action: {action}</color>\n";
                     }
                 }
             }

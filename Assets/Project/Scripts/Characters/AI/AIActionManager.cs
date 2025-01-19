@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace AIden
@@ -7,7 +9,7 @@ namespace AIden
     public class AIActionManager : MonoBehaviour
     {
         // List of predefined actions
-        public enum ActionType
+        public enum BaseActionType
         {
             MoveForward,
             MoveBackward,
@@ -15,7 +17,7 @@ namespace AIden
             TurnRight
         }
 
-        public Dictionary<ActionType, AIAction> ActionMap = new Dictionary<ActionType, AIAction>();
+        public Dictionary<string, AIAction> ActionMap = new Dictionary<string, AIAction>(StringComparer.OrdinalIgnoreCase);
 
         public PlayerInputs aiInputs;
         public ThirdPersonController aiThirdPersonController;
@@ -25,10 +27,10 @@ namespace AIden
         private void Start()
         {
             // Initialize action mappings with name and description
-            ActionMap[ActionType.MoveForward] = new AIAction("Move Forward", "Move forward");
-            ActionMap[ActionType.MoveBackward] = new AIAction("Move Backward", "Move backward");
-            ActionMap[ActionType.TurnLeft] = new AIAction("Turn Left", "Turn left");
-            ActionMap[ActionType.TurnRight] = new AIAction("Turn Right", "Turn right");
+            AddOrUpdateAction(BaseActionType.MoveForward.ToString().ToLower(), new AIAction("Move Forward", "Move forward"));
+            AddOrUpdateAction(BaseActionType.MoveBackward.ToString().ToLower(), new AIAction("Move Backward", "Move backward"));
+            AddOrUpdateAction(BaseActionType.TurnLeft.ToString().ToLower(), new AIAction("Turn Left", "Turn left"));
+            AddOrUpdateAction(BaseActionType.TurnRight.ToString().ToLower(), new AIAction("Turn Right", "Turn right"));
         }
 
         public void SetMoveDistance(float moveDistance)
@@ -37,42 +39,63 @@ namespace AIden
         }
 
         // Call an action based on the input
-        public void ExecuteAction(ActionType action)
+        public void ExecuteAction(string actionKey)
         {
-            if (ActionMap.ContainsKey(action))
+            if (ActionMap.TryGetValue(actionKey.ToLower(), out var action))
             {
                 // Map the AIAction to the actual movement logic
-                switch (action)
+                switch (actionKey.ToLower())
                 {
-                    case ActionType.MoveForward:
+                    case "moveforward":
                         MoveForward();
                         break;
-                    case ActionType.MoveBackward:
+                    case "movebackward":
                         MoveBackward();
                         break;
-                    case ActionType.TurnLeft:
+                    case "turnleft":
                         TurnLeft();
                         break;
-                    case ActionType.TurnRight:
+                    case "turnright":
                         TurnRight();
                         break;
+                    default:
+                        string errorMsg = $"Action {actionKey} is not mapped to a specific function.";
+                        Debug.LogError(errorMsg);
+                        throw new InvalidDataException(errorMsg);
                 }
             }
             else
             {
-                Debug.LogError($"Action {action} is not defined in the ActionMap.");
+                string errorMsg = $"Action {actionKey} is not defined in the ActionMap.";
+                Debug.LogError(errorMsg);
+                throw new KeyNotFoundException(errorMsg);
             }
         }
 
-        // Add or remove object-specific actions
-        public void AddObjectAction(string actionKey, AIAction action)
+        // Add or update actions (for both predefined and object-specific actions)
+        public void AddOrUpdateAction(string actionKey, AIAction action)
         {
-            Debug.Log($"Add object action: {actionKey} - {action.description}");
+            actionKey = actionKey.ToLower();
+            if (!ActionMap.ContainsKey(actionKey))
+            {
+                ActionMap[actionKey] = action;
+                Debug.Log($"Added action: {actionKey} - {action.description}");
+            }
+            else
+            {
+                ActionMap[actionKey] = action;
+                Debug.Log($"Updated action: {actionKey} - {action.description}");
+            }
         }
 
-        public void RemoveObjectAction(string actionKey)
+        public void RemoveAction(string actionKey)
         {
-            Debug.Log($"Remove object action: {actionKey}");
+            actionKey = actionKey.ToLower();
+            if (ActionMap.ContainsKey(actionKey))
+            {
+                ActionMap.Remove(actionKey);
+                Debug.Log($"Removed action: {actionKey}");
+            }
         }
 
         // Move forward (move along the z-axis)

@@ -77,13 +77,14 @@ namespace AIden
         private string CreateActionKey(AnimationStateMapping mapping)
         {
             string actionState = _anim.GetBool(mapping.animBoolName) ? mapping.offLabel : mapping.onLabel;
-            return $"{objectName}: {actionState}";
+            actionState = actionState.ToLower().Replace(" ", "_");
+            return $"{objectName}_{actionState}";
         }
 
         private string GetActionDescription(AnimationStateMapping mapping)
         {
             string actionState = _anim.GetBool(mapping.animBoolName) ? mapping.offLabel : mapping.onLabel;
-            return $"For the object '{objectName}' perform the action '{actionState}'";
+            return $"{objectName} -> {actionState}";
         }
 
         private void OnTriggerEnter(Collider other)
@@ -113,7 +114,7 @@ namespace AIden
                     string actionKey = CreateActionKey(mapping);
                     string actionDescription = GetActionDescription(mapping);
 
-                    actionManager.AddObjectAction(actionKey, new AIAction(actionKey, actionDescription));
+                    actionManager.AddOrUpdateAction(actionKey, new AIAction(actionKey, actionDescription));
                 }
             }
         }
@@ -143,7 +144,7 @@ namespace AIden
                 foreach (var mapping in animationStateMappings)
                 {
                     string actionKey = CreateActionKey(mapping);
-                    actionManager.RemoveObjectAction(actionKey);
+                    actionManager.RemoveAction(actionKey);
                 }
             }
         }

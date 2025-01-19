@@ -74,6 +74,18 @@ namespace AIden
             if (debugMode) Debug.Log($"Performed action: {(currentState ? mapping.offLabel : mapping.onLabel)} on {objectName}");
         }
 
+        private string CreateActionKey(AnimationStateMapping mapping)
+        {
+            string actionState = _anim.GetBool(mapping.animBoolName) ? mapping.offLabel : mapping.onLabel;
+            return $"{objectName}: {actionState}";
+        }
+
+        private string GetActionDescription(AnimationStateMapping mapping)
+        {
+            string actionState = _anim.GetBool(mapping.animBoolName) ? mapping.offLabel : mapping.onLabel;
+            return $"For the object '{objectName}' perform the action '{actionState}'";
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.GetComponent<CharacterController>() != null)
@@ -83,6 +95,25 @@ namespace AIden
                 if (other.CompareTag("Player"))
                 {
                     _showInteractMsg = true;
+                }
+                else if (other.CompareTag("AI"))
+                {
+                    AddActionsToAI(other);
+                }
+            }
+        }
+
+        private void AddActionsToAI(Collider aiCollider)
+        {
+            var actionManager = aiCollider.GetComponentInChildren<AIActionManager>();
+            if (actionManager != null)
+            {
+                foreach (var mapping in animationStateMappings)
+                {
+                    string actionKey = CreateActionKey(mapping);
+                    string actionDescription = GetActionDescription(mapping);
+
+                    actionManager.AddObjectAction(actionKey, new AIAction(actionKey, actionDescription));
                 }
             }
         }
@@ -96,6 +127,23 @@ namespace AIden
                 if (other.CompareTag("Player"))
                 {
                     _showInteractMsg = false;
+                }
+                else if (other.CompareTag("AI"))
+                {
+                    RemoveActionsFromAI(other);
+                }
+            }
+        }
+
+        private void RemoveActionsFromAI(Collider aiCollider)
+        {
+            var actionManager = aiCollider.GetComponentInChildren<AIActionManager>();
+            if (actionManager != null)
+            {
+                foreach (var mapping in animationStateMappings)
+                {
+                    string actionKey = CreateActionKey(mapping);
+                    actionManager.RemoveObjectAction(actionKey);
                 }
             }
         }

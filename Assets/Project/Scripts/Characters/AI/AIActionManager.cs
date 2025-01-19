@@ -64,6 +64,17 @@ namespace AIden
             }
         }
 
+        // Add or remove object-specific actions
+        public void AddObjectAction(string actionKey, AIAction action)
+        {
+            Debug.Log($"Add object action: {actionKey} - {action.description}");
+        }
+
+        public void RemoveObjectAction(string actionKey)
+        {
+            Debug.Log($"Remove object action: {actionKey}");
+        }
+
         // Move forward (move along the z-axis)
         private void MoveForward()
         {

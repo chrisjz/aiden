@@ -18,6 +18,12 @@ public class InteractObjectController : MonoBehaviour
 
     private HashSet<GameObject> _detectedObjects = new HashSet<GameObject>();
 
+    private bool showInteractMsg;
+
+    private GUIStyle guiStyle;
+
+    private string msg;
+
     void Start()
     {
         // Initialize the animator for interaction
@@ -26,6 +32,9 @@ public class InteractObjectController : MonoBehaviour
 
         // Initialize identifier for a moveable object
         _interactableObject = GetComponent<MoveableObject>();
+
+        //setup GUI style settings for user prompts
+        setupGui();
     }
 
     void Update()
@@ -77,6 +86,8 @@ public class InteractObjectController : MonoBehaviour
         if (_availableActions.ContainsKey(actionKey))
         {
             _availableActions[actionKey] = actionDescription;
+            // showInteractMsg = true;
+            msg = getGuiMsg(isOpen);
         }
         else
         {
@@ -93,6 +104,12 @@ public class InteractObjectController : MonoBehaviour
         {
             _detectedObjects.Add(other.gameObject);
             UpdateAvailableActionsForDetectedObjects();
+
+            // Display the GUI message if the collider is a player
+            if (other.tag == "Player")
+            {
+                showInteractMsg = true;
+            }
         }
     }
 
@@ -103,6 +120,12 @@ public class InteractObjectController : MonoBehaviour
         {
             _detectedObjects.Remove(other.gameObject);
             UpdateAvailableActionsForDetectedObjects();
+
+            // Hide the GUI message if the collider is a player
+            if (other.tag == "Player")
+            {
+                showInteractMsg = false;
+            }
         }
     }
 
@@ -132,4 +155,43 @@ public class InteractObjectController : MonoBehaviour
             Debug.LogError("Current object is missing a moveable object component.");
         }
     }
+
+
+    #region GUI Config
+
+    //configure the style of the GUI
+    private void setupGui()
+    {
+        guiStyle = new GUIStyle();
+        guiStyle.fontSize = 16;
+        guiStyle.fontStyle = FontStyle.Bold;
+        guiStyle.normal.textColor = Color.white;
+        msg = "Press E/Fire1 to Open";
+    }
+
+    private string getGuiMsg(bool isOpen)
+    {
+        string rtnVal;
+        if (isOpen)
+        {
+            rtnVal = "Press E/Fire1 to Close";
+        }
+        else
+        {
+            rtnVal = "Press E/Fire1 to Open";
+        }
+
+        return rtnVal;
+    }
+
+    void OnGUI()
+    {
+        if (showInteractMsg)  //show on-screen prompts to user for guide.
+        {
+            Debug.Log("Show interactions");
+            GUI.Label(new Rect(50, Screen.height - 50, 200, 50), msg, guiStyle);
+        }
+    }
+    //End of GUI Config --------------
+    #endregion
 }

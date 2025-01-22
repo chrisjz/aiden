@@ -3932,6 +3932,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 365389148}
   m_CullTransparentMesh: 1
+--- !u!114 &366660717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Bedside table
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
 --- !u!1 &373915667 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1000013546783360, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
@@ -10667,6 +10686,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 877225201}
   m_CullTransparentMesh: 1
+--- !u!114 &897975055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Pantry
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
 --- !u!1 &898378194
 GameObject:
   m_ObjectHideFlags: 0
@@ -13265,6 +13303,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1103642063}
   m_CullTransparentMesh: 1
+--- !u!114 &1113675136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Bedside table
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
 --- !u!1 &1121672724
 GameObject:
   m_ObjectHideFlags: 0
@@ -16371,10 +16428,63 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: -0
       objectReference: {fileID: 0}
+    - target: {fileID: 114000010457442454, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000010489010410, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011051721982, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011404731676, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011474539018, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011620427998, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000011772486030, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000012636205018, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000013023247618, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000013492922598, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000014132392358, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1000010728641318, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 1298079341}
+    - targetCorrespondingSourceObject: {fileID: 1000013498615282, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1298079340}
+    - targetCorrespondingSourceObject: {fileID: 1000012614599264, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1298079339}
     - targetCorrespondingSourceObject: {fileID: 1000010707776372, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1345123677}
@@ -16408,7 +16518,205 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1000013392452400, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2133659964}
+    - targetCorrespondingSourceObject: {fileID: 1000012057688272, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1298079338}
+    - targetCorrespondingSourceObject: {fileID: 1000014048589844, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 1298079337}
+    - targetCorrespondingSourceObject: {fileID: 1000013424359804, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: 5
+      addedObject: {fileID: 1934290113}
+    - targetCorrespondingSourceObject: {fileID: 1000013602759736, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1985025919}
+    - targetCorrespondingSourceObject: {fileID: 1000011003219250, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 366660717}
+    - targetCorrespondingSourceObject: {fileID: 1000011015371202, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1113675136}
+    - targetCorrespondingSourceObject: {fileID: 1000010558428230, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 897975055}
+    - targetCorrespondingSourceObject: {fileID: 1000013137690254, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 1625321752}
   m_SourcePrefab: {fileID: 100100000, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+--- !u!1 &1298079326 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000013137690254, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079327 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000010558428230, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079328 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000011015371202, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079329 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000011003219250, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079330 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000013602759736, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079331 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000013424359804, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079332 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000014048589844, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079333 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000012057688272, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079334 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000012614599264, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079335 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000013498615282, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1298079336 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000010728641318, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+  m_PrefabInstance: {fileID: 1298079325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1298079337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Closet
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
+--- !u!114 &1298079338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Kitchen bench
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open first door
+    offLabel: Close first door
+  - animBoolName: isOpen_Obj_2
+    onLabel: Open second door
+    offLabel: Close second door
+  - animBoolName: isOpen_Obj_3
+    onLabel: Open third door
+    offLabel: Close third door
+  - animBoolName: isOpen_Obj_4
+    onLabel: Open fourth door
+    offLabel: Close fourth door
+  - animBoolName: isOpen_Obj_5
+    onLabel: Open fifth door
+    offLabel: Close fifth door
+  - animBoolName: isOpen_Obj_6
+    onLabel: Open first drawer
+    offLabel: Close first drawer
+  - animBoolName: isOpen_Obj_7
+    onLabel: Open second drawer
+    offLabel: Close second drawer
+  - animBoolName: isOpen_Obj_8
+    onLabel: Open third drawer
+    offLabel: Close third drawer
+  - animBoolName: isOpen_Obj_9
+    onLabel: Open fourth drawer
+    offLabel: Close fourth drawer
+--- !u!114 &1298079339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Door
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
+--- !u!114 &1298079340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Door
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
+--- !u!114 &1298079341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Door
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
 --- !u!20 &1304641811 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 8962152378845056219, guid: dff027c080f1ae34fb8a0c17c6b753ae, type: 3}
@@ -19674,6 +19982,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1619688832}
   m_CullTransparentMesh: 1
+--- !u!114 &1625321752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: TV stand
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open right drawer
+    offLabel: Close right drawer
+  - animBoolName: isOpen_Obj_2
+    onLabel: Open left drawer
+    offLabel: Close left drawer
 --- !u!1 &1628685941
 GameObject:
   m_ObjectHideFlags: 0
@@ -22411,6 +22741,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1930900795}
   m_CullTransparentMesh: 1
+--- !u!114 &1934290113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Bathroom sink
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open
+    offLabel: Close
 --- !u!1 &1960416009
 GameObject:
   m_ObjectHideFlags: 0
@@ -23082,6 +23431,43 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1984783192}
   m_CullTransparentMesh: 1
+--- !u!114 &1985025919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298079330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25cee4b4a0fed94f815df1024932713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectName: Chest of draws
+  interactionRange: 1.8
+  debugMode: 0
+  animationStateMappings:
+  - animBoolName: isOpen_Obj_1
+    onLabel: Open top left drawer
+    offLabel: Close top left drawer
+  - animBoolName: isOpen_Obj_2
+    onLabel: Open top middle drawer
+    offLabel: Close top middle drawer
+  - animBoolName: isOpen_Obj_3
+    onLabel: Open top right drawer
+    offLabel: Close top right drawer
+  - animBoolName: isOpen_Obj_4
+    onLabel: Open middle left drawer
+    offLabel: Close middle left drawer
+  - animBoolName: isOpen_Obj_5
+    onLabel: Open middle right drawer
+    offLabel: Close middle right drawer
+  - animBoolName: isOpen_Obj_6
+    onLabel: Open bottom left drawer
+    offLabel: Close bottom left drawer
+  - animBoolName: isOpen_Obj_7
+    onLabel: Open bottom right drawer
+    offLabel: Close bottom right drawer
 --- !u!1 &1986420569
 GameObject:
   m_ObjectHideFlags: 0

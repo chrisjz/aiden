@@ -17,7 +17,7 @@ namespace AIden
             TurnRight
         }
 
-        public Dictionary<string, AIAction> ActionMap = new Dictionary<string, AIAction>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, AIActionLink> ActionMap = new Dictionary<string, AIActionLink>(StringComparer.OrdinalIgnoreCase);
 
         public PlayerInputs aiInputs;
         public ThirdPersonController aiThirdPersonController;
@@ -41,10 +41,13 @@ namespace AIden
         // Call an action based on the input
         public void ExecuteAction(string actionKey)
         {
-            if (ActionMap.TryGetValue(actionKey.ToLower(), out var action))
+            // Normalize the action key to lowercase
+            actionKey = actionKey.ToLower();
+
+            if (ActionMap.TryGetValue(actionKey, out var action))
             {
-                // Map the AIAction to the actual movement logic
-                switch (actionKey.ToLower())
+                // Map predefined actions to movement logic
+                switch (actionKey)
                 {
                     case "moveforward":
                         MoveForward();
@@ -59,9 +62,18 @@ namespace AIden
                         TurnRight();
                         break;
                     default:
-                        string errorMsg = $"Action {actionKey} is not mapped to a specific function.";
-                        Debug.LogError(errorMsg);
-                        throw new InvalidDataException(errorMsg);
+                        // Check for object-related actions                        
+                        if (action.target is not null && TryExecuteObjectAction(actionKey, action.target))
+                        {
+                            Debug.Log($"Executed object-related action: {actionKey}");
+                        }
+                        else
+                        {
+                            string errorMsg = $"Action {actionKey} is not defined in the ActionMap. Available actions: {string.Join(", ", ActionMap.Keys)}";
+                            Debug.LogError(errorMsg);
+                            throw new KeyNotFoundException(errorMsg);
+                        }
+                        break;
                 }
             }
             else
@@ -72,20 +84,25 @@ namespace AIden
             }
         }
 
+        private bool TryExecuteObjectAction(string actionKey, GameObject target)
+        {
+            InteractObjectController interactObjectController = target.GetComponentInParent<InteractObjectController>();
+
+            if (interactObjectController != null)
+            {
+                return interactObjectController.TryPerformAction(actionKey);
+            }
+
+            Debug.LogError("Failed to execute object action");
+            return false;
+        }
+
+
         // Add or update actions (for both predefined and object-specific actions)
-        public void AddOrUpdateAction(string actionKey, AIAction action)
+        public void AddOrUpdateAction(string actionKey, AIAction action, GameObject actionObject = null)
         {
             actionKey = actionKey.ToLower();
-            if (!ActionMap.ContainsKey(actionKey))
-            {
-                ActionMap[actionKey] = action;
-                Debug.Log($"Added action: {actionKey} - {action.description}");
-            }
-            else
-            {
-                ActionMap[actionKey] = action;
-                Debug.Log($"Updated action: {actionKey} - {action.description}");
-            }
+            ActionMap[actionKey] = new AIActionLink(action, actionObject);
         }
 
         public void RemoveAction(string actionKey)
@@ -225,5 +242,18 @@ namespace AIden
                 yield return null;  // Wait for the next frame
             }
         }
+    }
+}
+
+[Serializable]
+public class AIActionLink
+{
+    public AIAction action;
+    public GameObject target;  // Optional
+
+    public AIActionLink(AIAction action, GameObject target = null)
+    {
+        this.action = action;
+        this.target = target;
     }
 }

@@ -114,7 +114,7 @@ namespace AIden
                     string actionKey = CreateActionKey(mapping);
                     string actionDescription = GetActionDescription(mapping);
 
-                    actionManager.AddOrUpdateAction(actionKey, new AIAction(actionKey, actionDescription));
+                    actionManager.AddOrUpdateAction(actionKey, new AIAction(actionKey, actionDescription), gameObject);
                 }
             }
         }
@@ -148,6 +148,21 @@ namespace AIden
                 }
             }
         }
+
+        public bool TryPerformAction(string actionKey)
+        {
+            foreach (var mapping in animationStateMappings)
+            {
+                string currentActionKey = CreateActionKey(mapping).ToLower();
+                if (currentActionKey == actionKey)
+                {
+                    PerformAction(mapping);
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         #region GUI Config
 

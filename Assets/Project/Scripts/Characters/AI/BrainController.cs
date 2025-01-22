@@ -256,7 +256,7 @@ namespace AIden
                 foreach (var actionEntry in _actionManager.ActionMap)
                 {
                     var inputActionType = actionEntry.Key;
-                    var inputAction = actionEntry.Value;
+                    var inputAction = actionEntry.Value.action;
 
                     string actionDescription = toggleActionDescriptions ? inputAction.description : null;
 

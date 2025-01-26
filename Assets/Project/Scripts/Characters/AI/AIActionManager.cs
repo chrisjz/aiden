@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace AIden
@@ -7,7 +9,7 @@ namespace AIden
     public class AIActionManager : MonoBehaviour
     {
         // List of predefined actions
-        public enum ActionType
+        public enum BaseActionType
         {
             MoveForward,
             MoveBackward,
@@ -15,7 +17,7 @@ namespace AIden
             TurnRight
         }
 
-        public Dictionary<ActionType, AIAction> ActionMap = new Dictionary<ActionType, AIAction>();
+        public Dictionary<string, AIActionLink> ActionMap = new Dictionary<string, AIActionLink>(StringComparer.OrdinalIgnoreCase);
 
         public PlayerInputs aiInputs;
         public ThirdPersonController aiThirdPersonController;
@@ -25,10 +27,10 @@ namespace AIden
         private void Start()
         {
             // Initialize action mappings with name and description
-            ActionMap[ActionType.MoveForward] = new AIAction("Move Forward", "Move forward");
-            ActionMap[ActionType.MoveBackward] = new AIAction("Move Backward", "Move backward");
-            ActionMap[ActionType.TurnLeft] = new AIAction("Turn Left", "Turn left");
-            ActionMap[ActionType.TurnRight] = new AIAction("Turn Right", "Turn right");
+            AddOrUpdateAction(BaseActionType.MoveForward.ToString().ToLower(), new AIAction("Move Forward", "Move forward"));
+            AddOrUpdateAction(BaseActionType.MoveBackward.ToString().ToLower(), new AIAction("Move Backward", "Move backward"));
+            AddOrUpdateAction(BaseActionType.TurnLeft.ToString().ToLower(), new AIAction("Turn Left", "Turn left"));
+            AddOrUpdateAction(BaseActionType.TurnRight.ToString().ToLower(), new AIAction("Turn Right", "Turn right"));
         }
 
         public void SetMoveDistance(float moveDistance)
@@ -37,30 +39,79 @@ namespace AIden
         }
 
         // Call an action based on the input
-        public void ExecuteAction(ActionType action)
+        public void ExecuteAction(string actionKey)
         {
-            if (ActionMap.ContainsKey(action))
+            // Normalize the action key to lowercase
+            actionKey = actionKey.ToLower();
+
+            if (ActionMap.TryGetValue(actionKey, out var action))
             {
-                // Map the AIAction to the actual movement logic
-                switch (action)
+                // Map predefined actions to movement logic
+                switch (actionKey)
                 {
-                    case ActionType.MoveForward:
+                    case "moveforward":
                         MoveForward();
                         break;
-                    case ActionType.MoveBackward:
+                    case "movebackward":
                         MoveBackward();
                         break;
-                    case ActionType.TurnLeft:
+                    case "turnleft":
                         TurnLeft();
                         break;
-                    case ActionType.TurnRight:
+                    case "turnright":
                         TurnRight();
+                        break;
+                    default:
+                        // Check for object-related actions                        
+                        if (action.target is not null && TryExecuteObjectAction(actionKey, action.target))
+                        {
+                            Debug.Log($"Executed object-related action: {actionKey}");
+                        }
+                        else
+                        {
+                            string errorMsg = $"Action {actionKey} is not defined in the ActionMap. Available actions: {string.Join(", ", ActionMap.Keys)}";
+                            Debug.LogError(errorMsg);
+                            throw new KeyNotFoundException(errorMsg);
+                        }
                         break;
                 }
             }
             else
             {
-                Debug.LogError($"Action {action} is not defined in the ActionMap.");
+                string errorMsg = $"Action {actionKey} is not defined in the ActionMap.";
+                Debug.LogError(errorMsg);
+                throw new KeyNotFoundException(errorMsg);
+            }
+        }
+
+        private bool TryExecuteObjectAction(string actionKey, GameObject target)
+        {
+            InteractObjectController interactObjectController = target.GetComponentInParent<InteractObjectController>();
+
+            if (interactObjectController != null)
+            {
+                return interactObjectController.TryPerformAction(actionKey);
+            }
+
+            Debug.LogError("Failed to execute object action");
+            return false;
+        }
+
+
+        // Add or update actions (for both predefined and object-specific actions)
+        public void AddOrUpdateAction(string actionKey, AIAction action, GameObject actionObject = null)
+        {
+            actionKey = actionKey.ToLower();
+            ActionMap[actionKey] = new AIActionLink(action, actionObject);
+        }
+
+        public void RemoveAction(string actionKey)
+        {
+            actionKey = actionKey.ToLower();
+            if (ActionMap.ContainsKey(actionKey))
+            {
+                ActionMap.Remove(actionKey);
+                Debug.Log($"Removed action: {actionKey}");
             }
         }
 
@@ -191,5 +242,18 @@ namespace AIden
                 yield return null;  // Wait for the next frame
             }
         }
+    }
+}
+
+[Serializable]
+public class AIActionLink
+{
+    public AIAction action;
+    public GameObject target;  // Optional
+
+    public AIActionLink(AIAction action, GameObject target = null)
+    {
+        this.action = action;
+        this.target = target;
     }
 }

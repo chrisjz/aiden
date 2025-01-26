@@ -37,7 +37,7 @@
     },
     "prefrontal": {
       "instruction": [
-        "Based on the sensory inputs provided, decide which action to take."
+        "Based on the sensory inputs provided, decide which action to take. Actions are separated by commas, and you must return an exact match."
       ]
     },
     "thalamus": {

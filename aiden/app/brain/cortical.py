@@ -3,6 +3,7 @@ from typing import Annotated, AsyncGenerator, Literal
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
+from langgraph.graph.state import CompiledStateGraph
 
 from aiden import logger
 from aiden.app.brain.memory.hippocampus import MemoryManager
@@ -121,17 +122,7 @@ def _has_speech_in_auditory_inputs(auditory_inputs: list[AuditoryInput]) -> bool
     )
 
 
-async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
-    """
-    Simulates the cortical region (cerebral cortex) by processing sensory inputs to determine
-    the AI's actions and thoughts.
-
-    Args:
-        request (CorticalRequest): The request containing sensory data and configuration.
-
-    Returns:
-        Generator: A generator yielding the AI's responses as a stream.
-    """
+def _deep_cortical_graph(sensory: Sensory) -> CompiledStateGraph:
     # Prepare graph
     graph_builder = StateGraph(CorticalState)
 
@@ -166,7 +157,7 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
 
         # Get language input in sensory_input
         language_input = None
-        for auditory_input in request.sensory.auditory:
+        for auditory_input in sensory.auditory:
             if auditory_input.type == AuditoryType.LANGUAGE and auditory_input.content:
                 language_input = auditory_input.content
                 logger.info(f"Language input: {language_input}")
@@ -283,7 +274,22 @@ async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
     graph_builder.add_edge("subconscious", END)
 
     # Compile graph
-    graph = graph_builder.compile()
+    return graph_builder.compile()
+
+
+async def process_cortical(request: CorticalRequest) -> AsyncGenerator:
+    """
+    Simulates the cortical region (cerebral cortex) by processing sensory inputs to determine
+    the AI's actions and thoughts.
+
+    Args:
+        request (CorticalRequest): The request containing sensory data and configuration.
+
+    Returns:
+        Generator: A generator yielding the AI's responses as a stream.
+    """
+    # Get cortical graph
+    graph = _deep_cortical_graph(request.sensory)
 
     # Get agent ID
     agent_id = getattr(request, "agent_id", "0")
